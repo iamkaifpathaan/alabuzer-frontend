@@ -243,6 +243,37 @@ function adminGuard(){
 }
 
 /* ===============================
+   📱 MOBILE SCROLL CARD EFFECT
+================================ */
+
+function mobileCardHighlight(){
+
+  if(window.innerWidth > 768) return;
+
+  const cards = document.querySelectorAll(".card");
+
+  const observer = new IntersectionObserver(entries => {
+
+    entries.forEach(entry => {
+
+      if(entry.isIntersecting){
+        entry.target.classList.add("active");
+      }else{
+        entry.target.classList.remove("active");
+      }
+
+    });
+
+  },{
+    threshold:0.6
+  });
+
+  cards.forEach(card => observer.observe(card));
+}
+
+document.addEventListener("DOMContentLoaded", mobileCardHighlight);
+
+/* ===============================
    ⚡ INIT
 ================================ */
 

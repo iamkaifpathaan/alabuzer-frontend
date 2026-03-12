@@ -66,16 +66,23 @@ button {
   <h3 id="title">Login</h3>
 
   <input id="name" placeholder="Name (signup only)" style="display:none;">
-  <input id="email" placeholder="Email">
+  <input id="email" type="email" placeholder="Email">
   <input id="password" placeholder="Password" type="password">
+  <input id="confirmPassword" placeholder="Confirm Password" type="password" style="display:none;">
   <input id="phone" placeholder="Phone (signup only)" style="display:none;">
 
   <button onclick="submitAuth()">Continue</button>
 
   <div class="toggle" onclick="toggleMode()">Switch to Signup</div>
+  <div style="text-align:center;margin-top:10px;color:#aaa;cursor:pointer"
+  onclick="navigateWithTransition('forgot.html')">
+
+Forgot Password?
 
 </div>
 
+</div>
+<script src="js/common.js"></script>
 <script>
 let isLogin = true;
 
@@ -85,6 +92,7 @@ function toggleMode() {
   document.getElementById("title").innerText = isLogin ? "Login" : "Signup";
   document.getElementById("name").style.display = isLogin ? "none" : "block";
   document.getElementById("phone").style.display = isLogin ? "none" : "block";
+  document.getElementById("confirmPassword").style.display = isLogin ? "none" : "block";
   document.querySelector(".toggle").innerText =
     isLogin ? "Switch to Signup" : "Switch to Login";
 }
@@ -92,6 +100,24 @@ function toggleMode() {
 async function submitAuth() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if(!emailPattern.test(email)){
+  alert("Please enter a valid email address");
+  return;
+  }
+
+  if(!isLogin && password !== confirmPassword){
+  alert("Passwords do not match");
+  return;
+  }
+
+  if(password.length < 6){
+  alert("Password must be at least 6 characters");
+  return;
+  }
 
   let url = "https://alabuzer-backend.onrender.com/api/auth/login";
   let body = { email, password };

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="preload" href="assets/video/hero-video.mp4" as="video" type="video/mp4">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Montserrat:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/global.css">
@@ -120,14 +121,12 @@ body {
 </header>
 <section class="hero-video">
 
-  <video autoplay muted loop playsinline preload="metadata"
-      poster="assets/hero-poster.jpg" class="bg-video">
-    <source src="assets/hero-video.mp4" type="video/mp4">
+  <video autoplay muted loop playsinline preload="auto"
+      poster="assets/hero-poster.png" class="bg-video">
+    <source src="assets/video/hero-video.mp4" type="video/mp4">
   </video>
 
   <div class="video-overlay">
-    <h1>Luxury Arabic Fragrances</h1>
-    <p>Crafted with timeless elegance</p>
     <button class="hero-btn" onclick="scrollToProducts()">
       Explore Collection
     </button>
