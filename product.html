@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="styles/global.css">
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Montserrat',sans-serif;
+  color:white;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 40px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.price {
+  color: var(--lux-gold);
+  font-size: 22px;
+  margin: 10px 0;
+}
+
+button {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+
+.back-btn {
+  padding: 14px 24px;
+  cursor: pointer;
+  color: var(--lux-gold);
+  font-size: 14px;
+}
+
+.qty-box{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:15px 0;
+}
+
+.qty-box button{
+  background:#111;
+  color:var(--lux-gold);
+  border:1px solid var(--lux-gold);
+  width:32px;
+  height:32px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.qty-box span{
+  min-width:20px;
+  text-align:center;
+  font-weight:600;
+}
+
+.wishlist-btn{
+  margin-top:12px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="nav-left">
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+  </div>
+
+  <div class="nav-center" onclick="goHome()">
+    AL-ABUZER PERFUMES
+  </div>
+
+  <div class="nav-right">
+    <div id="userArea" class="user-area">Login</div>
+    <div class="cart-icon" onclick="goToCart()">
+      🛒 <span id="cartCount">0</span>
+    </div>
+  </div>
+</header>
+
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu">
+  <div class="menu-close" onclick="toggleMenu()">✕</div>
+
+  <a href="#" onclick="goHome()">Home</a>
+
+  <div class="menu-item" onclick="toggleProducts()">
+    PRODUCTS <span id="arrow">▾</span>
+  </div>
+
+  <div id="productSubmenu" class="submenu">
+    <div onclick="goHome()">All Products</div>
+    <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+    <div onclick="filterCategory('Body Mist')">Body Mist</div>
+    <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+    <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
+    <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+    <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
+    <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
+    <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+  </div>
+
+  <a href="#" onclick="goToOrders()">Track My Order</a>
+  <a href="#" onclick="navigateWithTransition('contact.html')">
+  Contact Us
+</a>
+  <a href="#" onclick="navigateWithTransition('about.html')">About Us</a>
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+<div class="back-btn" onclick="goBack()">← Back</div>
+
+<div class="container">
+  <div>
+    <img id="pimg">
+  </div>
+
+  <div>
+    <h2 id="pname"></h2>
+    <div class="price" id="pprice"></div>
+    <p id="pdesc"></p>
+    <div id="cartControls"></div>
+    <button id="wishlistBtn" class="wishlist-btn" onclick="toggleWishlistCurrent()">
+  ♡ Add to Wishlist
+</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+  let currentProduct = null;
+/* =========================
+   LOAD PRODUCT
+========================= */
+
+async function loadProduct(){
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get("slug");
+
+  const res = await fetch("https://alabuzer-backend.onrender.com/api/products");
+  const data = await res.json();
+
+  const product = data.data.find(p => p.slug === slug);
+  if(!product) return;
+
+  document.getElementById("pimg").src = product.images?.[0];
+  document.getElementById("pname").innerText = product.name;
+  document.getElementById("pprice").innerText = "₹" + product.price;
+  document.getElementById("pdesc").innerText = product.description;
+
+  currentSlug = slug;
+currentProduct = product; // ⭐ CRITICAL FIX
+
+renderCartControls();
+updateWishlistButton();
+}
+
+loadProduct();
+
+/* =========================
+   RENDER CONTROLS (MASTER)
+========================= */
+
+function renderCartControls(){
+  const box = document.getElementById("cartControls");
+  if(!box || !currentProduct) return;
+
+  // ⭐ STOCK CHECK FIRST
+  const purchasable = isProductPurchasable(currentProduct);
+
+  if(!purchasable){
+    box.innerHTML = `
+      <button class="out-stock-btn" disabled>
+        Out of Stock
+      </button>
+    `;
+    return;
+  }
+
+  const item = getCartItem(currentSlug);
+
+  // ⭐ FIRST TIME STATE
+  if(!item){
+    box.innerHTML = `
+      <div class="qty-box">
+        <button onclick="changeTempQty(-1)">−</button>
+        <span id="tempQty">1</span>
+        <button onclick="changeTempQty(1)">+</button>
+      </div>
+      <button onclick="addFirstTime()" class="add-btn">
+        Add to Cart
+      </button>
+    `;
+    return;
+  }
+
+  // ⭐ CART CONTROL STATE
+  box.innerHTML = `
+    <div class="qty-box">
+      <button onclick="changeQty(-1)">−</button>
+      <span>${item.qty}</span>
+      <button onclick="changeQty(1)">+</button>
+    </div>
+  `;
+}
+/* =========================
+   FIRST ADD
+========================= */
+
+function addFirstTime(){
+  fetch("https://alabuzer-backend.onrender.com/api/products")
+    .then(r => r.json())
+    .then(data => {
+      const product = data.data.find(p => p.slug === currentSlug);
+      if(!product) return;
+
+      const qty = Math.max(1, selectedQty);
+      upsertCartItem(product, qty);
+      selectedQty = 1;
+      renderCartControls();
+      updateCartCount();
+    });
+}
+
+/* =========================
+   TEMP QTY (before add)
+========================= */
+
+function changeTempQty(delta){
+  selectedQty += delta;
+
+  if(selectedQty < 1) selectedQty = 1;
+  if(selectedQty > 20) selectedQty = 20;
+
+  const el = document.getElementById("tempQty");
+  if(el) el.innerText = selectedQty;
+}
+/* =========================
+   REAL CART QTY (LIVE)
+========================= */
+
+function changeQty(delta){
+  let cart = getCart();
+  const item = cart.find(i => i.slug === currentSlug);
+  if(!item) return;
+
+  item.qty += delta;
+
+  if(item.qty <= 0){
+    cart = cart.filter(i => i.slug !== currentSlug);
+    setCart(cart);
+    renderCartControls();
+    return;
+  }
+
+  setCart(cart);
+  renderCartControls();
+}
+
+function toggleWishlistCurrent(){
+
+  if(!currentProduct) return;
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if(!user){
+    alert("Please login to use wishlist ❤️");
+    navigateWithTransition("login.html");
+    return;
+  }
+
+  toggleWishlist(currentProduct); // from common.js
+  updateWishlistButton();
+}
+
+function updateWishlistButton(){
+
+  const btn = document.getElementById("wishlistBtn");
+  if(!btn || !currentSlug) return;
+
+  const active = isWishlisted(currentSlug);
+
+  if(active){
+    btn.classList.add("active");
+    btn.innerText = "♥ In Wishlist";
+  }else{
+    btn.classList.remove("active");
+    btn.innerText = "♡ Add to Wishlist";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateUserUI();
+  updateCartCount();
+});
+</script>
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+</body>
+<!-- ================= FOOTER ================= -->
+
+<footer class="site-footer">
+
+  <div class="footer-container">
+
+    <div>
+      <div class="footer-title">AL-ABUZER PERFUMES</div>
+      <div style="color:#aaa;font-size:14px;">
+        Premium Arabic fragrances crafted with timeless elegance.
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Customer Support</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('contact.html')">Contact Us</div>
+        <div onclick="navigateWithTransition('about.html')">About Us</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Policies</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('refund.html')">Refund Policy</div>
+        <div onclick="navigateWithTransition('terms.html')">Terms & Conditions</div>
+        <div onclick="navigateWithTransition('privacy.html')">Privacy Policy</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 AL-ABUZER PERFUMES. All rights reserved.
+  </div>
+
+</footer>
+</html>

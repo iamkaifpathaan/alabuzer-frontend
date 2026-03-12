@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="styles/global.css">
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us - AL-ABUZER</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:white;
+  font-family:'Montserrat',sans-serif;
+  background:#0b0b0b url('assets/arabic-pattern.png') center/cover fixed;
+}
+
+.about-wrapper{
+  max-width:1000px;
+  margin:auto;
+  padding:60px 20px;
+}
+
+.about-title{
+  font-size:30px;
+  color:var(--lux-gold);
+  margin-bottom:30px;
+  text-align:center;
+  letter-spacing:2px;
+}
+
+.about-section{
+  margin-bottom:40px;
+  line-height:1.8;
+  color:#ccc;
+}
+
+.highlight{
+  color:var(--lux-gold);
+  font-weight:600;
+}
+
+.mission-section{
+  margin-top:60px;
+  text-align:center;
+}
+
+.mission-title{
+  font-size:28px;
+  letter-spacing:2px;
+  margin-bottom:20px;
+  color:var(--lux-gold);
+}
+
+.mission-text{
+  max-width:800px;
+  margin:auto;
+  line-height:1.8;
+  color:#ccc;
+}
+
+.mission-divider{
+  width:120px;
+  height:1px;
+  background:var(--lux-gold);
+  margin:12px auto 30px;
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="nav-left">
+    <button class="back-home-btn" onclick="goBack()">←</button>
+  </div>
+
+  <div class="nav-center" onclick="goHome()">
+    AL-ABUZER PERFUMES
+  </div>
+
+  <div class="nav-right">
+    <div class="cart-icon" onclick="goToCart()">
+      🛒 <span id="cartCount">0</span>
+    </div>
+  </div>
+</header>
+
+<div class="about-wrapper">
+
+  <div class="about-title">
+    Our Story
+  </div>
+
+  <div class="about-section">
+    At <span class="highlight">AL-ABUZER PERFUMES</span>, we believe fragrance is more than just a scent — 
+    it is an identity, a memory, and an emotion.
+  </div>
+
+  <div class="about-section">
+    Inspired by the rich traditions of the Middle East, we craft luxurious Arabic fragrances 
+    that blend timeless oud, exotic florals, and deep musky notes.
+  </div>
+
+  <div class="about-section">
+    Every bottle is created with attention to detail, premium ingredients, 
+    and a passion for excellence.
+  </div>
+
+  <div class="about-section">
+    Our mission is simple:
+    <br><br>
+    <span class="highlight">To bring royal Arabic elegance into your everyday life.</span>
+  </div>
+  <!-- ================= MISSION ================= -->
+
+<div class="mission-section">
+
+  <div class="mission-title">OUR MISSION</div>
+  <div class="mission-divider"></div>
+
+  <div class="mission-text">
+    The mission of our company is to curate exceptional fragrances that enrich people’s lives,
+    capturing the essence of beauty, elegance, and individuality.
+    We blend artistry with science, utilizing expertise in perfumery to create unforgettable scent experiences.
+    With a commitment to quality, sustainability, and innovation,
+    AL-ABUZER PERFUMES strives to delight customers worldwide while fostering
+    a culture of creativity, integrity, and environmental responsibility.
+  </div>
+
+</div>
+
+<!-- ================= VISION ================= -->
+
+<div class="mission-section">
+
+  <div class="mission-title">OUR VISION</div>
+  <div class="mission-divider"></div>
+
+  <div class="mission-text">
+    AL-ABUZER PERFUMES envisions crafting fragrances that evoke emotions,
+    memories, and desires.
+    We aim to blend tradition with innovation, using high-quality natural ingredients
+    to create unique fragrances that resonate with diverse cultures and preferences.
+    Our vision is to connect individuals with the essence of nature,
+    offering an olfactory journey that inspires confidence, beauty, and self-expression.
+  </div>
+
+</div>
+</div>
+
+<script src="js/common.js"></script>
+
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+
+</body>
+</html>

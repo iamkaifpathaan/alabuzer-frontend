@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="styles/global.css">
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:white;
+  font-family:'Montserrat',sans-serif;
+}
+
+/* ===== layout ===== */
+
+.checkout-wrapper{
+  max-width:1200px;
+  margin:auto;
+  padding:30px 20px;
+  display:grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap:28px;
+}
+
+/* ===== cards ===== */
+
+.checkout-card{
+  background:#111;
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:12px;
+  padding:24px;
+}
+
+.section-title{
+  color:var(--lux-gold);
+  font-size:20px;
+  margin-bottom:18px;
+}
+
+/* ===== form ===== */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.form-grid input{
+  width:100%;
+  padding:12px;
+  background:#0b0b0b;
+  border:1px solid #333;
+  color:white;
+}
+
+.form-grid .full{
+  grid-column:1 / -1;
+}
+
+/* ===== order items ===== */
+
+.checkout-item{
+  display:flex;
+  gap:12px;
+  margin-bottom:14px;
+  border-bottom:1px solid #222;
+  padding-bottom:10px;
+}
+
+.checkout-item img{
+  width:60px;
+  height:60px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.total-box{
+  margin-top:18px;
+  font-size:18px;
+  color:var(--lux-gold);
+}
+
+#payBtn{
+  transition: all 0.3s ease;
+}
+
+/* ===== mobile ===== */
+
+@media (max-width: 768px){
+  .checkout-wrapper{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="nav-left">
+    <button class="back-home-btn" onclick="goBack()">←</button>
+  </div>
+
+  <div class="nav-center" onclick="goHome()">
+    AL-ABUZER PERFUMES
+  </div>
+
+  <div class="nav-right">
+    <div class="cart-icon" onclick="goToCart()">
+      🛒 <span id="cartCount">0</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+
+<div class="checkout-wrapper">
+
+  <!-- LEFT: ADDRESS -->
+  <div class="checkout-card">
+    <div class="section-title">Shipping Address</div>
+
+    <div class="form-grid">
+      <input id="name" placeholder="Full Name">
+      <input id="phone" placeholder="Phone">
+      <input id="addressLine" placeholder="Address">
+      <input id="city" placeholder="City">
+      <input id="state" placeholder="State">
+      <input id="pincode" placeholder="Pincode">
+    </div>
+  </div>
+
+  <!-- RIGHT: ORDER SUMMARY -->
+  <div class="checkout-card">
+    <div class="section-title">Order Summary</div>
+
+    <div id="checkoutItems"></div>
+    <div id="checkoutTotal" class="total-box"></div>
+
+    <div id="checkoutActions">
+
+  <button id="confirmBtn" class="add-btn" onclick="confirmDetails()">
+    Confirm Details
+  </button>
+
+  <button id="payBtn" class="add-btn" 
+          onclick="payWithRazorpay()" 
+          style="display:none;">
+    Pay Now
+  </button>
+
+  <div id="formError" 
+       style="color:#ff4d4d;font-size:13px;margin-top:10px;"></div>
+
+</div>
+  </div>
+
+</div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="js/common.js"></script>
+
+<script>
+
+/* =========================
+   LOAD CHECKOUT ITEMS
+========================= */
+
+function loadCheckout(){
+
+  const cart = getCart();
+  const box = document.getElementById("checkoutItems");
+  const totalBox = document.getElementById("checkoutTotal");
+
+  if(!cart.length){
+    box.innerHTML = "<p style='color:#aaa'>Cart is empty</p>";
+    totalBox.innerHTML = "";
+    document.getElementById("payBtn").disabled = true;
+    return;
+  }
+
+  let total = 0;
+  box.innerHTML = "";
+
+  cart.forEach(item=>{
+    if(!item.isFree){
+      total += item.price * item.qty;
+    }
+
+    const div = document.createElement("div");
+    div.className = "checkout-item";
+
+    div.innerHTML = `
+      <img src="${item.image}">
+      <div>
+        <div>${item.name}</div>
+        <div style="color:#aaa;font-size:13px">Qty: ${item.qty}</div>
+      </div>
+    `;
+
+    box.appendChild(div);
+  });
+
+  totalBox.innerText = "Total: ₹" + total;
+}
+
+
+/* =========================
+   ADDRESS ENGINE
+========================= */
+
+function getAddressForm(){
+
+  return {
+    name: document.getElementById("name").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    addressLine: document.getElementById("addressLine").value.trim(),
+    city: document.getElementById("city").value.trim(),
+    state: document.getElementById("state").value.trim(),
+    pincode: document.getElementById("pincode").value.trim()
+  };
+}
+
+function validateAddress(addr){
+
+  if(addr.name.length < 3) return false;
+  if(!/^[0-9]{10}$/.test(addr.phone)) return false;
+  if(addr.addressLine.length < 5) return false;
+  if(addr.city.length < 2) return false;
+  if(addr.state.length < 2) return false;
+  if(!/^[0-9]{6}$/.test(addr.pincode)) return false;
+
+  return true;
+}
+
+function validateCheckoutForm(){
+
+  const addr = getAddressForm();
+  const cart = getCart();
+
+  const valid =
+    addr.name.length > 2 &&
+    /^[0-9]{10}$/.test(addr.phone) &&
+    addr.addressLine.length > 5 &&
+    addr.city.length > 2 &&
+    addr.state.length > 2 &&
+    /^[0-9]{6}$/.test(addr.pincode) &&
+    cart.length > 0;
+
+  const btn = document.getElementById("payBtn");
+
+  if(btn){
+    btn.disabled = !valid;
+  }
+}
+
+function confirmDetails(){
+
+  const addr = getAddressForm();
+  const errorBox = document.getElementById("formError");
+
+  errorBox.innerText = "";
+
+  if(addr.name.length < 3){
+    errorBox.innerText = "Full name must be at least 3 characters";
+    return;
+  }
+
+  if(!/^[0-9]{10}$/.test(addr.phone)){
+    errorBox.innerText = "Enter valid 10 digit phone number";
+    return;
+  }
+
+  if(addr.addressLine.length < 5){
+    errorBox.innerText = "Address must be at least 5 characters";
+    return;
+  }
+
+  if(addr.city.length < 2){
+    errorBox.innerText = "Enter valid city";
+    return;
+  }
+
+  if(addr.state.length < 2){
+    errorBox.innerText = "Enter valid state";
+    return;
+  }
+
+  if(!/^[0-9]{6}$/.test(addr.pincode)){
+    errorBox.innerText = "Enter valid 6 digit pincode";
+    return;
+  }
+
+  // ✅ If all valid
+
+  document.getElementById("confirmBtn").style.display = "none";
+  document.getElementById("payBtn").style.display = "block";
+
+}
+
+
+/* =========================
+   PAYMENT ENGINE
+========================= */
+
+async function payWithRazorpay(){
+
+  const cart = getCart();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if(!user){
+    alert("Please login first");
+    navigateWithTransition("auth.html");
+    return;
+  }
+
+  const address = getAddressForm();
+
+  if(!validateAddress(address)){
+    alert("Please fill all details correctly");
+    return;
+  }
+
+  let total = 0;
+  cart.forEach(item=>{
+    if(!item.isFree){
+      total += item.price * item.qty;
+    }
+  });
+
+  try{
+
+    // 🔹 Step 1: Create Razorpay Order
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/payment/create-order",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ amount: total })
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+      alert("Payment initiation failed");
+      return;
+    }
+
+    // 🔹 Step 2: Open Razorpay
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: "INR",
+      name: "AL-ABUZER PERFUMES",
+      description: "Premium Arabic Fragrance",
+      order_id: data.orderId,
+
+      handler: async function(response){
+
+        try{
+
+          const token = localStorage.getItem("token");
+
+          // 🔐 Step 3: Verify Payment On Backend
+          const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment/verify",{
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":"Bearer " + token
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              items: cart,
+              shippingAddress: address
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if(verifyData.success){
+            localStorage.removeItem("cart");
+            alert("Payment successful 🎉");
+            navigateWithTransition("profile.html");
+          }else{
+            alert("Payment verification failed");
+          }
+
+        }catch(err){
+          console.error("Verification error:", err);
+          alert("Something went wrong");
+        }
+
+      },
+
+      theme:{
+        color:"#d4af37"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  }catch(err){
+    console.error(err);
+    alert("Payment failed. Try again.");
+  }
+}
+
+
+/* =========================
+   INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  updateCartCount();
+  loadCheckout();
+});
+
+</script>
+
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+<!-- ================= FOOTER ================= -->
+
+<footer class="site-footer">
+
+  <div class="footer-container">
+
+    <div>
+      <div class="footer-title">AL-ABUZER PERFUMES</div>
+      <div style="color:#aaa;font-size:14px;">
+        Premium Arabic fragrances crafted with timeless elegance.
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Customer Support</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('contact.html')">Contact Us</div>
+        <div onclick="navigateWithTransition('about.html')">About Us</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Policies</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('refund.html')">Refund Policy</div>
+        <div onclick="navigateWithTransition('terms.html')">Terms & Conditions</div>
+        <div onclick="navigateWithTransition('privacy.html')">Privacy Policy</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 AL-ABUZER PERFUMES. All rights reserved.
+  </div>
+
+</footer>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="styles/global.css">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<style>
+
+body{
+background:#0b0b0b;
+color:white;
+font-family:Montserrat;
+padding:40px;
+}
+
+.orders{
+display:flex;
+flex-direction:column;
+gap:20px;
+max-width:1000px;
+margin:auto;
+}
+
+.order{
+background:#111;
+border:1px solid rgba(212,175,55,0.25);
+padding:20px;
+border-radius:10px;
+}
+
+.order-head{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+color:#d4af37;
+}
+
+.order-items{
+margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+select{
+background:#0b0b0b;
+color:white;
+border:1px solid #444;
+padding:6px;
+}
+
+.order-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:20px 0;
+}
+
+.tab-btn{
+  background:#0b0b0b;
+  border:1px solid rgba(212,175,55,0.4);
+  color:#d4af37;
+  padding:6px 14px;
+  cursor:pointer;
+  border-radius:20px;
+  transition:0.25s;
+}
+
+.tab-btn:hover{
+  background:rgba(212,175,55,0.1);
+}
+
+.tab-btn.active{
+  background:#d4af37;
+  color:#000;
+}
+
+.admin-item-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:8px 0;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+.admin-item-img{
+  width:50px;
+  height:50px;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid rgba(212,175,55,0.3);
+}
+
+.admin-item-info{
+  flex:1;
+}
+
+.admin-item-total{
+  font-weight:600;
+  color:#d4af37;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div style="display:flex; justify-content:space-between; align-items:center;">
+  <h2>Admin Orders</h2>
+  <div class="order-tabs">
+
+  <button onclick="filterOrders('all')" class="tab-btn active">All</button>
+  <button onclick="filterOrders('placed')" class="tab-btn">Placed</button>
+  <button onclick="filterOrders('confirmed')" class="tab-btn">Confirmed</button>
+  <button onclick="filterOrders('shipped')" class="tab-btn">Shipped</button>
+  <button onclick="filterOrders('delivered')" class="tab-btn">Delivered</button>
+  <button onclick="filterOrders('cancelled')" class="tab-btn">Cancelled</button>
+
+</div>
+  <button class="back-home-btn" onclick="goHomePage()">← Home</button>
+</div>
+
+<div id="orders" class="orders"></div>
+<script src="js/common.js"></script>
+<script>
+  adminGuard();
+</script>
+<script>
+let allOrders = [];
+let currentFilter = "all";  
+const user = JSON.parse(localStorage.getItem("user"));
+
+if(!user || user.role !== "admin"){
+  window.location.href = "index.html";
+}
+
+async function loadOrders(){
+
+  try{
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/orders/all",{
+      headers:{
+        "Authorization":"Bearer " + token
+      }
+    });
+
+    const data = await res.json();
+
+    if(!data.success) return;
+
+    allOrders = data.orders;
+    renderOrders();
+
+  }catch(err){
+    console.error("ADMIN LOAD ERROR:", err);
+  }
+}
+
+function renderOrders(){
+
+  const container = document.getElementById("orders");
+  container.innerHTML = "";
+
+  let filtered = allOrders;
+
+  if(currentFilter !== "all"){
+    filtered = allOrders.filter(o => o.orderStatus === currentFilter);
+  }
+
+  if(filtered.length === 0){
+    container.innerHTML = "<p>No orders in this section</p>";
+    return;
+  }
+
+  filtered.forEach(order => {
+
+    const total = order.items.reduce((sum,i)=> sum + (i.price * i.qty),0);
+
+    const div = document.createElement("div");
+    div.className = "order";
+
+    div.innerHTML = `
+      <div class="order-head">
+        <span>Order #${order._id.slice(-6)}</span>
+        <span class="status-${order.orderStatus}">
+          ${order.orderStatus.toUpperCase()}
+        </span>
+      </div>
+
+      <div style="margin-top:10px;font-size:13px;color:#aaa;">
+        ${new Date(order.createdAt).toLocaleString()}
+      </div>
+
+      <div style="margin-top:10px;">
+        <strong>${order.shippingAddress?.name || "No Name"}</strong> |
+        ${order.shippingAddress?.phone || "No Phone"}<br>
+        ${order.shippingAddress?.addressLine || ""},
+        ${order.shippingAddress?.city || ""},
+        ${order.shippingAddress?.state || ""} -
+        ${order.shippingAddress?.pincode || ""}
+      </div>
+
+      <div class="order-items">
+        ${order.items.map(i => `
+  <div class="admin-item-row">
+    
+    <img src="${i.image}" class="admin-item-img">
+
+    <div class="admin-item-info">
+      <div>${i.name}</div>
+      <div style="font-size:12px;color:#aaa;">
+        ₹${i.price} × ${i.qty}
+      </div>
+    </div>
+
+    <div class="admin-item-total">
+      ₹${i.price * i.qty}
+    </div>
+
+  </div>
+`).join("")}
+      </div>
+
+      <div style="margin-top:8px;font-weight:600;color:#d4af37;">
+        Total: ₹${total}
+      </div>
+
+      <div style="margin-top:12px">
+        <select onchange="updateStatus('${order._id}',this.value)">
+          <option value="placed" ${order.orderStatus==="placed"?"selected":""}>placed</option>
+          <option value="confirmed" ${order.orderStatus==="confirmed"?"selected":""}>confirmed</option>
+          <option value="shipped" ${order.orderStatus==="shipped"?"selected":""}>shipped</option>
+          <option value="delivered" ${order.orderStatus==="delivered"?"selected":""}>delivered</option>
+          <option value="cancelled" ${order.orderStatus==="cancelled"?"selected":""}>cancelled</option>
+        </select>
+      </div>
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function filterOrders(status){
+
+  currentFilter = status;
+
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.classList.remove("active");
+  });
+
+  event.target.classList.add("active");
+
+  renderOrders();
+}
+
+function goHomePage(){
+  window.location.href = "index.html";
+}
+
+async function updateStatus(id,status){
+
+  const token = localStorage.getItem("token");
+
+await fetch(`https://alabuzer-backend.onrender.com/api/orders/status/${id}`,{
+  method:"PUT",
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer " + token
+  },
+    body:JSON.stringify({status})
+  });
+
+  loadOrders();
+}
+
+loadOrders();
+
+</script>
+
+</body>
+</html>

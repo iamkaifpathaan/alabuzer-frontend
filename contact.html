@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us - AL-ABUZER PERFUMES</title>
+<link rel="stylesheet" href="styles/global.css">
+
+<style>
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:white;
+  font-family:'Montserrat',sans-serif;
+}
+
+.social-links{
+  display:flex;
+  gap:14px;
+  margin-top:20px;
+}
+
+.social-links a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid rgba(212,175,55,0.4);
+  color:var(--lux-gold);
+  font-size:20px;
+  text-decoration:none;
+  transition:0.25s;
+}
+
+.social-links a:hover{
+  background:var(--lux-gold);
+  color:#000;
+}
+
+.contact-wrapper{
+  max-width:1000px;
+  margin:auto;
+  padding:50px 20px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:40px;
+}
+
+.section-title{
+  color:var(--lux-gold);
+  font-size:28px;
+  margin-bottom:20px;
+}
+
+.contact-info p{
+  color:#ccc;
+  margin-bottom:14px;
+  font-size:14px;
+}
+
+.contact-form input,
+.contact-form textarea{
+  width:100%;
+  padding:12px;
+  margin-bottom:14px;
+  background:#111;
+  border:1px solid #333;
+  color:white;
+  border-radius:6px;
+}
+
+.contact-form textarea{
+  min-height:120px;
+  resize:none;
+}
+
+.contact-btn{
+  background:var(--lux-gold);
+  color:#000;
+  border:none;
+  padding:14px;
+  width:100%;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:8px;
+}
+
+@media (max-width:768px){
+  .contact-wrapper{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<header class="header">
+  <div class="nav-left">
+    <button class="back-home-btn" onclick="goBack()">←</button>
+  </div>
+
+  <div class="nav-center" onclick="goHome()">
+    AL-ABUZER PERFUMES
+  </div>
+
+  <div class="nav-right">
+    <div class="cart-icon" onclick="goToCart()">
+      🛒 <span id="cartCount">0</span>
+    </div>
+  </div>
+</header>
+
+<div class="contact-wrapper">
+
+  <!-- LEFT SIDE -->
+  <div class="contact-info">
+    <div class="section-title">Get in Touch</div>
+
+    <p><strong>Email:</strong> support@alabuzer.com</p>
+    <p><strong>Phone:</strong> +91 8707873906</p>
+    <p><strong>Address:</strong> Kanpur, Uttar Pradesh, India</p>
+    <div style="margin-top:20px;font-weight:600;color:var(--lux-gold)">
+  Follow Us
+</div>
+
+<div class="social-links">
+
+  <a href="https://instagram.com/alabuzerperfumes" target="_blank">
+    <i class="fab fa-instagram"></i>
+  </a>
+
+  <a href="https://facebook.com/alabuzerperfumes" target="_blank">
+    <i class="fab fa-facebook-f"></i>
+  </a>
+
+</div>
+    <p style="margin-top:20px;">
+      We usually respond within 24 hours.
+    </p>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="contact-form">
+    <div class="section-title">Send Message</div>
+
+    <input placeholder="Your Name">
+    <input placeholder="Your Email">
+    <textarea placeholder="Your Message"></textarea>
+
+    <button class="contact-btn">Send Message</button>
+  </div>
+
+</div>
+
+<script src="js/common.js"></script>
+
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+
+</body>
+</html>

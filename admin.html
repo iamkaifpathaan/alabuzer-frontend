@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="styles/global.css">
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:white;
+  font-family:'Montserrat',sans-serif;
+}
+
+.admin-wrapper{
+  max-width:900px;
+  margin:auto;
+  padding:60px 20px;
+  text-align:center;
+}
+
+.admin-title{
+  font-size:28px;
+  color:var(--lux-gold);
+  margin-bottom:40px;
+  letter-spacing:2px;
+}
+
+.admin-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:28px;
+}
+
+.admin-card{
+  background:#111;
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:14px;
+  padding:40px 20px;
+  cursor:pointer;
+  transition:0.25s ease;
+}
+
+.admin-card:hover{
+  transform:translateY(-6px);
+  border-color:var(--lux-gold);
+  box-shadow:0 10px 30px rgba(212,175,55,0.15);
+}
+
+.admin-card h3{
+  color:var(--lux-gold);
+  margin-bottom:10px;
+}
+
+.admin-card p{
+  color:#aaa;
+  font-size:14px;
+}
+
+.logout-btn{
+  margin-top:40px;
+  background:#8b0000;
+  color:white;
+  border:none;
+  padding:12px 22px;
+  cursor:pointer;
+  border-radius:8px;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="nav-left">
+    <button class="back-home-btn" onclick="goHome()">←</button>
+  </div>
+
+  <div class="nav-center" onclick="goHome()">
+    AL-ABUZER PERFUMES
+  </div>
+
+  <div class="nav-right">
+    <div class="cart-icon" onclick="goHome()">
+      🏠
+    </div>
+  </div>
+</header>
+
+<div class="admin-wrapper">
+
+  <div class="admin-title">
+    Admin Dashboard
+  </div>
+
+  <div class="admin-grid">
+
+    <div class="admin-card" onclick="navigateWithTransition('admin-products.html')">
+      <h3>Manage Products</h3>
+      <p>Add, Edit, Delete & Control Stock</p>
+    </div>
+
+    <div class="admin-card" onclick="navigateWithTransition('admin-orders.html')">
+      <h3>Manage Orders</h3>
+      <p>View Orders & Update Status</p>
+    </div>
+
+    <!-- 👤 NEW PROFILE CARD -->
+    <div class="admin-card" onclick="navigateWithTransition('profile.html')">
+      <h3>My Profile</h3>
+      <p>Edit Name, View Personal Info</p>
+    </div>
+
+  </div>
+
+  <button class="logout-btn" onclick="logoutAdmin()">
+    Logout
+  </button>
+
+</div>
+
+<script src="js/common.js"></script>
+
+<script>
+
+/* =========================
+   🔐 ADMIN PROTECTION
+========================= */
+
+// use common.js helper
+const user = getUserSafe();
+
+if(!user || user.role !== "admin"){
+  navigateWithTransition("index.html");
+}
+
+/* =========================
+   🚪 LOGOUT
+========================= */
+
+function logoutAdmin(){
+  localStorage.removeItem("user");
+  navigateWithTransition("login.html");
+}
+
+updateCartCount();
+updateUserUI();
+
+</script>
+
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+<!-- ================= FOOTER ================= -->
+
+<footer class="site-footer">
+
+  <div class="footer-container">
+
+    <div>
+      <div class="footer-title">AL-ABUZER PERFUMES</div>
+      <div style="color:#aaa;font-size:14px;">
+        Premium Arabic fragrances crafted with timeless elegance.
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Customer Support</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('contact.html')">Contact Us</div>
+        <div onclick="navigateWithTransition('about.html')">About Us</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Policies</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('refund.html')">Refund Policy</div>
+        <div onclick="navigateWithTransition('terms.html')">Terms & Conditions</div>
+        <div onclick="navigateWithTransition('privacy.html')">Privacy Policy</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 AL-ABUZER PERFUMES. All rights reserved.
+  </div>
+
+</footer>
+</body>
+</html>

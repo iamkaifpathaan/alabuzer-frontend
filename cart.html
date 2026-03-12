@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="styles/global.css">
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Montserrat',sans-serif;
+  color:white;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+.item {
+  display: flex;
+  gap: 15px;
+  border-bottom: 1px solid #333;
+  padding: 15px 0;
+}
+
+.item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.price {
+  color: var(--lux-gold);
+}
+
+.remove {
+  color: red;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.total {
+  font-size: 22px;
+  margin-top: 20px;
+  color: var(--lux-gold);
+}
+
+
+h2 {
+  letter-spacing: 1px;
+}
+
+.back-btn {
+  padding: 14px 24px;
+  cursor: pointer;
+  color: var(--lux-gold);
+  font-size: 14px;
+}
+
+.qty-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:6px;
+}
+
+.qty-controls button{
+  background:#111;
+  color:var(--lux-gold);
+  border:1px solid var(--lux-gold);
+  width:26px;
+  height:26px;
+  cursor:pointer;
+}
+
+.free-label{
+  color:#888;
+  font-size:13px;
+  margin-top:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="nav-left">
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+  </div>
+
+  <div class="nav-center" onclick="goHome()">
+    AL-ABUZER PERFUMES
+  </div>
+
+  <div class="nav-right">
+    <div id="userArea" class="user-area">Login</div>
+    <div class="cart-icon" onclick="goToCart()">
+      🛒 <span id="cartCount">0</span>
+    </div>
+  </div>
+</header>
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu">
+  <div class="menu-close" onclick="toggleMenu()">✕</div>
+
+  <a href="#" onclick="goHome()">Home</a>
+
+  <div class="menu-item" onclick="toggleProducts()">
+    PRODUCTS <span id="arrow">▾</span>
+  </div>
+
+  <div id="productSubmenu" class="submenu">
+    <div onclick="goHome()">All Products</div>
+    <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+    <div onclick="filterCategory('Body Mist')">Body Mist</div>
+    <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+    <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
+    <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+    <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
+    <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
+    <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+  </div>
+
+  <a href="#" onclick="goToOrders()">Track My Order</a>
+  <a href="#" onclick="navigateWithTransition('contact.html')">
+  Contact Us
+</a>
+  <a href="#" onclick="navigateWithTransition('about.html')">About Us</a>
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+<div class="back-btn" onclick="goBack()">← Back</div>
+
+<div class="container">
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+  <div class="total" id="cartTotal"></div>
+  <button class="add-btn" onclick="goToCheckout()">
+  Proceed to Checkout
+</button>
+</div>
+<script src="js/common.js"></script>
+<script>
+
+const FREE_TESTER = {
+  slug: "free-tester",
+  name: "Free Tester",
+  price: 0,
+  image: "https://dummyimage.com/80x80/111/fff&text=Tester",
+  qty: 1,
+  isFree: true
+};
+
+/* ===============================
+   LOAD CART
+=============================== */
+
+function loadCart(){
+
+  let cart = getCart();
+  const user = getUserSafe();
+
+  const container = document.getElementById("cartItems");
+  const totalBox = document.getElementById("cartTotal");
+
+  container.innerHTML = "";
+
+  // ⭐ FREE TESTER LOGIC
+  const realItems = cart.filter(i => i.slug !== "free-tester");
+  const hasTester = cart.some(i => i.slug === "free-tester");
+
+  if(user && realItems.length > 0 && !hasTester){
+    cart.push({...FREE_TESTER});
+    setCart(cart);
+  }
+
+  if((!user || realItems.length === 0) && hasTester){
+    cart = cart.filter(i => i.slug !== "free-tester");
+    setCart(cart);
+  }
+
+  if(cart.length === 0){
+    container.innerHTML = "<p>Your cart is empty 🛒</p>";
+    totalBox.innerText = "";
+    return;
+  }
+
+  let total = 0;
+
+  cart.forEach((item, index)=>{
+
+    if(!item.isFree){
+      total += item.price * item.qty;
+    }
+
+    const div = document.createElement("div");
+    div.className = "item";
+
+    div.innerHTML = `
+      <img src="${item.image}">
+      <div>
+        <div>${item.name}</div>
+
+        ${
+          item.isFree
+          ? `<div class="free-label">Qty: ${item.qty}</div>`
+          : `<div class="qty-controls">
+                <button onclick="changeCartQty(${index},-1)">−</button>
+                <span>${item.qty}</span>
+                <button onclick="changeCartQty(${index},1)">+</button>
+             </div>`
+        }
+
+        <div class="price">₹${item.price}</div>
+      </div>
+
+      ${
+        item.isFree
+        ? `<div style="color:#888">Free Item</div>`
+        : `<div class="remove" onclick="removeItem(${index})">Remove</div>`
+      }
+    `;
+
+    container.appendChild(div);
+  });
+
+  totalBox.innerText = "Total: ₹" + total;
+}
+
+/* ===============================
+   QTY CHANGE
+=============================== */
+
+function changeCartQty(index, change){
+
+  let cart = getCart();
+
+  if(!cart[index]) return;
+
+  cart[index].qty += change;
+
+  if(cart[index].qty <= 0){
+    cart.splice(index,1);
+  }
+
+  setCart(cart);
+  loadCart();
+}
+
+/* ===============================
+   REMOVE ITEM
+=============================== */
+
+function removeItem(index){
+
+  let cart = getCart();
+  cart.splice(index,1);
+
+  setCart(cart);
+  loadCart();
+}
+
+/* ===============================
+   CHECKOUT GUARD
+=============================== */
+
+function goToCheckout(){
+
+  const user = getUserSafe();
+
+  if(!user){
+    navigateWithTransition("login.html?redirect=checkout");
+    return;
+  }
+
+  const realItems = getCart().filter(i => !i.isFree);
+
+  if(!realItems.length){
+    alert("Your cart is empty");
+    return;
+  }
+
+  navigateWithTransition("checkout.html");
+}
+
+/* ===============================
+   INIT
+=============================== */
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  updateCartCount();
+  updateUserUI();
+  loadCart();
+});
+
+</script>
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+<!-- ================= FOOTER ================= -->
+
+<footer class="site-footer">
+
+  <div class="footer-container">
+
+    <div>
+      <div class="footer-title">AL-ABUZER PERFUMES</div>
+      <div style="color:#aaa;font-size:14px;">
+        Premium Arabic fragrances crafted with timeless elegance.
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Customer Support</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('contact.html')">Contact Us</div>
+        <div onclick="navigateWithTransition('about.html')">About Us</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Policies</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('refund.html')">Refund Policy</div>
+        <div onclick="navigateWithTransition('terms.html')">Terms & Conditions</div>
+        <div onclick="navigateWithTransition('privacy.html')">Privacy Policy</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 AL-ABUZER PERFUMES. All rights reserved.
+  </div>
+
+</footer>
+</body>
+</html>

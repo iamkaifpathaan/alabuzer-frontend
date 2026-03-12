@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account - AL-ABUZER</title>
+<link rel="stylesheet" href="styles/global.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= LAYOUT FIX ================= */
+
+html, body{
+  height:100%;
+}
+
+body{
+  margin:0;
+  font-family:'Montserrat',sans-serif;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  background:#0b0b0b;
+}
+
+.main-wrapper{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:40px 15px;
+}
+
+/* ================= AUTH BOX ================= */
+
+.auth-box{
+  width:100%;
+  max-width:400px;
+  background:var(--lux-card);
+  padding:32px 28px;
+  border:1px solid var(--lux-border);
+  border-radius:12px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+
+.title{
+  text-align:center;
+  color:var(--lux-gold);
+  margin-bottom:25px;
+  letter-spacing:2px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  background:#0b0b0b;
+  border:1px solid #333;
+  color:white;
+  border-radius:6px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  background:var(--lux-gold);
+  color:#000;
+  border:none;
+  margin-top:12px;
+  font-weight:600;
+  cursor:pointer;
+  border-radius:8px;
+  transition:0.25s ease;
+}
+
+button:hover{
+  background:#e6c65a;
+}
+
+.switch{
+  text-align:center;
+  margin-top:15px;
+  font-size:14px;
+  color:#aaa;
+  cursor:pointer;
+}
+
+.back-home-btn{
+  margin-bottom:20px;
+  background:none;
+  border:none;
+  color:var(--lux-gold);
+  cursor:pointer;
+  font-size:14px;
+}
+
+/* ================= FOOTER FIX ================= */
+
+.site-footer .footer-container{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:30px;
+}
+
+@media (max-width:768px){
+  .site-footer .footer-container{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
+}
+
+@media (max-width:480px){
+  .auth-box{
+    padding:25px 18px;
+  }
+}
+
+/* ================= TRANSITION ================= */
+
+.page-transition{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.35s ease;
+}
+
+.page-transition.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.logo-text{
+  color:var(--lux-gold);
+  font-size:28px;
+  letter-spacing:4px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="main-wrapper">
+  <div class="auth-box">
+
+    <button class="back-home-btn" onclick="goHome()">← Back to Home</button>
+
+    <h2 class="title">AL-ABUZER PERFUMES</h2>
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+      <input id="loginEmail" placeholder="Email">
+      <input id="loginPass" type="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <div class="switch" onclick="showSignup()">Create new account</div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupBox" style="display:none">
+      <input id="name" placeholder="Full Name">
+      <input id="email" placeholder="Email">
+      <input id="phone" placeholder="Phone">
+      <input id="pass" type="password" placeholder="Password">
+      <button onclick="signup()">Create Account</button>
+      <div class="switch" onclick="showLogin()">Already have account</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+
+// Toggle
+function showSignup(){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("signupBox").style.display="block";
+}
+
+function showLogin(){
+  document.getElementById("signupBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
+}
+
+// LOGIN
+async function login(){
+  const email=document.getElementById("loginEmail").value;
+  const password=document.getElementById("loginPass").value;
+
+  const res=await fetch("https://alabuzer-backend.onrender.com/api/auth/login",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ email,password })
+  });
+
+  const data=await res.json();
+
+  if(data.success){
+    localStorage.setItem("user",JSON.stringify(data.user));
+
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
+
+    if(redirect === "checkout"){
+      navigateWithTransition("checkout.html");
+    }else if(redirect === "cart"){
+      navigateWithTransition("cart.html");
+    }else{
+      navigateWithTransition("index.html");
+    }
+
+  }else{
+    alert(data.message || "Login failed");
+  }
+}
+
+// SIGNUP
+async function signup(){
+  const name=document.getElementById("name").value;
+  const email=document.getElementById("email").value;
+  const phone=document.getElementById("phone").value;
+  const password=document.getElementById("pass").value;
+
+  const res=await fetch("https://alabuzer-backend.onrender.com/api/auth/signup",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ name,email,phone,password })
+  });
+
+  const data=await res.json();
+
+  if(data.success){
+    alert("Account created 🎉 Please login");
+    showLogin();
+  }else{
+    alert(data.message || "Signup failed");
+  }
+}
+
+</script>
+
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.jpeg" class="transition-logo">
+</div>
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-title">AL-ABUZER PERFUMES</div>
+      <div style="color:#aaa;font-size:14px;">
+        Premium Arabic fragrances crafted with timeless elegance.
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Customer Support</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('contact.html')">Contact Us</div>
+        <div onclick="navigateWithTransition('about.html')">About Us</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Policies</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('refund.html')">Refund Policy</div>
+        <div onclick="navigateWithTransition('terms.html')">Terms & Conditions</div>
+        <div onclick="navigateWithTransition('privacy.html')">Privacy Policy</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 AL-ABUZER PERFUMES. All rights reserved.
+  </div>
+</footer>
+
+</body>
+</html>
