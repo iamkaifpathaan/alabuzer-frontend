@@ -71,7 +71,6 @@ margin:5px;
 
 <input id="name" placeholder="Name">
 <input id="price" placeholder="Price">
-<input id="slug" placeholder="Slug (unique name)">
 <textarea id="description" placeholder="Description"></textarea>
 <input id="stock" type="number" placeholder="Stock Quantity">
 <input id="image" placeholder="Image URL">
@@ -125,6 +124,7 @@ div.innerHTML=`
 <div>${p.name}</div>
 <div>₹${p.price}</div>
 
+<button onclick="editProduct('${p._id}','${p.name}',${p.price})">Edit</button>
 <button onclick="deleteProduct('${p._id}')">Delete</button>
 
 `;
@@ -144,20 +144,17 @@ async function addProduct(){
   const description = document.getElementById("description").value;
   const stock = Number(document.getElementById("stock").value);
 
-  const slug = name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
 
-  await fetch("https://alabuzer-backend.onrender.com/api/products",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
+const token = localStorage.getItem("token");
+
+await fetch("https://alabuzer-backend.onrender.com/api/products",{
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer " + token
+  },
     body:JSON.stringify({
       name,
-      slug,
       price,
       description,
       stock,
@@ -183,8 +180,38 @@ function goHomePage(){
 
 async function deleteProduct(id){
 
+const token = localStorage.getItem("token");
+
 await fetch(`https://alabuzer-backend.onrender.com/api/products/${id}`,{
-method:"DELETE"
+  method:"DELETE",
+  headers:{
+    "Authorization":"Bearer " + token
+  }
+});
+
+loadProducts();
+
+}
+
+async function editProduct(id,name,price){
+
+const newName = prompt("Edit product name:", name);
+const newPrice = prompt("Edit price:", price);
+
+if(!newName || !newPrice) return;
+
+const token = localStorage.getItem("token");
+
+await fetch(`https://alabuzer-backend.onrender.com/api/products/${id}`,{
+  method:"PUT",
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer " + token
+  },
+  body:JSON.stringify({
+    name:newName,
+    price:Number(newPrice)
+  })
 });
 
 loadProducts();

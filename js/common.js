@@ -34,6 +34,7 @@ function upsertCartItem(product, qty){
   if(!product || !product.slug) return;
 
   qty = Number(qty) || 1;
+  qty = Math.max(1, Math.min(qty, 10));
 
   let cart = getCart();
   const existing = cart.find(i => i.slug === product.slug);
@@ -43,9 +44,6 @@ function upsertCartItem(product, qty){
   } else {
     cart.push({
       slug: product.slug,
-      name: product.name,
-      price: product.price,
-      image: product.images?.[0],
       qty
     });
   }

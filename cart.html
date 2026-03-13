@@ -165,7 +165,7 @@ const FREE_TESTER = {
    LOAD CART
 =============================== */
 
-function loadCart(){
+async function loadCart(){
 
   let cart = getCart();
   const user = getUserSafe();
@@ -175,19 +175,7 @@ function loadCart(){
 
   container.innerHTML = "";
 
-  // ⭐ FREE TESTER LOGIC
-  const realItems = cart.filter(i => i.slug !== "free-tester");
-  const hasTester = cart.some(i => i.slug === "free-tester");
-
-  if(user && realItems.length > 0 && !hasTester){
-    cart.push({...FREE_TESTER});
-    setCart(cart);
-  }
-
-  if((!user || realItems.length === 0) && hasTester){
-    cart = cart.filter(i => i.slug !== "free-tester");
-    setCart(cart);
-  }
+  let total = 0;
 
   if(cart.length === 0){
     container.innerHTML = "<p>Your cart is empty 🛒</p>";
@@ -195,44 +183,54 @@ function loadCart(){
     return;
   }
 
-  let total = 0;
+  // 🔹 fetch products
+  for(let index = 0; index < cart.length; index++){
 
-  cart.forEach((item, index)=>{
+  const item = cart[index];
 
-    if(!item.isFree){
-      total += item.price * item.qty;
-    }
+  if(item.slug === "free-tester"){
+    continue;
+  }
 
-    const div = document.createElement("div");
-    div.className = "item";
+  const res = await fetch(`https://alabuzer-backend.onrender.com/api/products/${item.slug}`);
+  const data = await res.json();
 
-    div.innerHTML = `
-      <img src="${item.image}">
-      <div>
-        <div>${item.name}</div>
+  if(!data.success) continue;
 
-        ${
-          item.isFree
-          ? `<div class="free-label">Qty: ${item.qty}</div>`
-          : `<div class="qty-controls">
-                <button onclick="changeCartQty(${index},-1)">−</button>
-                <span>${item.qty}</span>
-                <button onclick="changeCartQty(${index},1)">+</button>
-             </div>`
-        }
+  const product = data.data;
 
-        <div class="price">₹${item.price}</div>
+  if(!product) continue;
+
+  const price = product.discountPrice || product.price;
+
+  total += price * item.qty;
+
+  const div = document.createElement("div");
+  div.className = "item";
+
+  div.innerHTML = `
+    <img src="${product.images?.[0] || 'https://dummyimage.com/80'}">
+    <div>
+      <div>${product.name}</div>
+
+      <div class="qty-controls">
+        <button onclick="changeCartQty(${index},-1)">−</button>
+        <span>${item.qty}</span>
+        <button onclick="changeCartQty(${index},1)">+</button>
       </div>
 
-      ${
-        item.isFree
-        ? `<div style="color:#888">Free Item</div>`
-        : `<div class="remove" onclick="removeItem(${index})">Remove</div>`
-      }
-    `;
+      <div class="price">₹${price}</div>
+    </div>
 
-    container.appendChild(div);
-  });
+    <div class="remove" onclick="removeItem(${index})">Remove</div>
+  `;
+
+  container.appendChild(div);
+};
+
+if(container.innerHTML === ""){
+  container.innerHTML = "<p>Your cart is empty 🛒</p>";
+}
 
   totalBox.innerText = "Total: ₹" + total;
 }

@@ -177,7 +177,7 @@ body{
    LOAD CHECKOUT ITEMS
 ========================= */
 
-function loadCheckout(){
+async function loadCheckout(){
 
   const cart = getCart();
   const box = document.getElementById("checkoutItems");
@@ -193,24 +193,36 @@ function loadCheckout(){
   let total = 0;
   box.innerHTML = "";
 
-  cart.forEach(item=>{
-    if(!item.isFree){
-      total += item.price * item.qty;
+  for(const item of cart){
+
+    if(item.slug === "free-tester"){
+      continue;
     }
+
+    const res = await fetch(`https://alabuzer-backend.onrender.com/api/products/${item.slug}`);
+    const data = await res.json();
+
+    if(!data.success) continue;
+
+    const product = data.data;
+
+    const price = product.discountPrice || product.price;
+
+    total += price * item.qty;
 
     const div = document.createElement("div");
     div.className = "checkout-item";
 
     div.innerHTML = `
-      <img src="${item.image}">
+      <img src="${product.images?.[0] || 'https://dummyimage.com/60'}">
       <div>
-        <div>${item.name}</div>
+        <div>${product.name}</div>
         <div style="color:#aaa;font-size:13px">Qty: ${item.qty}</div>
       </div>
     `;
 
     box.appendChild(div);
-  });
+  }
 
   totalBox.innerText = "Total: ₹" + total;
 }
@@ -332,20 +344,19 @@ async function payWithRazorpay(){
     return;
   }
 
-  let total = 0;
-  cart.forEach(item=>{
-    if(!item.isFree){
-      total += item.price * item.qty;
-    }
-  });
-
   try{
 
     // 🔹 Step 1: Create Razorpay Order
+    const token = localStorage.getItem("token");
     const res = await fetch("https://alabuzer-backend.onrender.com/api/payment/create-order",{
       method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ amount: total })
+      headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + token
+     },
+      body: JSON.stringify({
+      items: cart.filter(i => i.slug)
+      })
     });
 
     const data = await res.json();
@@ -367,8 +378,14 @@ async function payWithRazorpay(){
       handler: async function(response){
 
         try{
-
+          console.log("TOKEN:", token);
           const token = localStorage.getItem("token");
+
+           if(!token){
+           alert("Please login again");
+           navigateWithTransition("login.html");
+           return;
+          }
 
           // 🔐 Step 3: Verify Payment On Backend
           const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment/verify",{

@@ -208,7 +208,8 @@ async function login(){
   const data=await res.json();
 
   if(data.success){
-    localStorage.setItem("user",JSON.stringify(data.user));
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get("redirect");
