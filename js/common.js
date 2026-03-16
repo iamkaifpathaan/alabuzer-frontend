@@ -105,14 +105,28 @@ function goToLogin(){ navigateWithTransition("login.html"); }
 function goToProfile(){ navigateWithTransition("profile.html"); }
 
 function goBack(){
+
   const t = document.getElementById("pageTransition");
 
-  if (t){
-    t.classList.add("active");
-    setTimeout(() => history.back(), 450);
-  } else {
+  if(!t){
     history.back();
+    return;
   }
+
+  t.classList.add("active");
+
+  setTimeout(()=>{
+
+    const ref = document.referrer;
+
+    if(ref){
+      window.location.href = ref;
+    }else{
+      window.location.href = "index.html";
+    }
+
+  },400);
+
 }
 
 function goToOrders(){
@@ -278,4 +292,9 @@ document.addEventListener("DOMContentLoaded", mobileCardHighlight);
 document.addEventListener("DOMContentLoaded", () => {
   updateCartCount();
   updateUserUI();
+});
+
+window.addEventListener("pageshow", () => {
+  const t = document.getElementById("pageTransition");
+  if(t) t.classList.remove("active");
 });

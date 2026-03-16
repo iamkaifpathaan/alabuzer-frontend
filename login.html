@@ -160,12 +160,19 @@ button:hover{
     <h2 class="title">AL-ABUZER PERFUMES</h2>
 
     <!-- LOGIN -->
-    <div id="loginBox">
-      <input id="loginEmail" placeholder="Email">
-      <input id="loginPass" type="password" placeholder="Password">
-      <button onclick="login()">Login</button>
-      <div class="switch" onclick="showSignup()">Create new account</div>
-    </div>
+<div id="loginBox">
+  <input id="loginEmail" placeholder="Email">
+  <input id="loginPass" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <div style="text-align:center;margin-top:10px;color:#aaa;cursor:pointer"
+  onclick="navigateWithTransition('forgot.html')">
+  Forgot Password?
+  </div>
+
+  <div class="switch" onclick="showSignup()">Create new account</div>
+</div>
 
     <!-- SIGNUP -->
 <div id="signupBox" style="display:none">
@@ -234,7 +241,13 @@ async function signup(){
   const name=document.getElementById("name").value;
   const email=document.getElementById("email").value;
   const phone=document.getElementById("phone").value;
-  const password=document.getElementById("pass").value;
+const password=document.getElementById("pass").value;
+const confirm=document.getElementById("confirmPass").value;
+
+if(password !== confirm){
+  alert("Passwords do not match");
+  return;
+}
 
   const res=await fetch("https://alabuzer-backend.onrender.com/api/auth/signup",{
     method:"POST",
