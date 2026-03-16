@@ -137,22 +137,26 @@ container.appendChild(div);
 
 async function addProduct(){
 
-  const name = document.getElementById("name").value;
+  const name = document.getElementById("name").value.trim();
   const price = Number(document.getElementById("price").value);
-  const image = document.getElementById("image").value;
+  const image = document.getElementById("image").value.trim();
   const category = document.getElementById("category").value;
-  const description = document.getElementById("description").value;
+  const description = document.getElementById("description").value.trim();
   const stock = Number(document.getElementById("stock").value);
 
+  if(!name || !price || !image || !category){
+    alert("Please fill all required fields");
+    return;
+  }
 
-const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-await fetch("https://alabuzer-backend.onrender.com/api/products",{
-  method:"POST",
-  headers:{
-    "Content-Type":"application/json",
-    "Authorization":"Bearer " + token
-  },
+  const res = await fetch("https://alabuzer-backend.onrender.com/api/products",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + token
+    },
     body:JSON.stringify({
       name,
       price,
@@ -164,7 +168,15 @@ await fetch("https://alabuzer-backend.onrender.com/api/products",{
     })
   });
 
-  // Clear form after adding
+  const data = await res.json();
+
+  if(!data.success){
+    alert(data.error || "Product add failed");
+    return;
+  }
+
+  alert("Product added successfully");
+
   document.getElementById("name").value="";
   document.getElementById("price").value="";
   document.getElementById("image").value="";
