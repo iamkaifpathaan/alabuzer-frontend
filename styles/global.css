@@ -154,6 +154,39 @@ html{
   padding: 18px 32px;
   background: #000;
   border-bottom: 1px solid rgba(212,175,55,0.35);
+  backdrop-filter: blur(6px);
+}
+
+.brand-main{
+  font-family:'Cinzel', serif;
+  font-size:20px;
+  letter-spacing:2px;
+  color:var(--lux-gold);
+  display:block;
+}
+
+.brand-sub{
+  font-family:'Montserrat', sans-serif;
+  font-size:10px;
+  letter-spacing:6px;
+  color:#aaa;
+  display:block;
+  margin-top:2px;
+}
+
+.brand-logo{
+  width:28px;
+  height:28px;
+  object-fit:cover;
+  border-radius:50%;
+  margin-right:8px;
+}
+
+.footer-logo{
+  width:36px;
+  height:36px;
+  object-fit:cover;
+  border-radius:50%;
 }
 
 .nav-center {
@@ -163,6 +196,12 @@ html{
   font-size: 22px;
   letter-spacing: 2px;
   cursor: pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  line-height:1.1;
+  flex-direction:column;
 }
 
 .nav-right {
@@ -338,8 +377,15 @@ button:hover {
 .transition-logo{
   width:120px;
   height:auto;
-  opacity:0.9;
-  animation:logoFade 1s ease;
+  opacity:0;
+  transform:scale(0.8);
+  transition:all 0.5s ease;
+  filter: drop-shadow(0 0 12px rgba(212,175,55,0.6));
+}
+
+.page-transition.active .transition-logo{
+  opacity:1;
+  transform:scale(1.2);
 }
 
 @keyframes logoFade{

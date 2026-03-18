@@ -19,6 +19,13 @@ function getCart(){
   }
 }
 
+function resetTransition(){
+  const t = document.getElementById("pageTransition");
+  if(!t) return;
+
+  t.classList.remove("active");
+}
+
 function setCart(cart){
   if(!Array.isArray(cart)) cart = [];
   localStorage.setItem("cart", JSON.stringify(cart));
@@ -92,6 +99,12 @@ function navigateWithTransition(url) {
     return;
   }
 
+  // clean start
+  t.classList.remove("active");
+
+  // 💥 force reflow so animation retriggers
+  void t.offsetWidth;
+
   t.classList.add("active");
 
   setTimeout(() => {
@@ -105,28 +118,7 @@ function goToLogin(){ navigateWithTransition("login.html"); }
 function goToProfile(){ navigateWithTransition("profile.html"); }
 
 function goBack(){
-
-  const t = document.getElementById("pageTransition");
-
-  if(!t){
-    history.back();
-    return;
-  }
-
-  t.classList.add("active");
-
-  setTimeout(()=>{
-
-    const ref = document.referrer;
-
-    if(ref){
-      window.location.href = ref;
-    }else{
-      window.location.href = "index.html";
-    }
-
-  },400);
-
+  window.history.back();
 }
 
 function goToOrders(){
@@ -292,9 +284,9 @@ document.addEventListener("DOMContentLoaded", mobileCardHighlight);
 document.addEventListener("DOMContentLoaded", () => {
   updateCartCount();
   updateUserUI();
+  resetTransition();
 });
 
-window.addEventListener("pageshow", () => {
-  const t = document.getElementById("pageTransition");
-  if(t) t.classList.remove("active");
+window.addEventListener("pageshow", function() {
+  resetTransition();
 });
