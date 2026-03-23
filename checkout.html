@@ -114,7 +114,7 @@ body{
   </div>
 
 <div class="nav-center" onclick="goHome()">
-  <img src="assets/logo/logo.jpeg" class="brand-logo">
+  <img src="assets/logo/logo.svg" class="brand-logo">
   <div>
     <div class="brand-main">AL-ABUZER</div>
     <div class="brand-sub">PERFUMES</div>
@@ -178,7 +178,7 @@ body{
 <script>
 
 /* =========================
-   LOAD CHECKOUT ITEMS
+   LOAD CHECKOUT (FAST + SAFE)
 ========================= */
 
 async function loadCheckout(){
@@ -190,54 +190,60 @@ async function loadCheckout(){
   if(!cart.length){
     box.innerHTML = "<p style='color:#aaa'>Cart is empty</p>";
     totalBox.innerHTML = "";
-    document.getElementById("payBtn").disabled = true;
     return;
   }
 
   let total = 0;
   box.innerHTML = "";
 
-  for(const item of cart){
+  try{
 
-    if(item.slug === "free-tester"){
-      continue;
-    }
+    const responses = await Promise.all(
+      cart.map(item =>
+        fetch(`https://alabuzer-backend.onrender.com/api/products/${item.slug}`)
+          .then(r => r.json())
+          .catch(()=>null)
+      )
+    );
 
-    const res = await fetch(`https://alabuzer-backend.onrender.com/api/products/${item.slug}`);
-    const data = await res.json();
+    responses.forEach((data, index) => {
 
-    if(!data.success) continue;
+      if(!data || !data.success) return;
 
-    const product = data.data;
+      const product = data.data;
+      const item = cart[index];
 
-    const price = product.discountPrice || product.price;
+      const price = product.discountPrice || product.price;
+      total += price * item.qty;
 
-    total += price * item.qty;
+      const div = document.createElement("div");
+      div.className = "checkout-item";
 
-    const div = document.createElement("div");
-    div.className = "checkout-item";
+      div.innerHTML = `
+        <img src="${product.images?.[0] || 'https://dummyimage.com/60'}">
+        <div>
+          <div>${product.name}</div>
+          <div style="color:#aaa;font-size:13px">Qty: ${item.qty}</div>
+        </div>
+      `;
 
-    div.innerHTML = `
-      <img src="${product.images?.[0] || 'https://dummyimage.com/60'}">
-      <div>
-        <div>${product.name}</div>
-        <div style="color:#aaa;font-size:13px">Qty: ${item.qty}</div>
-      </div>
-    `;
+      box.appendChild(div);
 
-    box.appendChild(div);
+    });
+
+    totalBox.innerText = "Total: ₹" + total;
+
+  }catch(err){
+    console.error(err);
+    box.innerHTML = "<p>Failed to load checkout</p>";
   }
-
-  totalBox.innerText = "Total: ₹" + total;
 }
 
-
 /* =========================
-   ADDRESS ENGINE
+   ADDRESS
 ========================= */
 
 function getAddressForm(){
-
   return {
     name: document.getElementById("name").value.trim(),
     phone: document.getElementById("phone").value.trim(),
@@ -249,37 +255,19 @@ function getAddressForm(){
 }
 
 function validateAddress(addr){
-
-  if(addr.name.length < 3) return false;
-  if(!/^[0-9]{10}$/.test(addr.phone)) return false;
-  if(addr.addressLine.length < 5) return false;
-  if(addr.city.length < 2) return false;
-  if(addr.state.length < 2) return false;
-  if(!/^[0-9]{6}$/.test(addr.pincode)) return false;
-
-  return true;
-}
-
-function validateCheckoutForm(){
-
-  const addr = getAddressForm();
-  const cart = getCart();
-
-  const valid =
-    addr.name.length > 2 &&
+  return (
+    addr.name.length >= 3 &&
     /^[0-9]{10}$/.test(addr.phone) &&
-    addr.addressLine.length > 5 &&
-    addr.city.length > 2 &&
-    addr.state.length > 2 &&
-    /^[0-9]{6}$/.test(addr.pincode) &&
-    cart.length > 0;
-
-  const btn = document.getElementById("payBtn");
-
-  if(btn){
-    btn.disabled = !valid;
-  }
+    addr.addressLine.length >= 5 &&
+    addr.city.length >= 2 &&
+    addr.state.length >= 2 &&
+    /^[0-9]{6}$/.test(addr.pincode)
+  );
 }
+
+/* =========================
+   CONFIRM
+========================= */
 
 function confirmDetails(){
 
@@ -288,89 +276,65 @@ function confirmDetails(){
 
   errorBox.innerText = "";
 
-  if(addr.name.length < 3){
-    errorBox.innerText = "Full name must be at least 3 characters";
+  if(!validateAddress(addr)){
+    errorBox.innerText = "Please fill all details correctly";
     return;
   }
-
-  if(!/^[0-9]{10}$/.test(addr.phone)){
-    errorBox.innerText = "Enter valid 10 digit phone number";
-    return;
-  }
-
-  if(addr.addressLine.length < 5){
-    errorBox.innerText = "Address must be at least 5 characters";
-    return;
-  }
-
-  if(addr.city.length < 2){
-    errorBox.innerText = "Enter valid city";
-    return;
-  }
-
-  if(addr.state.length < 2){
-    errorBox.innerText = "Enter valid state";
-    return;
-  }
-
-  if(!/^[0-9]{6}$/.test(addr.pincode)){
-    errorBox.innerText = "Enter valid 6 digit pincode";
-    return;
-  }
-
-  // ✅ If all valid
 
   document.getElementById("confirmBtn").style.display = "none";
   document.getElementById("payBtn").style.display = "block";
-
 }
 
-
 /* =========================
-   PAYMENT ENGINE
+   PAYMENT (FINAL FIXED)
 ========================= */
 
 async function payWithRazorpay(){
 
   const cart = getCart();
-  const user = JSON.parse(localStorage.getItem("user"));
+const token = localStorage.getItem("token");
 
-  if(!user){
-    alert("Please login first");
-    navigateWithTransition("auth.html");
-    return;
-  }
+if(!token || token === "null" || token === "undefined"){
+  alert("Session expired. Please login again.");
+  localStorage.clear();
+  navigateWithTransition("login.html?redirect=checkout");
+  return;
+}
 
   const address = getAddressForm();
 
   if(!validateAddress(address)){
-    alert("Please fill all details correctly");
+    alert("Please fill details correctly");
     return;
   }
 
   try{
 
-    // 🔹 Step 1: Create Razorpay Order
-    const token = localStorage.getItem("token");
+    // 🔹 CREATE ORDER
     const res = await fetch("https://alabuzer-backend.onrender.com/api/payment/create-order",{
       method:"POST",
       headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer " + token
-     },
-      body: JSON.stringify({
-      items: cart.filter(i => i.slug)
-      })
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ items: cart })
     });
+
+    if(res.status === 401){
+    alert("Session expired. Please login again.");
+    localStorage.clear();
+    navigateWithTransition("login.html?redirect=checkout");
+    return;
+    }
 
     const data = await res.json();
 
     if(!data.success){
-      alert("Payment initiation failed");
+      alert(data.message || "Payment initiation failed");
       return;
     }
 
-    // 🔹 Step 2: Open Razorpay
+    // 🔹 RAZORPAY
     const options = {
       key: data.key,
       amount: data.amount,
@@ -382,62 +346,57 @@ async function payWithRazorpay(){
       handler: async function(response){
 
         try{
-          console.log("TOKEN:", token);
-          const token = localStorage.getItem("token");
 
-           if(!token){
-           alert("Please login again");
-           navigateWithTransition("login.html");
-           return;
-          }
+const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment/verify",{
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer " + token
+  },
+  body: JSON.stringify({
+    razorpay_order_id: response.razorpay_order_id,
+    razorpay_payment_id: response.razorpay_payment_id,
+    razorpay_signature: response.razorpay_signature,
+    items: cart,
+    shippingAddress: address
+  })
+});
 
-          // 🔐 Step 3: Verify Payment On Backend
-          const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment/verify",{
-            method:"POST",
-            headers:{
-              "Content-Type":"application/json",
-              "Authorization":"Bearer " + token
-            },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              items: cart,
-              shippingAddress: address
-            })
-          });
+// 🔥 HANDLE TOKEN EXPIRE
+if(verifyRes.status === 401){
+  alert("Session expired. Please login again.");
+  localStorage.clear();
+  navigateWithTransition("login.html?redirect=checkout");
+  return;
+}
 
-          const verifyData = await verifyRes.json();
+const verifyData = await verifyRes.json();
 
           if(verifyData.success){
             localStorage.removeItem("cart");
             alert("Payment successful 🎉");
             navigateWithTransition("profile.html");
           }else{
-            alert("Payment verification failed");
+            alert(verifyData.message || "Payment verification failed");
           }
 
         }catch(err){
-          console.error("Verification error:", err);
-          alert("Something went wrong");
+          console.error(err);
+          alert("Payment verification failed");
         }
 
       },
 
-      theme:{
-        color:"#d4af37"
-      }
+      theme:{ color:"#d4af37" }
     };
 
-    const rzp = new Razorpay(options);
-    rzp.open();
+    new Razorpay(options).open();
 
   }catch(err){
     console.error(err);
     alert("Payment failed. Try again.");
   }
 }
-
 
 /* =========================
    INIT
@@ -451,7 +410,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 </script>
 
 <div id="pageTransition" class="page-transition">
-  <img src="assets/logo/logo.jpeg" class="transition-logo">
+  <img src="assets/logo/logo.svg" class="transition-logo">
 </div>
 <!-- ================= FOOTER ================= -->
 
@@ -460,8 +419,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
   <div class="footer-container">
 
     <div>
-      <div style="display:flex;align-items:center;gap:10px;">
-  <img src="assets/logo/logo.jpeg" class="footer-logo">
+      <div class="footer-brand">
+  <img src="assets/logo/logo.svg" class="footer-logo">
   <div class="footer-title">AL-ABUZER PERFUMES</div>
 </div>
       <div style="color:#aaa;font-size:14px;">

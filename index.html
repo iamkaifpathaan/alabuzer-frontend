@@ -105,7 +105,7 @@ body {
   </div>
 
 <div class="nav-center" onclick="goHome()">
-  <img src="assets/logo/logo.jpeg" class="brand-logo">
+  <img src="assets/logo/logo.svg" class="brand-logo">
   <div>
     <div class="brand-main">AL-ABUZER</div>
     <div class="brand-sub">PERFUMES</div>
@@ -259,17 +259,18 @@ let allProducts = [];
 async function loadProducts(){
   const container = document.getElementById("products");
 
-  container.innerHTML = `
+container.innerHTML = `
   <div class="loading-text" style="
+    grid-column: 1 / -1;
     text-align:center;
     color:var(--lux-gold);
-    padding:60px;
+    padding:80px 20px;
     font-size:18px;
     letter-spacing:1px;
   ">
     Loading Collection...
   </div>
-  `;
+`;
 
   try{
 
@@ -421,29 +422,77 @@ function renderProducts(products) {
   const params = new URLSearchParams(window.location.search);
   const category = params.get("category");
 
-  products.forEach((p, index) => {
+  // ✅ CASE 1: CATEGORY SELECTED → OLD BEHAVIOUR
+  if(category){
 
-    const card = document.createElement("div");
+    products.forEach((p, index) => {
 
-    let categoryClass = getCategoryClass(p.category);
+      const card = document.createElement("div");
 
-    // 🔥 Special rule: Bakhoor first product full width
-    if(category === "Bakhoor" && index === 0){
-      categoryClass = "card-hero";
+      let categoryClass = getCategoryClass(p.category);
+
+      if(category === "Bakhoor" && index === 0){
+        categoryClass = "card-hero";
+      }
+
+      card.className = "card " + categoryClass;
+
+      card.innerHTML = `
+        <div onclick="openProduct('${p.slug}')">
+          <img src="${p.images?.[0]}" />
+          <div class="name">${p.name}</div>
+          <div class="price">₹${p.price}</div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    return;
+  }
+
+  // ✅ CASE 2: ALL PRODUCTS → CATEGORY GROUPING
+
+  const grouped = {};
+
+  products.forEach(p => {
+    if(!grouped[p.category]){
+      grouped[p.category] = [];
     }
+    grouped[p.category].push(p);
+  });
 
-    card.className = "card " + categoryClass;
+  Object.keys(grouped).forEach(cat => {
 
-    card.innerHTML = `
-      <div onclick="openProduct('${p.slug}')" style="cursor:pointer">
-        <img loading="lazy" src="${p.images?.[0] || 'https://dummyimage.com/300'}" />
-        <div class="name">${p.name}</div>
-        <div class="price">₹${p.price}</div>
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    const items = grouped[cat];
+
+    section.innerHTML = `
+      <div class="category-header">
+        <div class="category-title">${cat}</div>
+        <div class="show-more" onclick="filterCategory('${cat}')">
+          Show More →
+        </div>
+      </div>
+
+      <div class="grid">
+        ${items.slice(0,4).map(p => `
+          <div class="card ${getCategoryClass(p.category)}">
+            <div onclick="openProduct('${p.slug}')">
+              <img src="${p.images?.[0]}" />
+              <div class="name">${p.name}</div>
+              <div class="price">₹${p.price}</div>
+            </div>
+          </div>
+        `).join("")}
       </div>
     `;
 
-    container.appendChild(card);
+    container.appendChild(section);
   });
+
 }
 
 function getCategoryClass(category){
@@ -595,7 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 <div id="pageTransition" class="page-transition">
-  <img src="assets/logo/logo.jpeg" class="transition-logo">
+  <img src="assets/logo/logo.svg" class="transition-logo">
 </div>
 <!-- ================= FOOTER ================= -->
 
@@ -604,8 +653,8 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="footer-container">
 
     <div>
-      <div style="display:flex;align-items:center;gap:10px;">
-  <img src="assets/logo/logo.jpeg" class="footer-logo">
+      <div class="footer-brand">
+  <img src="assets/logo/logo.svg" class="footer-logo">
   <div class="footer-title">AL-ABUZER PERFUMES</div>
 </div>
       <div style="color:#aaa;font-size:14px;">

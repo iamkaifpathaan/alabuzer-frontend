@@ -98,7 +98,7 @@ h2 {
   </div>
 
 <div class="nav-center" onclick="goHome()">
-  <img src="assets/logo/logo.jpeg" class="brand-logo">
+  <img src="assets/logo/logo.svg" class="brand-logo">
   <div>
     <div class="brand-main">AL-ABUZER</div>
     <div class="brand-sub">PERFUMES</div>
@@ -156,103 +156,94 @@ h2 {
 <script src="js/common.js"></script>
 <script>
 
-const FREE_TESTER = {
-  slug: "free-tester",
-  name: "Free Tester",
-  price: 0,
-  image: "https://dummyimage.com/80x80/111/fff&text=Tester",
-  qty: 1,
-  isFree: true
-};
-
-/* ===============================
-   LOAD CART
-=============================== */
-
 async function loadCart(){
 
-  let cart = getCart();
-  const user = getUserSafe();
-
+  const cart = getCart();
   const container = document.getElementById("cartItems");
   const totalBox = document.getElementById("cartTotal");
 
   container.innerHTML = "";
-
   let total = 0;
 
-  if(cart.length === 0){
+  if(!cart.length){
     container.innerHTML = "<p>Your cart is empty 🛒</p>";
     totalBox.innerText = "";
     return;
   }
 
-  // 🔹 fetch products
-  for(let index = 0; index < cart.length; index++){
+  try{
 
-  const item = cart[index];
+    // 🔥 fetch all products parallel (FAST)
+    const responses = await Promise.all(
+      cart.map(item =>
+        fetch(`https://alabuzer-backend.onrender.com/api/products/${item.slug}`)
+          .then(res => res.json())
+          .catch(()=>null)
+      )
+    );
 
-  if(item.slug === "free-tester"){
-    continue;
+    responses.forEach((data, index) => {
+
+      if(!data || !data.success) return;
+
+      const product = data.data;
+      const item = cart[index];
+
+      const price = product.discountPrice || product.price;
+      total += price * item.qty;
+
+      const div = document.createElement("div");
+      div.className = "item";
+
+      div.innerHTML = `
+        <img src="${product.images?.[0] || 'https://dummyimage.com/80'}">
+
+        <div>
+          <div>${product.name}</div>
+
+          <div class="qty-controls">
+            <button onclick="changeCartQty('${item.slug}',-1)">−</button>
+            <span>${item.qty}</span>
+            <button onclick="changeCartQty('${item.slug}',1)">+</button>
+          </div>
+
+          <div class="price">₹${price}</div>
+        </div>
+
+        <div class="remove" onclick="removeItem('${item.slug}')">Remove</div>
+      `;
+
+      container.appendChild(div);
+
+    });
+
+    if(container.innerHTML === ""){
+      container.innerHTML = "<p>Your cart is empty 🛒</p>";
+    }
+
+    totalBox.innerText = "Total: ₹" + total;
+
+  }catch(err){
+    console.error(err);
+    container.innerHTML = "<p>Failed to load cart</p>";
   }
-
-  const res = await fetch(`https://alabuzer-backend.onrender.com/api/products/${item.slug}`);
-  const data = await res.json();
-
-  if(!data.success) continue;
-
-  const product = data.data;
-
-  if(!product) continue;
-
-  const price = product.discountPrice || product.price;
-
-  total += price * item.qty;
-
-  const div = document.createElement("div");
-  div.className = "item";
-
-  div.innerHTML = `
-    <img src="${product.images?.[0] || 'https://dummyimage.com/80'}">
-    <div>
-      <div>${product.name}</div>
-
-      <div class="qty-controls">
-        <button onclick="changeCartQty(${index},-1)">−</button>
-        <span>${item.qty}</span>
-        <button onclick="changeCartQty(${index},1)">+</button>
-      </div>
-
-      <div class="price">₹${price}</div>
-    </div>
-
-    <div class="remove" onclick="removeItem(${index})">Remove</div>
-  `;
-
-  container.appendChild(div);
-};
-
-if(container.innerHTML === ""){
-  container.innerHTML = "<p>Your cart is empty 🛒</p>";
-}
-
-  totalBox.innerText = "Total: ₹" + total;
 }
 
 /* ===============================
-   QTY CHANGE
+   QTY CHANGE (SAFE VERSION)
 =============================== */
 
-function changeCartQty(index, change){
+function changeCartQty(slug, change){
 
   let cart = getCart();
 
-  if(!cart[index]) return;
+  const item = cart.find(i => i.slug === slug);
+  if(!item) return;
 
-  cart[index].qty += change;
+  item.qty += change;
 
-  if(cart[index].qty <= 0){
-    cart.splice(index,1);
+  if(item.qty <= 0){
+    cart = cart.filter(i => i.slug !== slug);
   }
 
   setCart(cart);
@@ -260,20 +251,20 @@ function changeCartQty(index, change){
 }
 
 /* ===============================
-   REMOVE ITEM
+   REMOVE ITEM (SAFE)
 =============================== */
 
-function removeItem(index){
+function removeItem(slug){
 
   let cart = getCart();
-  cart.splice(index,1);
+  cart = cart.filter(i => i.slug !== slug);
 
   setCart(cart);
   loadCart();
 }
 
 /* ===============================
-   CHECKOUT GUARD
+   CHECKOUT
 =============================== */
 
 function goToCheckout(){
@@ -285,9 +276,9 @@ function goToCheckout(){
     return;
   }
 
-  const realItems = getCart().filter(i => !i.isFree);
+  const cart = getCart();
 
-  if(!realItems.length){
+  if(!cart.length){
     alert("Your cart is empty");
     return;
   }
@@ -307,7 +298,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 </script>
 <div id="pageTransition" class="page-transition">
-  <img src="assets/logo/logo.jpeg" class="transition-logo">
+  <img src="assets/logo/logo.svg" class="transition-logo">
 </div>
 <!-- ================= FOOTER ================= -->
 
@@ -316,8 +307,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
   <div class="footer-container">
 
     <div>
-      <div style="display:flex;align-items:center;gap:10px;">
-  <img src="assets/logo/logo.jpeg" class="footer-logo">
+      <div class="footer-brand">
+  <img src="assets/logo/logo.svg" class="footer-logo">
   <div class="footer-title">AL-ABUZER PERFUMES</div>
 </div>
       <div style="color:#aaa;font-size:14px;">

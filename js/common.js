@@ -99,17 +99,18 @@ function navigateWithTransition(url) {
     return;
   }
 
-  // clean start
+  // reset first
   t.classList.remove("active");
 
-  // 💥 force reflow so animation retriggers
+  // force reflow
   void t.offsetWidth;
 
+  // trigger animation
   t.classList.add("active");
 
   setTimeout(() => {
     window.location.href = url;
-  }, 450);
+  }, 500); // little smoother
 }
 
 function goHome(){ navigateWithTransition("index.html"); }
@@ -269,7 +270,7 @@ function mobileCardHighlight(){
     });
 
   },{
-    threshold:0.6
+    threshold:0.3
   });
 
   cards.forEach(card => observer.observe(card));
@@ -284,9 +285,17 @@ document.addEventListener("DOMContentLoaded", mobileCardHighlight);
 document.addEventListener("DOMContentLoaded", () => {
   updateCartCount();
   updateUserUI();
-  resetTransition();
 });
 
-window.addEventListener("pageshow", function() {
-  resetTransition();
+window.addEventListener("pageshow", function(event) {
+
+  const t = document.getElementById("pageTransition");
+
+  if (!t) return;
+
+  // 🔥 only reset when coming from history (back button)
+  if (event.persisted || performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
+    t.classList.remove("active");
+  }
+
 });

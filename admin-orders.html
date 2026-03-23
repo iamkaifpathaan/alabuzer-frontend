@@ -131,6 +131,15 @@ padding:6px;
   adminGuard();
 </script>
 <script>
+
+const statusFlow = {
+  placed: ["confirmed","cancelled"],
+  confirmed: ["shipped","cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: []
+};
+
 let allOrders = [];
 let currentFilter = "all";  
 const user = JSON.parse(localStorage.getItem("user"));
@@ -233,7 +242,28 @@ function renderOrders(){
       </div>
 
       <div style="margin-top:12px">
-        <select onchange="updateStatus('${order._id}',this.value)">
+<select 
+  onchange="updateStatus('${order._id}',this.value)"
+  ${["delivered","cancelled"].includes(order.orderStatus) ? "disabled" : ""}
+>
+
+  <option value="${order.orderStatus}">
+    ${order.orderStatus}
+  </option>
+
+  ${
+    {
+      placed: ["confirmed","cancelled"],
+      confirmed: ["shipped","cancelled"],
+      shipped: ["delivered"],
+      delivered: [],
+      cancelled: []
+    }[order.orderStatus]
+    .map(s => `<option value="${s}">${s}</option>`)
+    .join("")
+  }
+
+</select>
           <option value="placed" ${order.orderStatus==="placed"?"selected":""}>placed</option>
           <option value="confirmed" ${order.orderStatus==="confirmed"?"selected":""}>confirmed</option>
           <option value="shipped" ${order.orderStatus==="shipped"?"selected":""}>shipped</option>
@@ -270,16 +300,24 @@ async function updateStatus(id,status){
 
   const token = localStorage.getItem("token");
 
-await fetch(`https://alabuzer-backend.onrender.com/api/orders/status/${id}`,{
-  method:"PUT",
-  headers:{
-    "Content-Type":"application/json",
-    "Authorization":"Bearer " + token
-  },
+  await fetch(`https://alabuzer-backend.onrender.com/api/orders/status/${id}`,{
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + token
+    },
     body:JSON.stringify({status})
   });
 
-  loadOrders();
+  // ✅ update local state instead of reload
+  allOrders = allOrders.map(o => {
+    if(o._id === id){
+      return {...o, orderStatus: status};
+    }
+    return o;
+  });
+
+  renderOrders();
 }
 
 loadOrders();
