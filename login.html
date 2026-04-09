@@ -359,7 +359,9 @@ button:hover{
   <input maxlength="1">
 </div>
 
-<button class="verify-btn" onclick="verifyOtp()">Verify & Continue</button>
+<button id="verifyBtn" class="verify-btn" onclick="verifyOtp()" disabled>
+  Verify & Continue
+</button>
 
   <button id="sendBtn" class="primary-btn" onclick="sendOtp()">
     Send OTP
@@ -371,49 +373,7 @@ button:hover{
 <script src="js/common.js"></script>
 <script>
 
-// Toggle
-function showSignup(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("signupBox").style.display="block";
-}
-
-function showLogin(){
-  document.getElementById("signupBox").style.display="none";
-  document.getElementById("loginBox").style.display="block";
-}
-
 // LOGIN
-async function login(){
-  const email=document.getElementById("loginEmail").value;
-  const password=document.getElementById("loginPass").value;
-
-  const res=await fetch("https://alabuzer-backend.onrender.com/api/auth/login",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ email,password })
-  });
-
-  const data=await res.json();
-
-  if(data.success){
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    const params = new URLSearchParams(window.location.search);
-    const redirect = params.get("redirect");
-
-    if(redirect === "checkout"){
-      navigateWithTransition("checkout.html");
-    }else if(redirect === "cart"){
-      navigateWithTransition("cart.html");
-    }else{
-      navigateWithTransition("index.html");
-    }
-
-  }else{
-    alert(data.message || "Login failed");
-  }
-}
 
 const otpInputs = document.querySelectorAll(".otp-container input");
 
@@ -435,14 +395,10 @@ async function sendOtp(){
 
   const phone = document.getElementById("phone").value;
 
-  if(phone.length !== 10){
-    alert("Enter valid mobile number");
+  if(!phone || phone.length !== 10){
+    alert("Enter valid phone number");
     return;
   }
-
-  const btn = document.getElementById("sendBtn");
-  btn.innerText = "Sending...";
-  btn.disabled = true;
 
   const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/send-login-otp",{
     method:"POST",
@@ -453,28 +409,34 @@ async function sendOtp(){
   const data = await res.json();
 
   if(data.success){
-    document.getElementById("otpBox").style.display = "block";
-    btn.innerText = "OTP Sent";
+
+    document.getElementById("otpBox").style.display = "flex";
+    document.getElementById("verifyBtn").disabled = false;
+
+    startTimer();
+
+    alert("OTP Sent ✅");
+
   }else{
-    btn.innerText = "Send OTP";
-    btn.disabled = false;
-    alert("Failed to send OTP");
+    alert(data.message || "Failed to send OTP");
   }
 }
-
-let timer = 30;
 
 function startTimer(){
   const btn = document.getElementById("sendBtn");
 
-  const interval = setInterval(()=>{
-    timer--;
-    btn.innerText = "Wait " + timer + "s";
+  btn.disabled = true;
 
-    if(timer <= 0){
+  let t = 30;
+
+  const interval = setInterval(()=>{
+    t--;
+    btn.innerText = "Wait " + t + "s";
+
+    if(t <= 0){
       clearInterval(interval);
       btn.innerText = "Send OTP";
-      timer = 30;
+      btn.disabled = false;
     }
   },1000);
 }
@@ -482,7 +444,14 @@ function startTimer(){
 async function verifyOtp(){
 
   const phone = document.getElementById("phone").value;
-  const otp = document.getElementById("otp").value;
+
+  let otp = "";
+  document.querySelectorAll("#otpBox input").forEach(i => otp += i.value);
+
+  if(otp.length !== 6){
+    alert("Enter full OTP");
+    return;
+  }
 
   const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/verify-login-otp",{
     method:"POST",
@@ -497,19 +466,11 @@ async function verifyOtp(){
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
-const params = new URLSearchParams(window.location.search);
-const redirect = params.get("redirect");
-
-if(redirect === "checkout"){
-  navigateWithTransition("checkout.html");
-}else{
-  navigateWithTransition("index.html");
-}
+    navigateWithTransition("index.html");
 
   }else{
-    alert(data.message);
+    alert(data.message || "Invalid OTP");
   }
-
 }
 
 </script>
