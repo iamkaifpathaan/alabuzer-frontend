@@ -161,32 +161,17 @@ button:hover{
 
     <!-- LOGIN -->
 <div id="loginBox">
-  <input id="loginEmail" placeholder="Email">
-  <input id="loginPass" type="password" placeholder="Password">
+<input id="phone" placeholder="Enter Mobile Number">
 
-  <button onclick="login()">Login</button>
-
-  <div style="text-align:center;margin-top:10px;color:#aaa;cursor:pointer"
-  onclick="navigateWithTransition('forgot.html')">
-  Forgot Password?
-  </div>
-
-  <div class="switch" onclick="showSignup()">Create new account</div>
+<div id="otpBox" style="display:none">
+  <input id="otp" placeholder="Enter OTP">
+  <button onclick="verifyOtp()">Verify OTP</button>
 </div>
 
-    <!-- SIGNUP -->
-<div id="signupBox" style="display:none">
-  <input id="name" placeholder="Full Name">
-  <input id="email" placeholder="Email">
-  <input id="phone" placeholder="Phone">
-  <input id="pass" type="password" placeholder="Password">
-  <input id="confirmPass" type="password" placeholder="Confirm Password">
+<button id="sendBtn" onclick="sendOtp()">Send OTP</button>
 
-  <button onclick="signup()">Create Account</button>
-  <div class="switch" onclick="showLogin()">Already have account</div>
 </div>
-
-  </div>
+</div>
 </div>
 
 <script src="js/common.js"></script>
@@ -236,33 +221,74 @@ async function login(){
   }
 }
 
-// SIGNUP
-async function signup(){
-  const name=document.getElementById("name").value;
-  const email=document.getElementById("email").value;
-  const phone=document.getElementById("phone").value;
-const password=document.getElementById("pass").value;
-const confirm=document.getElementById("confirmPass").value;
+async function sendOtp(){
 
-if(password !== confirm){
-  alert("Passwords do not match");
-  return;
-}
+  const phone = document.getElementById("phone").value;
 
-  const res=await fetch("https://alabuzer-backend.onrender.com/api/auth/signup",{
+  const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/send-login-otp",{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ name,email,phone,password })
+    body:JSON.stringify({ phone })
   });
 
-  const data=await res.json();
+  const data = await res.json();
 
   if(data.success){
-    alert("Account created 🎉 Please login");
-    showLogin();
-  }else{
-    alert(data.message || "Signup failed");
+    alert("OTP sent");
+    document.getElementById("otpBox").style.display = "block";
+    startTimer();
   }
+
+}
+
+let timer = 30;
+
+function startTimer(){
+  const btn = document.getElementById("sendBtn");
+
+  const interval = setInterval(()=>{
+    timer--;
+    btn.innerText = "Wait " + timer + "s";
+
+    if(timer <= 0){
+      clearInterval(interval);
+      btn.innerText = "Send OTP";
+      timer = 30;
+    }
+  },1000);
+}
+
+async function verifyOtp(){
+
+  const phone = document.getElementById("phone").value;
+  const otp = document.getElementById("otp").value;
+
+  const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/verify-login-otp",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ phone, otp })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+const params = new URLSearchParams(window.location.search);
+const redirect = params.get("redirect");
+
+if(redirect === "checkout"){
+  navigateWithTransition("checkout.html");
+}else{
+  navigateWithTransition("index.html");
+}
+
+  }else{
+    alert(data.message);
+  }
+
 }
 
 </script>
