@@ -147,6 +147,191 @@ button:hover{
   letter-spacing:4px;
 }
 
+.subtitle{
+  text-align:center;
+  color:#aaa;
+  margin-bottom:20px;
+  font-size:14px;
+}
+
+.input-group input{
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid rgba(212,175,55,0.2);
+  background:#0b0b0b;
+  color:white;
+  transition:0.25s ease;
+}
+
+.input-group input:focus{
+  border-color:var(--lux-gold);
+  box-shadow:0 0 10px rgba(212,175,55,0.25);
+}
+
+.primary-btn{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  background:linear-gradient(135deg,#d4af37,#f0d878);
+  color:#000;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.25s ease;
+}
+
+.primary-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(212,175,55,0.3);
+}
+
+.verify-btn{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:transparent;
+  border:1px solid var(--lux-gold);
+  color:var(--lux-gold);
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.otp-box{
+  display:none;
+  animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.auth-box{
+  backdrop-filter: blur(10px);
+  background:rgba(17,17,17,0.9);
+}
+
+.auth-box:hover{
+  box-shadow:0 0 40px rgba(212,175,55,0.15);
+}
+
+.login-logo{
+  width:60px;
+  display:block;
+  margin:0 auto 15px;
+}
+
+.lux-input{
+  position:relative;
+  margin:18px 0;
+}
+
+.lux-input input{
+  width:100%;
+  padding:16px 12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:10px;
+  color:white;
+  outline:none;
+  font-size:14px;
+  transition:0.3s ease;
+}
+
+.lux-input label{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#777;
+  font-size:13px;
+  pointer-events:none;
+  transition:0.3s ease;
+  background:#0b0b0b;
+  padding:0 5px;
+}
+
+.lux-input input:focus{
+  border-color:var(--lux-gold);
+  box-shadow:0 0 12px rgba(212,175,55,0.25);
+}
+
+.lux-input input:focus + label,
+.lux-input input:valid + label{
+  top:-8px;
+  font-size:11px;
+  color:var(--lux-gold);
+}
+
+.otp-container{
+  display:none;
+  justify-content:center;
+  gap:10px;
+  margin-top:15px;
+}
+
+.otp-container input{
+  width:42px;
+  height:48px;
+  text-align:center;
+  font-size:18px;
+  border-radius:8px;
+  border:1px solid rgba(212,175,55,0.3);
+  background:#0b0b0b;
+  color:white;
+  outline:none;
+  transition:0.25s;
+}
+
+.otp-container input:focus{
+  border-color:var(--lux-gold);
+  box-shadow:0 0 10px rgba(212,175,55,0.3);
+}
+
+.auth-box{
+  background:rgba(17,17,17,0.7);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(212,175,55,0.2);
+  border-radius:14px;
+  padding:30px;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(212,175,55,0.08);
+  transition:0.3s;
+}
+
+.auth-box:hover{
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.7),
+    0 0 30px rgba(212,175,55,0.12);
+}
+
+.primary-btn{
+  position:relative;
+  overflow:hidden;
+}
+
+.primary-btn::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+  transition:0.6s;
+}
+
+.primary-btn:hover::before{
+  left:100%;
+}
 </style>
 </head>
 
@@ -154,23 +339,31 @@ button:hover{
 
 <div class="main-wrapper">
   <div class="auth-box">
+  <img src="assets/logo/logo.svg" class="login-logo">
 
-    <button class="back-home-btn" onclick="goHome()">← Back to Home</button>
+  <h2 class="title">AL-ABUZER</h2>
+  <p class="subtitle">Login with your mobile number</p>
 
-    <h2 class="title">AL-ABUZER PERFUMES</h2>
-
-    <!-- LOGIN -->
-<div id="loginBox">
-<input id="phone" placeholder="Enter Mobile Number">
-
-<div id="otpBox" style="display:none">
-  <input id="otp" placeholder="Enter OTP">
-  <button onclick="verifyOtp()">Verify OTP</button>
+<div class="lux-input">
+  <input id="phone" required>
+  <label>Mobile Number</label>
 </div>
 
-<button id="sendBtn" onclick="sendOtp()">Send OTP</button>
-
+<div id="otpBox" class="otp-container">
+  <input maxlength="1">
+  <input maxlength="1">
+  <input maxlength="1">
+  <input maxlength="1">
+  <input maxlength="1">
+  <input maxlength="1">
 </div>
+
+<button class="verify-btn" onclick="verifyOtp()">Verify & Continue</button>
+
+  <button id="sendBtn" class="primary-btn" onclick="sendOtp()">
+    Send OTP
+  </button>
+
 </div>
 </div>
 
@@ -221,9 +414,34 @@ async function login(){
   }
 }
 
+const otpInputs = document.querySelectorAll(".otp-container input");
+
+otpInputs.forEach((input, index) => {
+  input.addEventListener("input", () => {
+    if(input.value && index < otpInputs.length - 1){
+      otpInputs[index + 1].focus();
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Backspace" && !input.value && index > 0){
+      otpInputs[index - 1].focus();
+    }
+  });
+});
+
 async function sendOtp(){
 
   const phone = document.getElementById("phone").value;
+
+  if(phone.length !== 10){
+    alert("Enter valid mobile number");
+    return;
+  }
+
+  const btn = document.getElementById("sendBtn");
+  btn.innerText = "Sending...";
+  btn.disabled = true;
 
   const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/send-login-otp",{
     method:"POST",
@@ -234,11 +452,13 @@ async function sendOtp(){
   const data = await res.json();
 
   if(data.success){
-    alert("OTP sent");
     document.getElementById("otpBox").style.display = "block";
-    startTimer();
+    btn.innerText = "OTP Sent";
+  }else{
+    btn.innerText = "Send OTP";
+    btn.disabled = false;
+    alert("Failed to send OTP");
   }
-
 }
 
 let timer = 30;
