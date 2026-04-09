@@ -374,8 +374,8 @@ function loadProfile(){
   const user = getUserSafe();
   if(!user) return;
 
-  document.getElementById("profileName").innerText = user.name || "User";
-  document.getElementById("profileEmail").innerText = user.email || "";
+  const nameEl = document.getElementById("profileName");
+  if(nameEl) nameEl.innerText = user.name || "User";
 }
 
 /* =========================
@@ -569,12 +569,12 @@ const profileTemplates = {
     <div class="section-title">Account Overview</div>
 
     <div class="info-grid">
-      <div class="info-card">
-        <div class="info-label">Full Name</div>
-        <div class="info-value">
-          ${getUserSafe()?.name || ""}
-        </div>
+    <div class="info-card">
+      <div class="info-label">Full Name</div>
+      <div class="info-value">
+        ${getUserSafe()?.name || ""}
       </div>
+    </div>
 
       <div class="info-card">
         <div class="info-label">Email Address</div>
@@ -646,6 +646,10 @@ if(tabFromUrl){
   switchProfileTab("overview");
 }
 }
+
+window.onerror = function(msg, url, line){
+  console.log("JS ERROR:", msg, "Line:", line);
+};
 
 /* =========================
    INIT
