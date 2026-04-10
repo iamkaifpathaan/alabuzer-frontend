@@ -311,6 +311,10 @@ button:hover{
     <input id="newPassword" type="password">
     <label>New Password</label>
   </div>
+  <div class="lux-input">
+  <input id="confirmPassword" type="password">
+  <label>Confirm Password</label>
+</div>
 
   <button class="primary-btn" onclick="resetPassword()">
     Reset Password
@@ -324,7 +328,7 @@ button:hover{
 <div id="switchText" class="switch" onclick="toggleMode()">
   Don't have an account? Sign up
 </div>
-<div id="forgotText" class="switch" onclick="resetPassword()">
+<div id="forgotText" class="switch" onclick="openReset()">
   Forgot Password?
 </div>
 </div>
@@ -456,10 +460,20 @@ function toggleMode(){
   }
 }
 
+function openReset(){
+  setMode("reset");
+}
+
 async function resetPassword(){
 
   const email = document.getElementById("resetEmail").value;
   const password = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  
+  if(password !== confirmPassword){
+  alert("Passwords do not match");
+  return;
+  }
 
   if(!email || !password){
     alert("Fill all fields");
