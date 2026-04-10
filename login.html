@@ -39,16 +39,6 @@ body{
 
 /* ================= AUTH BOX ================= */
 
-.auth-box{
-  width:100%;
-  max-width:400px;
-  background:var(--lux-card);
-  padding:32px 28px;
-  border:1px solid var(--lux-border);
-  border-radius:12px;
-  box-shadow:0 20px 40px rgba(0,0,0,0.5);
-}
-
 .title{
   text-align:center;
   color:var(--lux-gold);
@@ -187,35 +177,12 @@ button:hover{
   box-shadow:0 8px 20px rgba(212,175,55,0.3);
 }
 
-.verify-btn{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  background:transparent;
-  border:1px solid var(--lux-gold);
-  color:var(--lux-gold);
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.otp-box{
-  display:none;
-  animation:fadeIn 0.4s ease;
-}
 
 @keyframes fadeIn{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
 }
 
-.auth-box{
-  backdrop-filter: blur(10px);
-  background:rgba(17,17,17,0.9);
-}
-
-.auth-box:hover{
-  box-shadow:0 0 40px rgba(212,175,55,0.15);
-}
 
 .login-logo{
   width:60px;
@@ -255,7 +222,7 @@ button:hover{
 
 .lux-input input:focus{
   border-color:var(--lux-gold);
-  box-shadow:0 0 12px rgba(212,175,55,0.25);
+  box-shadow:0 0 15px rgba(212,175,55,0.35);
 }
 
 .lux-input input:focus + label,
@@ -265,30 +232,6 @@ button:hover{
   color:var(--lux-gold);
 }
 
-.otp-container{
-  display:none;
-  justify-content:center;
-  gap:10px;
-  margin-top:15px;
-}
-
-.otp-container input{
-  width:42px;
-  height:48px;
-  text-align:center;
-  font-size:18px;
-  border-radius:8px;
-  border:1px solid rgba(212,175,55,0.3);
-  background:#0b0b0b;
-  color:white;
-  outline:none;
-  transition:0.25s;
-}
-
-.otp-container input:focus{
-  border-color:var(--lux-gold);
-  box-shadow:0 0 10px rgba(212,175,55,0.3);
-}
 
 .auth-box{
   background:rgba(17,17,17,0.7);
@@ -343,136 +286,251 @@ button:hover{
   <img src="assets/logo/logo.svg" class="login-logo">
   <h2 class="title">AL-ABUZER</h2>
   </div>
-  <p class="subtitle">Login with your mobile number</p>
+  <p class="subtitle">Login with your email</p>
 
-<div class="lux-input">
-  <input id="phone" required>
-  <label>Mobile Number</label>
+<div class="lux-input" >
+  <input id="email" required>
+  <label>Email</label>
 </div>
-
-<div id="otpBox" class="otp-container">
-  <input maxlength="1">
-  <input maxlength="1">
-  <input maxlength="1">
-  <input maxlength="1">
-  <input maxlength="1">
-  <input maxlength="1">
+<div class="lux-input" id="nameField" style="display:none;">
+  <input id="name">
+  <label>Name</label>
 </div>
+<div class="lux-input" >
+  <input id="password" type="password" required>
+  <label>Password</label>
+</div>
+<div id="resetBox" style="display:none; margin-top:15px;">
 
-<button id="verifyBtn" class="verify-btn" onclick="verifyOtp()" disabled>
-  Verify & Continue
-</button>
+  <div class="lux-input" id="emailField">
+    <input id="resetEmail">
+    <label>Email</label>
+  </div>
 
-  <button id="sendBtn" class="primary-btn" onclick="sendOtp()">
-    Send OTP
+  <div class="lux-input" id="passwordField">
+    <input id="newPassword" type="password">
+    <label>New Password</label>
+  </div>
+
+  <button class="primary-btn" onclick="resetPassword()">
+    Reset Password
   </button>
 
+</div>
+
+<button id="mainBtn" class="primary-btn" onclick="loginUser()">
+  Login
+</button>
+<div id="switchText" class="switch" onclick="toggleMode()">
+  Don't have an account? Sign up
+</div>
+<div id="forgotText" class="switch" onclick="openReset()">
+  Forgot Password?
+</div>
 </div>
 </div>
 
 <script src="js/common.js"></script>
+
 <script>
+  const switchText = document.getElementById("switchText");
+const btn = document.getElementById("mainBtn");
+let currentMode = "login"; // login | signup | reset
 
-// LOGIN
+function setMode(mode){
+  btn.style.display = "block";
 
-const otpInputs = document.querySelectorAll(".otp-container input");
+  currentMode = mode;
+  const forgotText = document.getElementById("forgotText");
+  const nameField = document.getElementById("nameField");
+  const resetBox = document.getElementById("resetBox");
+  const subtitle = document.querySelector(".subtitle");
+  const emailField = document.getElementById("emailField");
+const passwordField = document.getElementById("passwordField");
 
-otpInputs.forEach((input, index) => {
-  input.addEventListener("input", () => {
-    if(input.value && index < otpInputs.length - 1){
-      otpInputs[index + 1].focus();
-    }
-  });
+  // reset everything first
+  nemailField.style.display = "block";
+passwordField.style.display = "block";
+nameField.style.display = "none";
+resetBox.style.display = "none";
 
-  input.addEventListener("keydown", (e) => {
-    if(e.key === "Backspace" && !input.value && index > 0){
-      otpInputs[index - 1].focus();
-    }
-  });
-});
+  if(mode === "login"){
 
-async function sendOtp(){
+    btn.innerText = "Login";
+    forgotText.style.display = "block";
+    subtitle.innerText = "Login with your email";
+    switchText.innerText = "Don't have an account? Sign up";
 
-  const phone = document.getElementById("phone").value;
-
-  if(!phone || phone.length !== 10){
-    alert("Enter valid phone number");
-    return;
   }
 
-  const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/send-login-otp",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ phone })
-  });
+  else if(mode === "signup"){
 
-  const data = await res.json();
+    nameField.style.display = "block";
+    btn.innerText = "Sign Up";
+    subtitle.innerText = "Create your account";
+    switchText.innerText = "Already have an account? Login";
+    forgotText.style.display = "block";
 
-  if(data.success){
-
-    document.getElementById("otpBox").style.display = "flex";
-    document.getElementById("verifyBtn").disabled = false;
-
-    startTimer();
-
-    alert("OTP Sent ✅");
-
-  }else{
-    alert(data.message || "Failed to send OTP");
   }
+
+  else if(mode === "reset"){
+    emailField.style.display = "none";
+    passwordField.style.display = "none";
+    forgotText.style.display = "none";
+    resetBox.style.display = "block";
+    btn.style.display = "none"; // hide main login btn
+    subtitle.innerText = "Reset your password";
+    switchText.innerText = "Go to Login";
+
+  }
+
 }
 
-function startTimer(){
-  const btn = document.getElementById("sendBtn");
+async function loginUser(){
 
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const name = document.getElementById("name")?.value;
+
+  const btn = document.querySelector(".primary-btn");
+  btn.innerText =
+  currentMode === "signup" ? "Signing up..." : "Logging in...";
   btn.disabled = true;
 
-  let t = 30;
-
-  const interval = setInterval(()=>{
-    t--;
-    btn.innerText = "Wait " + t + "s";
-
-    if(t <= 0){
-      clearInterval(interval);
-      btn.innerText = "Send OTP";
-      btn.disabled = false;
-    }
-  },1000);
-}
-
-async function verifyOtp(){
-
-  const phone = document.getElementById("phone").value;
-
-  let otp = "";
-  document.querySelectorAll("#otpBox input").forEach(i => otp += i.value);
-
-  if(otp.length !== 6){
-    alert("Enter full OTP");
+  if(!email || !password || (currentMode === "signup" && !name)){
+    alert("Please fill all fields");
+    btn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
+    btn.disabled = false;
     return;
   }
 
-  const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/verify-login-otp",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ phone, otp })
-  });
+  try{
 
-  const data = await res.json();
+    const url =
+  currentMode === "signup"
+    ? "/api/auth/signup"
+    : "/api/auth/login";
 
-  if(data.success){
+    const body =
+  currentMode === "signup"
+    ? { name, email, password }
+    : { email, password };
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    const res = await fetch(url,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify(body)
+    });
 
-    navigateWithTransition("index.html");
+    const data = await res.json();
 
+    if(data.success){
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      navigateWithTransition("index.html");
+
+    }else{
+      alert(data.message || "Something went wrong");
+    }
+
+  }catch(err){
+    alert("Server error");
+  }
+
+  btn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
+  btn.disabled = false;
+
+}
+
+let isSignup = false;
+
+function toggleMode(){
+  if(currentMode === "login"){
+    setMode("signup");
   }else{
-    alert(data.message || "Invalid OTP");
+    setMode("login");
   }
 }
 
+async function forgotPassword(){
+
+  const email = prompt("Enter your registered email:");
+
+  if(!email) return;
+
+  const newPassword = prompt("Enter new password:");
+
+  if(!newPassword || newPassword.length < 6){
+    alert("Password must be at least 6 characters");
+    return;
+  }
+
+  try{
+
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/reset-password",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ email, password:newPassword })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      alert("Password updated successfully");
+    }else{
+      alert(data.message || "Failed");
+    }
+
+  }catch(err){
+    alert("Server error");
+  }
+
+}
+
+function openReset(){
+  setMode("reset");
+}
+
+async function resetPassword(){
+
+  const email = document.getElementById("resetEmail").value;
+  const password = document.getElementById("newPassword").value;
+
+  if(!email || !password){
+    alert("Fill all fields");
+    return;
+  }
+
+  try{
+
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/reset-password",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      alert("Password updated successfully");
+      document.getElementById("resetBox").style.display = "none";
+    }else{
+      alert(data.message);
+    }
+
+  }catch(err){
+    alert("Server error");
+  }
+
+}
+
+document.addEventListener("keypress", function(e){
+  if(e.key === "Enter"){
+    loginUser();
+  }
+});
 </script>
 
 <div id="pageTransition" class="page-transition">
