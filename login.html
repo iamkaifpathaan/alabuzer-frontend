@@ -288,7 +288,7 @@ button:hover{
   </div>
   <p class="subtitle">Login with your email</p>
 
-<div class="lux-input" >
+<div class="lux-input" id="loginEmailField">
   <input id="email" required>
   <label>Email</label>
 </div>
@@ -296,18 +296,18 @@ button:hover{
   <input id="name">
   <label>Name</label>
 </div>
-<div class="lux-input" >
+<div class="lux-input" id="loginPasswordField">
   <input id="password" type="password" required>
   <label>Password</label>
 </div>
 <div id="resetBox" style="display:none; margin-top:15px;">
 
-  <div class="lux-input" id="emailField">
+  <div class="lux-input" id="resetEmailField">
     <input id="resetEmail">
     <label>Email</label>
   </div>
 
-  <div class="lux-input" id="passwordField">
+  <div class="lux-input" id="resetPasswordField">
     <input id="newPassword" type="password">
     <label>New Password</label>
   </div>
@@ -349,16 +349,18 @@ function setMode(mode){
   btn.style.display = "block";
 
   currentMode = mode;
+  const loginEmailField = document.getElementById("loginEmailField");
+  const loginPasswordField = document.getElementById("loginPasswordField");
   const forgotText = document.getElementById("forgotText");
   const nameField = document.getElementById("nameField");
   const resetBox = document.getElementById("resetBox");
   const subtitle = document.querySelector(".subtitle");
-  const emailField = document.getElementById("emailField");
-const passwordField = document.getElementById("passwordField");
+  const resetEmailField = document.getElementById("resetEmailField");
+  const resetPasswordField = document.getElementById("resetPasswordField");
 
-  // reset everything first
-emailField.style.display = "block";
-passwordField.style.display = "block";
+// reset everything first
+loginEmailField.style.display = "block";
+loginPasswordField.style.display = "block";
 nameField.style.display = "none";
 resetBox.style.display = "none";
 
@@ -381,16 +383,22 @@ resetBox.style.display = "none";
 
   }
 
-  else if(mode === "reset"){
-    emailField.style.display = "none";
-    passwordField.style.display = "none";
-    forgotText.style.display = "none";
-    resetBox.style.display = "block";
-    btn.style.display = "none"; // hide main login btn
-    subtitle.innerText = "Reset your password";
-    switchText.innerText = "Go to Login";
+else if(mode === "reset"){
 
-  }
+  // ❗ hide login fields
+  loginEmailField.style.display = "none";
+  loginPasswordField.style.display = "none";
+
+  // show reset
+  resetBox.style.display = "block";
+
+  forgotText.style.display = "none";
+  btn.style.display = "none";
+
+  subtitle.innerText = "Reset your password";
+  switchText.innerText = "Go to Login";
+
+}
 
 }
 
