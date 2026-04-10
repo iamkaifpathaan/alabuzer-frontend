@@ -466,17 +466,19 @@ function openReset(){
 
 async function resetPassword(){
 
-  const email = document.getElementById("resetEmail").value;
-  const password = document.getElementById("newPassword").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-  
-  if(password !== confirmPassword){
-  alert("Passwords do not match");
-  return;
+  const email = document.getElementById("resetEmail").value.trim();
+  const password = document.getElementById("newPassword").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+  // ✅ first check empty
+  if(!email || !password || !confirmPassword){
+    alert("Fill all fields");
+    return;
   }
 
-  if(!email || !password){
-    alert("Fill all fields");
+  // ✅ then match
+  if(password !== confirmPassword){
+    alert("Passwords do not match");
     return;
   }
 
@@ -492,7 +494,7 @@ async function resetPassword(){
 
     if(data.success){
       alert("Password updated successfully");
-      document.getElementById("resetBox").style.display = "none";
+      setMode("login"); // 👈 better UX
     }else{
       alert(data.message);
     }
