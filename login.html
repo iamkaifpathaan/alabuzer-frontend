@@ -349,7 +349,7 @@ function setMode(mode){
 const passwordField = document.getElementById("passwordField");
 
   // reset everything first
-  nemailField.style.display = "block";
+emailField.style.display = "block";
 passwordField.style.display = "block";
 nameField.style.display = "none";
 resetBox.style.display = "none";
@@ -392,7 +392,7 @@ async function loginUser(){
   const password = document.getElementById("password").value;
   const name = document.getElementById("name")?.value;
 
-  const btn = document.querySelector(".primary-btn");
+  const btn = document.getElementById("mainBtn");
   btn.innerText =
   currentMode === "signup" ? "Signing up..." : "Logging in...";
   btn.disabled = true;
@@ -443,8 +443,6 @@ async function loginUser(){
   btn.disabled = false;
 
 }
-
-let isSignup = false;
 
 function toggleMode(){
   if(currentMode === "login"){
