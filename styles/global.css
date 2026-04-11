@@ -681,6 +681,31 @@ button{
   }
 }
 
+.profile-icon{
+  width:22px;
+  height:22px;
+  opacity:0.9;
+  transition:0.2s;
+}
+
+.profile-icon:hover{
+  opacity:1;
+  transform:scale(1.1);
+}
+
+.search-icon{
+  font-size:18px;
+  cursor:pointer;
+  margin-right:12px;
+  opacity:0.8;
+  transition:0.2s;
+}
+
+.search-icon:hover{
+  opacity:1;
+  transform:scale(1.1);
+}
+
 .products-section{
   background:
     radial-gradient(

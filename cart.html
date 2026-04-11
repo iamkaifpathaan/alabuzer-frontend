@@ -105,12 +105,24 @@ h2 {
   </div>
 </div>
 
-  <div class="nav-right">
-    <div id="userArea" class="user-area">Login</div>
-    <div class="cart-icon" onclick="goToCart()">
-      🛒 <span id="cartCount">0</span>
-    </div>
+<div class="nav-right">
+
+  <!-- SEARCH ICON -->
+  <div class="search-icon" onclick="openSearch()">
+    🔍
   </div>
+
+  <!-- PROFILE -->
+  <div id="userArea" class="user-area" onclick="goToProfile()">
+    <img src="assets/icons/user.svg" class="profile-icon">
+  </div>
+
+  <!-- CART -->
+  <div class="cart-icon" onclick="goToCart()">
+    🛒 <span id="cartCount">0</span>
+  </div>
+
+</div>
 </header>
 <!-- SIDE MENU -->
 <div id="sideMenu" class="side-menu">
