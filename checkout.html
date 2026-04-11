@@ -242,6 +242,9 @@ body{
       </div>
 
       <button onclick="verifyOtp()">Verify</button>
+      <p id="resendText" style="font-size:13px;color:#aaa;">
+        Resend OTP in <span id="timer">30</span>s
+      </p>
 
     </div>
 
@@ -258,9 +261,14 @@ async function sendOtp(){
 
   const phone = document.getElementById("phoneInput").value.trim();
   const token = localStorage.getItem("token");
+  const btn = document.querySelector(".otp-box button");
+
+
 
   if(!/^[6-9]\d{9}$/.test(phone)){
     alert("Enter valid phone number");
+    btn.disabled = true;
+    btn.innerText = "Sending...";
     return;
   }
 
@@ -280,6 +288,7 @@ async function sendOtp(){
     if(data.success){
       alert("OTP sent");
       document.getElementById("otpSection").style.display = "block";
+      startOtpTimer();
     }else{
       alert(data.message);
     }
@@ -287,6 +296,8 @@ async function sendOtp(){
   }catch(err){
     alert("Failed to send OTP");
   }
+  btn.disabled = false;
+  btn.innerText = "Send OTP";
 
 }  
 
@@ -320,8 +331,9 @@ async function verifyOtp(){
 
     if(data.success){
       alert("Phone verified ✅");
+      document.querySelectorAll(".otp-inputs input").forEach(i => i.value = "");
+
       closeOtpPopup();
-    
       payWithRazorpay(); // 🔥 AUTO RETRY
     }else{
       alert(data.message);
@@ -343,6 +355,29 @@ function openOtpPopup(){
 
 function closeOtpPopup(){
   document.getElementById("otpModal").style.display = "none";
+}
+
+let otpTimer;
+
+function startOtpTimer(){
+
+  clearInterval(otpTimer);
+
+  let time = 30;
+  const timerEl = document.getElementById("timer");
+
+  otpTimer = setInterval(()=>{
+    time--;
+    timerEl.innerText = time;
+
+    if(time <= 0){
+      clearInterval(otpTimer);
+      document.getElementById("resendText").innerHTML =
+        '<span onclick="sendOtp()" style="color:#d4af37;cursor:pointer;">Resend OTP</span>';
+    }
+
+  },1000);
+
 }
 
 /* =========================
@@ -462,9 +497,8 @@ async function payWithRazorpay(){
   const cart = getCart();
 const token = localStorage.getItem("token");
 
-if(!token || token === "null" || token === "undefined"){
-  alert("Session expired. Please login again.");
-  localStorage.clear();
+if(!token){
+  alert("Please login first");
   navigateWithTransition("login.html?redirect=checkout");
   return;
 }
@@ -488,12 +522,11 @@ if(!token || token === "null" || token === "undefined"){
       body: JSON.stringify({ items: cart })
     });
 
-    if(res.status === 401){
-    alert("Session expired. Please login again.");
-    localStorage.clear();
-    navigateWithTransition("login.html?redirect=checkout");
-    return;
-    }
+if(res.status === 401){
+  alert("Session expired. Please login again.");
+  navigateWithTransition("login.html?redirect=checkout");
+  return;
+}
 
     const data = await res.json();
 
@@ -538,7 +571,7 @@ const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment
 // 🔥 HANDLE TOKEN EXPIRE
 if(verifyRes.status === 401){
   alert("Session expired. Please login again.");
-  localStorage.clear();
+  localStorage.removeItem("token");
   navigateWithTransition("login.html?redirect=checkout");
   return;
 }
@@ -578,6 +611,22 @@ const verifyData = await verifyRes.json();
 document.addEventListener("DOMContentLoaded", ()=>{
   updateCartCount();
   loadCheckout();
+});
+
+document.querySelectorAll(".otp-inputs input").forEach((input, index, arr) => {
+
+  input.addEventListener("input", () => {
+    if(input.value && index < arr.length - 1){
+      arr[index + 1].focus();
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if(e.key === "Backspace" && !input.value && index > 0){
+      arr[index - 1].focus();
+    }
+  });
+
 });
 
 </script>
