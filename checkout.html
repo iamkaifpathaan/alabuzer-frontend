@@ -103,6 +103,50 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+.otp-modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(10px);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.otp-box{
+  background:rgba(17,17,17,0.8);
+  padding:30px;
+  border-radius:12px;
+  width:320px;
+  text-align:center;
+  border:1px solid rgba(212,175,55,0.3);
+}
+
+.otp-box input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border:none;
+  outline:none;
+  border-radius:6px;
+}
+
+.otp-inputs{
+  display:flex;
+  justify-content:space-between;
+}
+
+.otp-inputs input{
+  width:40px;
+  height:40px;
+  text-align:center;
+  font-size:18px;
+}
 </style>
 </head>
 
@@ -172,10 +216,134 @@ body{
   </div>
 
 </div>
+
+<div id="otpModal" class="otp-modal">
+
+  <div class="otp-box">
+
+    <h2>Verify Phone</h2>
+    <p>Enter your mobile number</p>
+
+    <input id="phoneInput" placeholder="Enter phone number" />
+
+    <button onclick="sendOtp()">Send OTP</button>
+
+    <div id="otpSection" style="display:none; margin-top:15px;">
+      
+      <p>Enter OTP</p>
+
+      <div class="otp-inputs">
+        <input maxlength="1">
+        <input maxlength="1">
+        <input maxlength="1">
+        <input maxlength="1">
+        <input maxlength="1">
+        <input maxlength="1">
+      </div>
+
+      <button onclick="verifyOtp()">Verify</button>
+
+    </div>
+
+  </div>
+
+</div>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="js/common.js"></script>
 
 <script>
+
+async function sendOtp(){
+
+  const phone = document.getElementById("phoneInput").value.trim();
+  const token = localStorage.getItem("token");
+
+  if(!/^[6-9]\d{9}$/.test(phone)){
+    alert("Enter valid phone number");
+    return;
+  }
+
+  try{
+
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/send-phone-otp",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ phone })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      alert("OTP sent");
+      document.getElementById("otpSection").style.display = "block";
+    }else{
+      alert(data.message);
+    }
+
+  }catch(err){
+    alert("Failed to send OTP");
+  }
+
+}  
+
+async function verifyOtp(){
+
+  const inputs = document.querySelectorAll(".otp-inputs input");
+  let otp = "";
+
+  inputs.forEach(i => otp += i.value);
+
+  const phone = document.getElementById("phoneInput").value.trim();
+  const token = localStorage.getItem("token");
+
+  if(otp.length !== 6){
+    alert("Enter valid OTP");
+    return;
+  }
+
+  try{
+
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/verify-phone-otp",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ phone, otp })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      alert("Phone verified ✅");
+      closeOtpPopup();
+    
+      payWithRazorpay(); // 🔥 AUTO RETRY
+    }else{
+      alert(data.message);
+    }
+
+  }catch(err){
+    alert("Verification failed");
+  }
+
+}
+
+function openOtpPopup(){
+  document.getElementById("otpModal").style.display = "flex";
+
+  // auto fill phone
+  const phone = document.getElementById("phone").value;
+  document.getElementById("phoneInput").value = phone;
+}
+
+function closeOtpPopup(){
+  document.getElementById("otpModal").style.display = "none";
+}
 
 /* =========================
    LOAD CHECKOUT (FAST + SAFE)
@@ -328,6 +496,11 @@ if(!token || token === "null" || token === "undefined"){
     }
 
     const data = await res.json();
+
+    if(data.requirePhone){
+    openOtpPopup();
+    return;
+    }    
 
     if(!data.success){
       alert(data.message || "Payment initiation failed");
