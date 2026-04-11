@@ -95,9 +95,26 @@ button:hover {
 <body>
 
 <header class="header">
-  <div class="nav-left">
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
+<div class="nav-left">
+
+  <div class="nav-dropdown">
+    <span>Menu ▾</span>
+
+    <div class="dropdown-content">
+      <div onclick="goHome()">Home</div>
+      <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+      <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+      <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+      <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+      <div onclick="navigateWithTransition('contact.html')">Contact</div>
+    </div>
+
   </div>
+
+  <!-- MOBILE HAMBURGER -->
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+</div>
 
 <div class="nav-center" onclick="goHome()">
   <img src="assets/logo/logo.svg" class="brand-logo">
@@ -341,6 +358,21 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 <div id="pageTransition" class="page-transition">
   <img src="assets/logo/logo.svg" class="transition-logo">
+</div>
+<div id="searchOverlay" class="search-overlay">
+
+  <div class="search-box">
+
+    <input 
+      id="searchOverlayInput" 
+      placeholder="Search perfumes..."
+      oninput="handleSearchOverlay()"
+    />
+
+    <div id="searchResults"></div>
+
+  </div>
+
 </div>
 </body>
 <!-- ================= FOOTER ================= -->

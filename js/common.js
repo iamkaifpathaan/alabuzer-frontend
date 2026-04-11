@@ -276,6 +276,40 @@ function mobileCardHighlight(){
   cards.forEach(card => observer.observe(card));
 }
 
+function openSearch(){
+  document.getElementById("searchOverlay").style.display = "flex";
+  document.getElementById("searchOverlayInput").focus();
+}
+
+function closeSearch(){
+  document.getElementById("searchOverlay").style.display = "none";
+}
+
+function handleSearchOverlay(){
+
+  const query = document
+    .getElementById("searchOverlayInput")
+    .value
+    .toLowerCase();
+
+  const resultsBox = document.getElementById("searchResults");
+
+  if(!query){
+    resultsBox.innerHTML = "";
+    return;
+  }
+
+  const filtered = allProducts.filter(p =>
+    p.name.toLowerCase().includes(query)
+  );
+
+  resultsBox.innerHTML = filtered.map(p => `
+    <div class="search-item" onclick="openProduct('${p.slug}')">
+      ${p.name}
+    </div>
+  `).join("");
+}
+
 document.addEventListener("DOMContentLoaded", mobileCardHighlight);
 
 /* ===============================
@@ -298,4 +332,10 @@ window.addEventListener("pageshow", function(event) {
     t.classList.remove("active");
   }
 
+});
+
+document.getElementById("searchOverlay").addEventListener("click",(e)=>{
+  if(e.target.id === "searchOverlay"){
+    closeSearch();
+  }
 });
