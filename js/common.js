@@ -157,18 +157,17 @@ function updateUserUI(){
 
   if(user){
 
-    // ADMIN ROLE
     if(user.role === "admin"){
-      area.innerText = "🛠 Admin";
+      area.innerHTML = '<img src="assets/icons/user.svg" class="profile-icon">';
       area.onclick = () => navigateWithTransition("admin.html");
       return;
     }
 
-    area.innerText = "👤 " + (user.name || "User");
+    area.innerHTML = '<img src="assets/icons/user.svg" class="profile-icon">';
     area.onclick = goToProfile;
 
   }else{
-    area.innerText = "Login";
+    area.innerHTML = '<img src="assets/icons/user.svg" class="profile-icon">';
     area.onclick = goToLogin;
   }
 }
@@ -279,6 +278,9 @@ function mobileCardHighlight(){
 function openSearch(){
   document.getElementById("searchOverlay").style.display = "flex";
   document.getElementById("searchOverlayInput").focus();
+
+  // 🔥 push state
+  history.pushState({ searchOpen: true }, "");
 }
 
 function closeSearch(){
@@ -334,8 +336,16 @@ window.addEventListener("pageshow", function(event) {
 
 });
 
+window.addEventListener("popstate", function(){
+  const overlay = document.getElementById("searchOverlay");
+
+  if(overlay && overlay.style.display === "flex"){
+    overlay.style.display = "none";
+  }
+});
+
 document.getElementById("searchOverlay").addEventListener("click",(e)=>{
   if(e.target.id === "searchOverlay"){
-    closeSearch();
+    history.back(); // 🔥 instead of direct close
   }
 });
