@@ -256,6 +256,11 @@ button:hover{
   overflow:hidden;
 }
 
+.primary-btn:disabled{
+  opacity:0.7;
+  cursor:not-allowed;
+}
+
 .primary-btn::before{
   content:"";
   position:absolute;
@@ -316,7 +321,7 @@ button:hover{
   <label>Confirm Password</label>
 </div>
 
-  <button class="primary-btn" onclick="resetPassword()">
+  <button id="resetBtn" class="primary-btn" onclick="resetPassword()">
     Reset Password
   </button>
 
@@ -384,6 +389,9 @@ resetBox.style.display = "none";
   }
 
 else if(mode === "reset"){
+
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
 
   // ❗ hide login fields
   loginEmailField.style.display = "none";
@@ -478,17 +486,22 @@ async function resetPassword(){
   const password = document.getElementById("newPassword").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
-  // ✅ first check empty
+  const btn = document.getElementById("resetBtn");
+
+  // ✅ VALIDATION
   if(!email || !password || !confirmPassword){
-    alert("Fill all fields");
+    alert("Please fill all reset fields");
     return;
   }
 
-  // ✅ then match
   if(password !== confirmPassword){
     alert("Passwords do not match");
     return;
   }
+
+  // 🔥 LOADING STATE START
+  btn.innerText = "Please wait...";
+  btn.disabled = true;
 
   try{
 
@@ -501,22 +514,34 @@ async function resetPassword(){
     const data = await res.json();
 
     if(data.success){
-      alert("Password updated successfully");
-      setMode("login"); // 👈 better UX
+      btn.innerText = "Password Updated ✔";
+      setTimeout(() => {
+        setMode("login");
+      }, 1200);
     }else{
       alert(data.message);
+      btn.innerText = "Reset Password";
+      btn.disabled = false;
     }
 
   }catch(err){
     alert("Server error");
+    btn.innerText = "Reset Password";
+    btn.disabled = false;
   }
 
 }
 
 document.addEventListener("keypress", function(e){
-  if(e.key === "Enter"){
+if(e.key === "Enter"){
+
+  if(currentMode === "reset"){
+    resetPassword();   // 🔥 correct function
+  }else{
     loginUser();
   }
+
+}
 });
 </script>
 
