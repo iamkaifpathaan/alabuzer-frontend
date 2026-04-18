@@ -493,8 +493,9 @@ async function payWithRazorpay(){
   const cart = getCart();
 const token = localStorage.getItem("token");
 
-if(!token){
-  alert("Please login first");
+if(!token || token === "undefined" || token.length < 20){
+  localStorage.removeItem("token");  // 🔥 cleanup
+  alert("Please login again");
   navigateWithTransition("login.html?redirect=checkout");
   return;
 }
@@ -518,11 +519,7 @@ if(!token){
       body: JSON.stringify({ items: cart })
     });
 
-if(res.status === 401){
-  alert("Session expired. Please login again.");
-  navigateWithTransition("login.html?redirect=checkout");
-  return;
-}
+
 
     const data = await res.json();
 
@@ -530,6 +527,13 @@ if(res.status === 401){
     openOtpPopup();
     return;
     }    
+
+    if(res.status === 401){
+     localStorage.removeItem("token");
+     alert("Session expired. Please login again.");
+     navigateWithTransition("login.html?redirect=checkout");
+     return;
+    }
 
     if(!data.success){
       alert(data.message || "Payment initiation failed");
@@ -565,14 +569,20 @@ const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment
 });
 
 // 🔥 HANDLE TOKEN EXPIRE
-if(verifyRes.status === 401){
-  alert("Session expired. Please login again.");
-  localStorage.removeItem("token");
-  navigateWithTransition("login.html?redirect=checkout");
-  return;
-}
 
 const verifyData = await verifyRes.json();
+
+        if(verifyData.requirePhone){
+          openOtpPopup();
+          return;
+        }
+
+        if(verifyRes.status === 401){
+          localStorage.removeItem("token");
+          alert("Session expired. Please login again.");
+          navigateWithTransition("login.html?redirect=checkout");
+          return;
+        }
 
           if(verifyData.success){
             localStorage.removeItem("cart");
