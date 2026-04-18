@@ -342,16 +342,7 @@ function handleSearchOverlay(){
   `).join("");
 }
 
-document.addEventListener("DOMContentLoaded", mobileCardHighlight);
-
-/* ===============================
-   ⚡ INIT
-================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-  updateCartCount();
-  updateUserUI();
-  function initCartButton(){
+function initCartButton(){
 
   const btn = document.getElementById("goToCartBtn");
   if(!btn) return;
@@ -382,6 +373,17 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("cartBtnTime");
   }
 }
+
+document.addEventListener("DOMContentLoaded", mobileCardHighlight);
+
+/* ===============================
+   ⚡ INIT
+================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateCartCount();
+  updateUserUI();
+  initCartButton();
 });
 
 window.addEventListener("pageshow", function(event) {
