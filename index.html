@@ -46,16 +46,14 @@ body {
   background: linear-gradient(180deg, #111, #0b0b0b);
   border: 1px solid rgba(212,175,55,0.25);
   padding: 16px;
-  transition: all 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   border-radius: 6px;
 }
 
 .card:hover{
-  transform:translateY(-6px);
+  transform: translateY(-6px) scale(1.02);
   border-color:var(--lux-gold);
-  box-shadow:
-    0 10px 25px rgba(212,175,55,0.12),
-    0 0 0 1px rgba(212,175,55,0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .card img {
@@ -164,7 +162,7 @@ body {
 
   <video autoplay muted loop playsinline preload="auto"
       poster="assets/hero-poster.png" class="bg-video">
-    <source src="assets/video/hero-video.mp4" type="video/mp4">
+    <source src="assets/video/hero-video1.mp4" type="video/mp4">
   </video>
 
   <div class="video-overlay">
@@ -462,6 +460,8 @@ function renderProducts(products) {
   // ✅ CASE 1: CATEGORY SELECTED → OLD BEHAVIOUR
   if(category){
 
+    container.className = "grid";
+
     products.forEach((p, index) => {
 
       const card = document.createElement("div");
@@ -509,12 +509,9 @@ function renderProducts(products) {
     section.innerHTML = `
       <div class="category-header">
         <div class="category-title">${cat}</div>
-        <div class="show-more" onclick="filterCategory('${cat}')">
-          Show More →
-        </div>
       </div>
 
-      <div class="grid">
+      <div class="horizontal-scroll">
         ${items.slice(0,4).map(p => `
           <div class="card ${getCategoryClass(p.category)}">
             <div onclick="openProduct('${p.slug}')">
@@ -524,6 +521,11 @@ function renderProducts(products) {
             </div>
           </div>
         `).join("")}
+        <div class="card show-more-card" onclick="filterCategory('${cat}')">
+         <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#d4af37;">
+           Show More →
+         </div>
+        </div>        
       </div>
     `;
 
@@ -698,6 +700,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   </div>
 
+</div>
+
+<div id="goToCartBtn" class="cart-float-btn" onclick="goToCart()">
+  🛒 Go to Cart
 </div>
 <!-- ================= FOOTER ================= -->
 
