@@ -20,6 +20,32 @@ body{
   color:white;
 }
 
+.reviews-title{
+  font-size:20px;
+  margin:30px 0 15px;
+  color:#d4af37;
+}
+
+.review-card{
+  background:#0b0b0b;
+  border:1px solid rgba(212,175,55,0.2);
+  padding:14px;
+  margin-bottom:12px;
+  border-radius:8px;
+}
+
+.review-header{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+.review-text{
+  font-size:13px;
+  color:#ccc;
+}
+
 .container {
   max-width: 1100px;
   margin: auto;
@@ -201,9 +227,10 @@ button:hover {
     <div id="cartControls"></div>
     <button id="wishlistBtn" class="wishlist-btn" onclick="toggleWishlistCurrent()">
   ♡ Add to Wishlist
-</button>
+  </button>
   </div>
 </div>
+<div id="reviewsSection"></div>
 <script src="js/common.js"></script>
 <script>
   let currentProduct = null;
@@ -231,6 +258,7 @@ currentProduct = product; // ⭐ CRITICAL FIX
 
 renderCartControls();
 updateWishlistButton();
+renderReviews(product);
 }
 
 loadProduct();
@@ -367,9 +395,75 @@ function updateWishlistButton(){
   }
 }
 
+function generateReviews(productName){
+
+  const count = Math.floor(Math.random() * 3) + 3; // 3–5 reviews
+
+  let selected = [];
+
+  for(let i=0; i<count; i++){
+    const random = reviewPool[Math.floor(Math.random() * reviewPool.length)];
+
+    selected.push({
+      name: getRandomName(),
+      rating: Math.floor(Math.random() * 2) + 4, // 4–5 stars
+      text: random
+    });
+  }
+
+  return selected;
+}
+
+const reviewPool = [
+  "Amazing fragrance, long lasting and premium feel.",
+  "Bahut hi rich aur classy smell hai 🔥",
+  "Packaging bhi premium aur scent bhi zabardast.",
+  "Perfect for daily use, not too strong.",
+  "Luxury feel at this price, totally worth it.",
+  "Arabic vibe aa rahi hai fragrance me ❤️",
+  "Mujhe personally bohot pasand aaya, recommend karunga.",
+  "Long lasting hai aur projection bhi acha hai.",
+  "Gift ke liye liya tha, sabko pasand aaya.",
+  "Quality top notch hai, repeat order pakka."
+];
+
+function getRandomName(){
+  const names = [
+    "Aman R", "Rohit Pandey", "Zaid", "Faizan", "Layba Khan",
+    "Iqra", "Sahil", "Kabir Salim", "Adnan Sheikh", "Yash"
+  ];
+
+  return names[Math.floor(Math.random() * names.length)];
+}
+
+function renderReviews(product){
+
+  const container = document.getElementById("reviewsSection");
+  if(!container) return;
+
+  const reviews = generateReviews(product.name);
+
+  container.innerHTML = `
+    <div class="reviews-title">Customer Reviews</div>
+
+    ${reviews.map(r => `
+      <div class="review-card">
+        <div class="review-header">
+          <span>${r.name}</span>
+          <span>${"⭐".repeat(r.rating)}</span>
+        </div>
+        <div class="review-text">${r.text}</div>
+      </div>
+    `).join("")}
+  `;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   updateUserUI();
   updateCartCount();
+  if(currentProduct){
+  renderReviews(currentProduct);
+  }
 });
 </script>
 <div id="pageTransition" class="page-transition">
