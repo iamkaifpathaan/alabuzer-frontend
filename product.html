@@ -20,30 +20,114 @@ body{
   color:white;
 }
 
-.reviews-title{
-  font-size:20px;
-  margin:30px 0 15px;
+.reviews-header{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  margin:30px 0 10px;
+  margin-bottom: 10px;
+}
+
+.reviews-wrapper{
+  max-width:900px;   /* 🔥 controlled width */
+  margin:60px auto;  /* 🔥 center */
+  padding:0 20px;
+}
+
+.rating-summary{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:rgba(255,255,255,0.02);
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid rgba(212,175,55,0.2);
+}
+
+.rating-number{
+  font-size:32px;
+  font-weight:600;
   color:#d4af37;
 }
 
-.review-card{
-  background:#0b0b0b;
-  border:1px solid rgba(212,175,55,0.2);
-  padding:14px;
-  margin-bottom:12px;
-  border-radius:8px;
+.rating-stars{
+  font-size:18px;
 }
 
+.rating-count{
+  font-size:13px;
+  color:#aaa;
+}
+
+.reviews-title{
+  font-size:20px;
+  margin:20px 0 15px;
+  color:#d4af37;
+}
+
+/* 🔥 CARD IMPROVED */
+.review-card{
+  width:100%;
+  background:linear-gradient(145deg,#0a0a0a,#111);
+  border:1px solid rgba(212,175,55,0.2);
+  padding:18px;
+  margin-bottom:16px;
+  border-radius:12px;
+
+  transition:all 0.25s ease;
+}
+
+.review-card:hover{
+  border-color:rgba(212,175,55,0.4);
+  transform:translateY(-3px);
+  box-shadow:0 15px 40px rgba(212,175,55,0.12);
+}
+
+/* 🔥 HEADER */
 .review-header{
   display:flex;
   justify-content:space-between;
-  font-size:14px;
-  margin-bottom:6px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.review-user{
+  font-size:15px;
+  font-weight:600;
 }
 
 .review-text{
-  font-size:13px;
+  font-size:14px;
   color:#ccc;
+  line-height:1.6;
+}
+
+/* 🔥 VERIFIED */
+.verified{
+  font-size:11px;
+  color:#4caf50;
+  margin-left:6px;
+}
+
+/* 🔥 STARS */
+.review-stars{
+  font-size:14px;
+}
+
+@media(max-width:768px){
+
+  .rating-number{
+    font-size:26px;
+  }
+
+  .review-card{
+    padding:14px;
+  }
+
+  .reviews-wrapper{
+  margin:40px auto;
+  }
+
 }
 
 .container {
@@ -69,6 +153,12 @@ img {
 button {
   font-weight: 600;
   cursor: pointer;
+}
+
+.verified{
+  font-size:11px;
+  color:#4caf50;
+  margin-left:6px;
 }
 
 button:hover {
@@ -230,7 +320,9 @@ button:hover {
   </button>
   </div>
 </div>
-<div id="reviewsSection"></div>
+<div class="reviews-wrapper">
+  <div id="reviewsSection"></div>
+</div>
 <script src="js/common.js"></script>
 <script>
   let currentProduct = null;
@@ -406,7 +498,7 @@ function generateReviews(productName){
 
     selected.push({
       name: getRandomName(),
-      rating: Math.floor(Math.random() * 2) + 4, // 4–5 stars
+      rating: Math.random() > 0.7 ? 4 : 5, // 4–5 stars
       text: random
     });
   }
@@ -415,22 +507,22 @@ function generateReviews(productName){
 }
 
 const reviewPool = [
-  "Amazing fragrance, long lasting and premium feel.",
-  "Bahut hi rich aur classy smell hai 🔥",
-  "Packaging bhi premium aur scent bhi zabardast.",
-  "Perfect for daily use, not too strong.",
-  "Luxury feel at this price, totally worth it.",
-  "Arabic vibe aa rahi hai fragrance me ❤️",
-  "Mujhe personally bohot pasand aaya, recommend karunga.",
-  "Long lasting hai aur projection bhi acha hai.",
-  "Gift ke liye liya tha, sabko pasand aaya.",
-  "Quality top notch hai, repeat order pakka."
+  "Fragrance kaafi premium hai, 6–7 hours easily tikti hai.",
+  "Honestly expected nahi tha itna acha hoga, worth every rupee.",
+  "Opening thodi strong hai but dry down bohot smooth hai.",
+  "Luxury feel aati hai use karne ke baad, especially evening me 🔥",
+  "Projection decent hai, close range me bohot classy lagta hai.",
+  "Packaging bhi solid aur bottle quality top notch hai.",
+  "Daily use ke liye perfect nahi, but occasions ke liye best hai.",
+  "Mujhe personally iska oud note bohot pasand aaya ❤️",
+  "Thoda expensive hai but quality justify karti hai.",
+  "Compliments mile isko use karke, so definitely recommend."
 ];
 
 function getRandomName(){
   const names = [
-    "Aman R", "Rohit Pandey", "Zaid", "Faizan", "Layba Khan",
-    "Iqra", "Sahil", "Kabir Salim", "Adnan Sheikh", "Yash"
+    "Aman R", "Rohit Pandey", "Zaid khan", "Faizan", "Layba Khan",
+    "Iqra", "Sahil malik", "Kabir Salim", "Adnan Sheikh", "Yash", "Kirti Sharma"
   ];
 
   return names[Math.floor(Math.random() * names.length)];
@@ -443,27 +535,45 @@ function renderReviews(product){
 
   const reviews = generateReviews(product.name);
 
-  container.innerHTML = `
-    <div class="reviews-title">Customer Reviews</div>
+  const avgRating = (
+  reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+).toFixed(1);
 
-    ${reviews.map(r => `
-      <div class="review-card">
-        <div class="review-header">
-          <span>${r.name}</span>
-          <span>${"⭐".repeat(r.rating)}</span>
+container.innerHTML = `
+  <div class="reviews-header">
+
+    <div class="rating-summary">
+      <div class="rating-number">${avgRating}</div>
+      <div class="rating-stars">${"⭐".repeat(Math.round(avgRating))}</div>
+      <div class="rating-count">${reviews.length} reviews</div>
+    </div>
+
+  </div>
+
+  <div class="reviews-title">Customer Reviews</div>
+
+  ${reviews.map(r => `
+    <div class="review-card">
+
+      <div class="review-header">
+        <div class="review-user">
+          ${r.name}
+          ${Math.random() > 0.5 ? `<span class="verified">✔ Verified</span>` : ""}
         </div>
-        <div class="review-text">${r.text}</div>
+
+        <div class="review-stars">${"⭐".repeat(r.rating)}</div>
       </div>
-    `).join("")}
-  `;
+
+      <div class="review-text">${r.text}</div>
+
+    </div>
+  `).join("")}
+`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   updateUserUI();
   updateCartCount();
-  if(currentProduct){
-  renderReviews(currentProduct);
-  }
 });
 </script>
 <div id="pageTransition" class="page-transition">

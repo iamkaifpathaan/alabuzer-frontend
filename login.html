@@ -451,7 +451,11 @@ async function loginUser(){
     if(data.success){
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user", JSON.stringify({
+        _id: data.user._id,
+        name: data.user.name,
+        email: data.user.email || data.user.mail || "not available"
+      }));
 
       navigateWithTransition("index.html");
 
