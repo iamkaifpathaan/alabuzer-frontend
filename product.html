@@ -173,6 +173,148 @@ button:hover {
   font-size: 14px;
 }
 
+.image-gallery-box{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow: hidden;
+}
+
+.main-image{
+  width:100%;
+  height:400px;
+  object-fit:contain;
+  border-radius:12px;
+  background:#000;
+  transition:transform 0.4s ease;
+}
+
+.image-gallery-box:hover .main-image{
+  transform:scale(1.05);
+}
+
+.thumb-container{
+  display:flex;
+  gap:10px;
+}
+
+.thumb-container img{
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:6px;
+  cursor:pointer;
+  opacity:0.6;
+  border:1px solid transparent;
+}
+
+.thumb-container img.active{
+  border:2px solid #d4af37;
+  opacity:1;
+  transform:scale(1.05);
+}
+
+.sticky-buy{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  width:90%;
+  max-width:420px;
+
+  background:rgba(15,15,15,0.6);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:16px;
+  padding:10px;
+
+  box-shadow:0 10px 40px rgba(0,0,0,0.4);
+
+  opacity:0;
+  pointer-events:none;
+  transition:all 0.35s ease;
+}
+
+.sticky-buy.active{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+  pointer-events:auto;
+}
+
+.buy-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+
+  background:linear-gradient(135deg,#d4af37,#f1d76a);
+  color:#000;
+  font-weight:600;
+  font-size:15px;
+
+  cursor:pointer;
+  transition:all 0.25s ease;
+}
+
+.buy-btn:hover{
+  transform:scale(1.03);
+}
+
+@media(max-width:768px){
+  .sticky-buy{
+    display:block;
+  }
+}
+
+.related-section{
+  max-width:1100px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+.related-grid{
+  display:flex;
+  gap:16px;
+  overflow-x:auto;
+}
+
+.related-grid::-webkit-scrollbar{
+  display:none;
+}
+
+.related-card{
+  min-width:180px;
+  background:#111;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.cart-float-btn{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%) scale(0.9);
+
+  background:linear-gradient(135deg,#d4af37,#f1d76a);
+  color:#000;
+  padding:12px 20px;
+  border-radius:30px;
+  font-weight:600;
+
+  opacity:0;
+  pointer-events:none;
+  transition:all 0.3s ease;
+}
+
+.cart-float-btn.show{
+  opacity:1;
+  transform:translateX(-50%) scale(1);
+  pointer-events:auto;
+}
+
 .qty-box{
   display:flex;
   align-items:center;
@@ -307,7 +449,13 @@ button:hover {
 
 <div class="container">
   <div>
-    <img id="pimg">
+<div class="image-gallery-box">
+
+  <img id="mainImage" class="main-image">
+
+  <div id="thumbContainer" class="thumb-container"></div>
+
+</div>
   </div>
 
   <div>
@@ -320,8 +468,17 @@ button:hover {
   </button>
   </div>
 </div>
+<div class="related-section">
+  <h3>You may also like</h3>
+  <div id="relatedProducts" class="related-grid"></div>
+</div>
 <div class="reviews-wrapper">
   <div id="reviewsSection"></div>
+</div>
+<div id="stickyBuy" class="sticky-buy">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <button onclick="addFirstTime()" class="buy-btn">Add to Cart</button>
+  </div>
 </div>
 <script src="js/common.js"></script>
 <script>
@@ -340,10 +497,35 @@ async function loadProduct(){
   const product = data.data.find(p => p.slug === slug);
   if(!product) return;
 
-  document.getElementById("pimg").src = product.images?.[0];
   document.getElementById("pname").innerText = product.name;
   document.getElementById("pprice").innerText = "₹" + product.price;
   document.getElementById("pdesc").innerText = product.description;
+
+  const mainImg = document.getElementById("mainImage");
+const thumbBox = document.getElementById("thumbContainer");
+
+mainImg.src = product.images?.[0];
+
+thumbBox.innerHTML = "";
+
+product.images?.forEach((img, index) => {
+
+  const thumb = document.createElement("img");
+  thumb.src = img;
+
+  if(index === 0) thumb.classList.add("active");
+
+  thumb.onclick = () => {
+    mainImg.src = img;
+
+    document.querySelectorAll(".thumb-container img")
+      .forEach(t => t.classList.remove("active"));
+
+    thumb.classList.add("active");
+  };
+
+  thumbBox.appendChild(thumb);
+});
 
   currentSlug = slug;
 currentProduct = product; // ⭐ CRITICAL FIX
@@ -351,10 +533,29 @@ currentProduct = product; // ⭐ CRITICAL FIX
 renderCartControls();
 updateWishlistButton();
 renderReviews(product);
+renderRelatedProducts(data.data, product);
 }
 
 loadProduct();
 
+function renderRelatedProducts(allProducts, current){
+
+  const box = document.getElementById("relatedProducts");
+  if(!box) return;
+
+  const related = allProducts
+    .filter(p => p.category === current.category && p.slug !== current.slug)
+    .slice(0,5);
+
+  box.innerHTML = related.map(p => `
+    <div class="related-card"
+      onclick="navigateWithTransition('product.html?slug=${p.slug}')">
+      <img src="${p.images?.[0]}">
+      <div>${p.name}</div>
+      <div style="color:#d4af37">₹${p.price}</div>
+    </div>
+  `).join("");
+}
 /* =========================
    RENDER CONTROLS (MASTER)
 ========================= */
@@ -406,17 +607,27 @@ function renderCartControls(){
 ========================= */
 
 function addFirstTime(){
+
   fetch("https://alabuzer-backend.onrender.com/api/products")
     .then(r => r.json())
     .then(data => {
+
       const product = data.data.find(p => p.slug === currentSlug);
       if(!product) return;
 
       const qty = Math.max(1, selectedQty);
+
       upsertCartItem(product, qty);
+
       selectedQty = 1;
+
       renderCartControls();
       updateCartCount();
+
+      // 🔥 NEW LOGIC
+      document.getElementById("stickyBuy")?.classList.remove("active");
+      showGoToCartButton();   // 🔥 trigger floating cart
+
     });
 }
 
@@ -570,6 +781,36 @@ container.innerHTML = `
   `).join("")}
 `;
 }
+
+function showGoToCartButton(){
+
+  const btn = document.getElementById("goToCartBtn");
+  if(!btn) return;
+
+  btn.classList.add("show");
+
+  setTimeout(() => {
+    btn.classList.remove("show");
+  }, 8000); // 8 sec visible
+}
+
+const sticky = document.getElementById("stickyBuy");
+const cartBox = document.getElementById("cartControls");
+
+window.addEventListener("scroll", () => {
+
+  if(!sticky || !cartBox) return;
+
+  const rect = cartBox.getBoundingClientRect();
+  const item = getCartItem(currentSlug); // 🔥 check cart
+
+  if(rect.bottom < 0 && !item){
+    sticky.classList.add("active");
+  }else{
+    sticky.classList.remove("active");
+  }
+
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   updateUserUI();

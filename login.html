@@ -454,7 +454,8 @@ async function loginUser(){
       localStorage.setItem("user", JSON.stringify({
         _id: data.user._id,
         name: data.user.name,
-        email: data.user.email || data.user.mail || "not available"
+        email: data.user.email || data.user.mail || "not available",
+        role: data.user.role
       }));
 
       navigateWithTransition("index.html");
