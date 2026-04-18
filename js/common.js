@@ -374,6 +374,53 @@ function initCartButton(){
   }
 }
 
+let allProducts = [];
+
+fetch("https://alabuzer-backend.onrender.com/api/products")
+  .then(r => r.json())
+  .then(data => {
+    allProducts = data.data;
+  });
+
+document.getElementById("searchInput").addEventListener("input", function(){
+
+  const query = this.value.toLowerCase();
+  const box = document.getElementById("searchResults");
+
+  if(!query){
+    box.innerHTML = "";
+    return;
+  }
+
+  const filtered = allProducts.filter(p =>
+    p.name.toLowerCase().includes(query)
+  ).slice(0,6);
+
+  box.innerHTML = filtered.map(p => `
+    <div class="search-item"
+      onclick="navigateWithTransition('product.html?slug=${p.slug}')">
+
+      <img src="${p.images?.[0]}">
+      <div>
+        <div>${p.name}</div>
+        <div style="color:#d4af37">₹${p.price}</div>
+      </div>
+
+    </div>
+  `).join("");
+});
+
+document.body.insertAdjacentHTML("beforeend", `
+  <div id="searchOverlay" class="search-overlay">
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search perfumes...">
+      <div id="searchResults"></div>
+    </div>
+
+  </div>
+`);
+
 document.addEventListener("DOMContentLoaded", mobileCardHighlight);
 
 /* ===============================
@@ -409,6 +456,7 @@ window.addEventListener("popstate", function(){
 
 document.getElementById("searchOverlay").addEventListener("click",(e)=>{
   if(e.target.id === "searchOverlay"){
+    closeSearch();
     history.back(); // 🔥 instead of direct close
   }
 });
