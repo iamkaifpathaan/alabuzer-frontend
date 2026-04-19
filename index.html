@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  if (!sessionStorage.getItem('introShown')) {
+    window.location.replace('al-abuzar.html');
+  }
+</script>
 <link rel="preload" href="assets/video/hero-video.mp4" as="video" type="video/mp4">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Montserrat:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">

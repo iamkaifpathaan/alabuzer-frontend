@@ -714,6 +714,7 @@ html,body{
    REDIRECT after animation
 ============================================================ */
 setTimeout(() => {
+  sessionStorage.setItem('introShown', '1');
   window.location.href = 'index.html';
 }, 6100);
 </script>
