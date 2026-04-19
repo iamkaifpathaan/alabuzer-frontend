@@ -690,6 +690,15 @@ body{
     <button class="modal-cancel" onclick="closeEditModal()">Cancel</button>
   </div>
 </div>
+
+<div id="editEmailModal" class="modal">
+  <div class="modal-box">
+    <h3 style="color:var(--lux-gold);">Edit Email</h3>
+    <input type="email" id="editEmailInput" placeholder="Enter your new email" aria-label="New email address">
+    <button class="save-btn" onclick="saveNewEmail()">Save Email</button>
+    <button class="modal-cancel" onclick="closeEditEmailModal()">Cancel</button>
+  </div>
+</div>
 <div id="profileToast" class="profile-toast"></div>
 <div id="pageTransition" class="page-transition">
   <img src="assets/logo/logo.svg" class="transition-logo">
@@ -725,6 +734,49 @@ function openEditModal(){
 
 function closeEditModal(){
   document.getElementById("editModal").classList.remove("active");
+}
+
+/* =========================
+   EDIT EMAIL
+========================= */
+
+function openEditEmailModal(){
+  const user = getUserSafe();
+  if(!user) return;
+  document.getElementById("editEmailInput").value = user.email || "";
+  document.getElementById("editEmailModal").classList.add("active");
+}
+
+function closeEditEmailModal(){
+  document.getElementById("editEmailModal").classList.remove("active");
+}
+
+function saveNewEmail(){
+  const user = getUserSafe();
+  if(!user) return;
+
+  const newEmail = document.getElementById("editEmailInput").value.trim();
+
+  if(!newEmail){ showProfileToast("Please enter an email"); return; }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailPattern.test(newEmail)){
+    showProfileToast("Invalid email format");
+    return;
+  }
+
+  if(newEmail === user.email){
+    closeEditEmailModal();
+    return;
+  }
+
+  user.email = newEmail;
+  user.emailVerified = false;
+  localStorage.setItem("user", JSON.stringify(user));
+
+  closeEditEmailModal();
+  showProfileToast("Email updated ✓");
+  switchProfileTab("overview");
 }
 
 function saveProfile(){
@@ -1110,8 +1162,9 @@ const profileTemplates = {
     </div>
 
       <div class="info-card">
-        <div class="info-label">Email Verification</div>
-        <div class="info-value" style="margin-top:8px;">
+        <div class="info-label">Email</div>
+        <div class="info-value">${user.email || ""}</div>
+        <div style="margin-top:8px;">
           ${badge}
           ${verifyBtn}
         </div>
@@ -1121,6 +1174,9 @@ const profileTemplates = {
     <div class="action-row">
       <button class="profile-btn edit"
         onclick="openEditModal()">Edit Name</button>
+
+      <button class="profile-btn edit"
+        onclick="openEditEmailModal()">Edit Email</button>
 
       <button class="profile-btn logout"
         onclick="logoutUser(event)">Logout</button>
