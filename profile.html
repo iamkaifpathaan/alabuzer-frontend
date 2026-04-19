@@ -685,9 +685,9 @@ body{
 <div id="editModal" class="modal">
   <div class="modal-box">
     <h3 style="color:var(--lux-gold);">Edit Profile</h3>
-    <input id="editName" placeholder="Enter your name">
+    <input type="text" id="editName" placeholder="Enter your name" aria-label="Full name">
     <button class="save-btn" onclick="saveProfile()">Save Changes</button>
-    <button class="modal-cancel" onclick="document.getElementById('editModal').classList.remove('active')">Cancel</button>
+    <button class="modal-cancel" onclick="closeEditModal()">Cancel</button>
   </div>
 </div>
 <div id="profileToast" class="profile-toast"></div>
@@ -723,6 +723,10 @@ function openEditModal(){
   document.getElementById("editModal").classList.add("active");
 }
 
+function closeEditModal(){
+  document.getElementById("editModal").classList.remove("active");
+}
+
 function saveProfile(){
   const user = getUserSafe();
   if(!user) return;
@@ -733,7 +737,7 @@ function saveProfile(){
   user.name = newName;
   localStorage.setItem("user", JSON.stringify(user));
 
-  document.getElementById("editModal").classList.remove("active");
+  closeEditModal();
 
   loadProfile();
   updateUserUI();
@@ -741,12 +745,14 @@ function saveProfile(){
   showProfileToast("Profile updated ✓");
 }
 
+const TOAST_DISPLAY_DURATION_MS = 2800; /* ms — long enough to read, short enough to not linger */
+
 function showProfileToast(msg){
   const t = document.getElementById("profileToast");
   if(!t) return;
   t.textContent = msg;
   t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2800);
+  setTimeout(() => t.classList.remove("show"), TOAST_DISPLAY_DURATION_MS);
 }
 
 function logoutUser(e){
