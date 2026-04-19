@@ -360,7 +360,6 @@ body {
 </div>
 <script src="js/common.js"></script>
 <script>
-let allProducts = [];
 
 async function loadProducts(){
   const container = document.getElementById("products");
@@ -781,16 +780,13 @@ setInterval(() => {
 
   if(!track || !autoScroll) return;
 
-  scrollAmount += 300;
+  const maxScroll = track.scrollWidth - track.clientWidth;
 
-  if(scrollAmount >= track.scrollWidth - track.clientWidth){
-    scrollAmount = 0;
+  if(track.scrollLeft >= maxScroll){
+    track.scrollTo({ left: 0, behavior: "smooth" });
+  } else {
+    track.scrollBy({ left: 300, behavior: "smooth" });
   }
-
-  track.scrollTo({
-    left: scrollAmount,
-    behavior: "smooth"
-  });
 
 }, 3000);
 

@@ -1,3 +1,21 @@
+let allProducts = [];
+
+async function loadGlobalProducts(){
+
+  try{
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/products");
+    const data = await res.json();
+
+    if(data.success){
+      allProducts = data.data.filter(p => p.isActive !== false);
+    }
+
+  }catch(err){
+    console.error("Global product load failed");
+  }
+
+}
+
 // ===============================
 // 🛒 GLOBAL CART ENGINE (STABLE)
 // ===============================
@@ -306,15 +324,27 @@ function mobileCardHighlight(){
 }
 
 function openSearch(){
-  document.getElementById("searchOverlay").style.display = "flex";
-  document.getElementById("searchOverlayInput").focus();
+  const overlay = document.getElementById("searchOverlay");
 
-  // 🔥 push state
-  history.pushState({ searchOpen: true }, "");
+  if(!overlay){
+    console.error("Search overlay not found");
+    return;
+  }
+
+  overlay.style.display = "flex";
+  overlay.style.opacity = "1";
+  overlay.style.pointerEvents = "auto";
+
+  setTimeout(()=>{
+    document.getElementById("searchOverlayInput")?.focus();
+  },100);
 }
 
 function closeSearch(){
-  document.getElementById("searchOverlay").style.display = "none";
+  const overlay = document.getElementById("searchOverlay");
+  if(!overlay) return;
+
+  overlay.style.display = "none";
 }
 
 function handleSearchOverlay(){
@@ -331,15 +361,41 @@ function handleSearchOverlay(){
     return;
   }
 
-  const filtered = allProducts.filter(p =>
-    p.name.toLowerCase().includes(query)
-  );
+  const filtered = allProducts
+    .filter(p => p.name.toLowerCase().includes(query))
+    .slice(0,6);
 
   resultsBox.innerHTML = filtered.map(p => `
-    <div class="search-item" onclick="openProduct('${p.slug}')">
-      ${p.name}
+    <div class="search-item"
+      onclick="handleSearchClick('${p.slug}')">
+
+      <img src="${p.images?.[0]}" 
+        style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px">
+
+      <div>
+        <div>${p.name}</div>
+        <div style="color:#d4af37;font-size:13px">₹${p.price}</div>
+      </div>
+
     </div>
   `).join("");
+
+}
+
+function handleSearchClick(slug){
+
+  // 🔒 close overlay first
+  const overlay = document.getElementById("searchOverlay");
+  if(overlay) overlay.style.opacity = "0";;
+
+  // 🧠 optional: clear results
+  document.getElementById("searchResults").innerHTML = "";
+
+  // 🚀 transition ke sath navigation
+  setTimeout(()=>{
+    navigateWithTransition(`product.html?slug=${slug}`);
+  }, 100); // 🔥 small delay = smooth feel
+
 }
 
 function initCartButton(){
@@ -374,52 +430,43 @@ function initCartButton(){
   }
 }
 
-let allProducts = [];
 
-fetch("https://alabuzer-backend.onrender.com/api/products")
-  .then(r => r.json())
-  .then(data => {
-    allProducts = data.data;
-  });
+document.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("searchInput").addEventListener("input", function(){
+  const searchInput = document.getElementById("searchInput");
 
-  const query = this.value.toLowerCase();
-  const box = document.getElementById("searchResults");
+  if(searchInput){
+    searchInput.addEventListener("input", function(){
 
-  if(!query){
-    box.innerHTML = "";
-    return;
+      const query = this.value.toLowerCase();
+      const box = document.getElementById("searchResults");
+
+      if(!query){
+        box.innerHTML = "";
+        return;
+      }
+
+      const filtered = allProducts.filter(p =>
+        p.name.toLowerCase().includes(query)
+      ).slice(0,6);
+
+      box.innerHTML = filtered.map(p => `
+        <div class="search-item"
+          onclick="navigateWithTransition('product.html?slug=${p.slug}')">
+
+          <img src="${p.images?.[0]}">
+          <div>
+            <div>${p.name}</div>
+            <div style="color:#d4af37">₹${p.price}</div>
+          </div>
+
+        </div>
+      `).join("");
+
+    });
   }
 
-  const filtered = allProducts.filter(p =>
-    p.name.toLowerCase().includes(query)
-  ).slice(0,6);
-
-  box.innerHTML = filtered.map(p => `
-    <div class="search-item"
-      onclick="navigateWithTransition('product.html?slug=${p.slug}')">
-
-      <img src="${p.images?.[0]}">
-      <div>
-        <div>${p.name}</div>
-        <div style="color:#d4af37">₹${p.price}</div>
-      </div>
-
-    </div>
-  `).join("");
 });
-
-document.body.insertAdjacentHTML("beforeend", `
-  <div id="searchOverlay" class="search-overlay">
-
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search perfumes...">
-      <div id="searchResults"></div>
-    </div>
-
-  </div>
-`);
 
 document.addEventListener("DOMContentLoaded", mobileCardHighlight);
 
@@ -431,6 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCartCount();
   updateUserUI();
   initCartButton();
+  loadGlobalProducts();
 });
 
 window.addEventListener("pageshow", function(event) {
@@ -454,11 +502,18 @@ window.addEventListener("popstate", function(){
   }
 });
 
-document.getElementById("searchOverlay").addEventListener("click",(e)=>{
-  if(e.target.id === "searchOverlay"){
-    closeSearch();
-    history.back(); // 🔥 instead of direct close
+document.addEventListener("DOMContentLoaded", () => {
+
+  const overlay = document.getElementById("searchOverlay");
+
+  if(overlay){
+    overlay.addEventListener("click",(e)=>{
+      if(e.target.id === "searchOverlay"){
+        closeSearch();
+      }
+    });
   }
+
 });
 
 window.addEventListener("scroll", () => {
@@ -470,3 +525,5 @@ window.addEventListener("scroll", () => {
     header.style.background = "rgba(10,10,10,0.55)";
   }
 });
+
+window.openSearch = openSearch;
