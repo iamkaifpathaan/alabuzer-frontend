@@ -552,8 +552,9 @@ async function loadProducts(){
       const div = document.createElement("div");
       div.className = "card";
 
-      const stockClass = p.stock === 0 ? "no-stock" : p.stock <= LOW_STOCK_THRESHOLD ? "low-stock" : "in-stock";
-      const stockLabel = p.stock === 0 ? "Out of Stock" : p.stock <= LOW_STOCK_THRESHOLD ? `Low: ${p.stock}` : `${p.stock} in stock`;
+      const isOutOfStock = p.stock === 0;
+      const stockClass = isOutOfStock ? "no-stock" : p.stock <= LOW_STOCK_THRESHOLD ? "low-stock" : "in-stock";
+      const stockLabel = isOutOfStock ? "Out of Stock" : p.stock <= LOW_STOCK_THRESHOLD ? `Low: ${p.stock}` : `${p.stock} in stock`;
 
       const priceHtml = p.discountPrice
         ? `<span style="color:#d4af37;font-weight:700;">₹${p.discountPrice}</span><span class="original-price">₹${p.price}</span>`

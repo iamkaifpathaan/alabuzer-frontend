@@ -348,6 +348,7 @@ body{
 /* ===== STATE ===== */
 let emailVerified = false;
 let emailOtpTimer;
+const EMAIL_OTP_LENGTH = 6;
 
 /* =========================
    PHONE OTP
@@ -554,8 +555,8 @@ async function verifyEmailOtp(){
   const token = localStorage.getItem("token");
   const btn = document.getElementById("verifyEmailOtpBtn");
 
-  if(!otp || otp.length !== 6){
-    alert("Please enter the complete 6-digit OTP sent to your email");
+  if(!otp || otp.length !== EMAIL_OTP_LENGTH){
+    alert(`Please enter the complete ${EMAIL_OTP_LENGTH}-digit OTP sent to your email`);
     return;
   }
 
