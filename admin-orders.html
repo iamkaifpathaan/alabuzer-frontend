@@ -2,61 +2,47 @@
 <html>
 <head>
 <link rel="stylesheet" href="styles/global.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
 <link rel="manifest" href="assets/favicon/site.webmanifest">
 <link rel="icon" href="assets/favicon/favicon.ico">
+<title>Admin Orders - AL-ABUZAR</title>
 <style>
 
 body{
-background:#0b0b0b;
-color:white;
-font-family:Montserrat;
-padding:40px;
+  background:#0b0b0b;
+  color:white;
+  font-family:'Montserrat',sans-serif;
+  padding:24px 20px;
+  min-height:100vh;
 }
 
-.orders{
-display:flex;
-flex-direction:column;
-gap:20px;
-max-width:1000px;
-margin:auto;
+.page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  max-width:1000px;
+  margin:0 auto 20px;
+  flex-wrap:wrap;
+  gap:12px;
 }
 
-.order{
-background:#111;
-border:1px solid rgba(212,175,55,0.25);
-padding:20px;
-border-radius:10px;
-}
-
-.order-head{
-display:flex;
-justify-content:space-between;
-margin-bottom:10px;
-color:#d4af37;
-}
-
-.order-items{
-margin-top:10px;
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-select{
-background:#0b0b0b;
-color:white;
-border:1px solid #444;
-padding:6px;
+.page-header h2{
+  color:#d4af37;
+  font-size:24px;
+  margin:0;
+  letter-spacing:1px;
 }
 
 .order-tabs{
   display:flex;
-  gap:10px;
+  gap:8px;
   flex-wrap:wrap;
-  margin:20px 0;
+  max-width:1000px;
+  margin:0 auto 24px;
 }
 
 .tab-btn{
@@ -66,6 +52,8 @@ padding:6px;
   padding:6px 14px;
   cursor:pointer;
   border-radius:20px;
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
   transition:0.25s;
 }
 
@@ -76,56 +64,260 @@ padding:6px;
 .tab-btn.active{
   background:#d4af37;
   color:#000;
+  font-weight:600;
+}
+
+.orders{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  max-width:1000px;
+  margin:0 auto;
+}
+
+.order{
+  background:#111;
+  border:1px solid rgba(212,175,55,0.25);
+  padding:22px;
+  border-radius:12px;
+  transition:border-color 0.2s;
+}
+
+.order:hover{
+  border-color:rgba(212,175,55,0.45);
+}
+
+.order-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.order-id{
+  color:#d4af37;
+  font-weight:700;
+  font-size:16px;
+  letter-spacing:0.5px;
+}
+
+.order-date{
+  font-size:12px;
+  color:#888;
+  margin-top:2px;
+}
+
+.status-badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
+
+.badge-placed   { background:rgba(230,198,90,0.15);  color:#e6c65a;  border:1px solid rgba(230,198,90,0.3);  }
+.badge-packed   { background:rgba(76,175,80,0.15);   color:#4caf50;  border:1px solid rgba(76,175,80,0.3);   }
+.badge-shipped  { background:rgba(33,150,243,0.15);  color:#2196f3;  border:1px solid rgba(33,150,243,0.3);  }
+.badge-delivered{ background:rgba(0,200,83,0.15);    color:#00c853;  border:1px solid rgba(0,200,83,0.3);    }
+.badge-cancelled{ background:rgba(244,67,54,0.15);   color:#f44336;  border:1px solid rgba(244,67,54,0.3);   }
+
+.customer-info{
+  background:rgba(212,175,55,0.05);
+  border:1px solid rgba(212,175,55,0.12);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-bottom:14px;
+  font-size:14px;
+  line-height:1.7;
+}
+
+.customer-info strong{
+  color:#e0e0e0;
+}
+
+.customer-info .info-label{
+  color:#888;
+  font-size:12px;
+}
+
+.order-items{
+  display:flex;
+  flex-direction:column;
+  gap:0;
 }
 
 .admin-item-row{
   display:flex;
   align-items:center;
   gap:12px;
-  margin:8px 0;
-  padding:8px 0;
+  padding:10px 0;
   border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
+.admin-item-row:last-child{
+  border-bottom:none;
+}
+
 .admin-item-img{
-  width:50px;
-  height:50px;
+  width:54px;
+  height:54px;
   object-fit:cover;
-  border-radius:6px;
+  border-radius:8px;
   border:1px solid rgba(212,175,55,0.3);
+  flex-shrink:0;
 }
 
 .admin-item-info{
   flex:1;
+  min-width:0;
+}
+
+.admin-item-name{
+  font-size:14px;
+  font-weight:500;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.admin-item-price{
+  font-size:12px;
+  color:#aaa;
+  margin-top:2px;
 }
 
 .admin-item-total{
-  font-weight:600;
+  font-weight:700;
+  color:#d4af37;
+  font-size:14px;
+  flex-shrink:0;
+}
+
+.order-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:14px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.order-total-label{
+  font-size:16px;
+  font-weight:700;
   color:#d4af37;
 }
 
-</style>
+.status-select-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
 
+.status-select-wrap label{
+  font-size:12px;
+  color:#888;
+  white-space:nowrap;
+}
+
+select.status-select{
+  background:#0b0b0b;
+  color:white;
+  border:1px solid rgba(212,175,55,0.4);
+  padding:7px 10px;
+  border-radius:8px;
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
+  cursor:pointer;
+  min-width:140px;
+  transition:border-color 0.2s;
+}
+
+select.status-select:hover{
+  border-color:#d4af37;
+}
+
+select.status-select:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+/* ===== TOAST ===== */
+#toastContainer{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+
+.toast{
+  background:#1a1a1a;
+  border:1px solid rgba(212,175,55,0.4);
+  color:white;
+  padding:12px 18px;
+  border-radius:8px;
+  font-size:13px;
+  font-family:'Montserrat',sans-serif;
+  animation:toastIn 0.3s ease;
+  pointer-events:all;
+  max-width:280px;
+}
+
+.toast.success{ border-color:rgba(0,200,83,0.5); color:#00c853; }
+.toast.error  { border-color:rgba(244,67,54,0.5); color:#f44336; }
+
+@keyframes toastIn{
+  from{ opacity:0; transform:translateX(30px); }
+  to  { opacity:1; transform:translateX(0);    }
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{
+  text-align:center;
+  color:#555;
+  padding:40px;
+  font-size:15px;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  body{ padding:16px 14px; }
+  .order-footer{ flex-direction:column; align-items:flex-start; }
+  .status-select-wrap{ width:100%; }
+  select.status-select{ flex:1; }
+}
+
+</style>
 </head>
 
 <body>
 
-<div style="display:flex; justify-content:space-between; align-items:center;">
+<div id="toastContainer"></div>
+
+<div class="page-header">
   <h2>Admin Orders</h2>
-  <div class="order-tabs">
-
-  <button onclick="filterOrders('all')" class="tab-btn active">All</button>
-  <button onclick="filterOrders('placed')" class="tab-btn">Placed</button>
-  <button onclick="filterOrders('confirmed')" class="tab-btn">Confirmed</button>
-  <button onclick="filterOrders('shipped')" class="tab-btn">Shipped</button>
-  <button onclick="filterOrders('delivered')" class="tab-btn">Delivered</button>
-  <button onclick="filterOrders('cancelled')" class="tab-btn">Cancelled</button>
-
-</div>
   <button class="back-home-btn" onclick="goHomePage()">← Home</button>
 </div>
 
+<div class="order-tabs">
+  <button onclick="filterOrders('all',event)" class="tab-btn active">All</button>
+  <button onclick="filterOrders('placed',event)" class="tab-btn">Placed</button>
+  <button onclick="filterOrders('packed',event)" class="tab-btn">Packed</button>
+  <button onclick="filterOrders('shipped',event)" class="tab-btn">Shipped</button>
+  <button onclick="filterOrders('delivered',event)" class="tab-btn">Delivered</button>
+  <button onclick="filterOrders('cancelled',event)" class="tab-btn">Cancelled</button>
+</div>
+
 <div id="orders" class="orders"></div>
+
 <script src="js/common.js"></script>
 <script>
   adminGuard();
@@ -133,191 +325,174 @@ padding:6px;
 <script>
 
 const statusFlow = {
-  placed: ["confirmed","cancelled"],
-  confirmed: ["shipped","cancelled"],
-  shipped: ["delivered"],
+  placed:    ["packed", "cancelled"],
+  packed:    ["shipped", "cancelled"],
+  shipped:   ["delivered"],
   delivered: [],
   cancelled: []
 };
 
 let allOrders = [];
-let currentFilter = "all";  
-const user = JSON.parse(localStorage.getItem("user"));
+let currentFilter = "all";
 
+const user = JSON.parse(localStorage.getItem("user"));
 if(!user || user.role !== "admin"){
   window.location.href = "index.html";
 }
 
+/* ===== TOAST ===== */
+function showToast(msg, type="info"){
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = msg;
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
+
+/* ===== LOAD ===== */
 async function loadOrders(){
-
   try{
-
     const token = localStorage.getItem("token");
-
     const res = await fetch("https://alabuzer-backend.onrender.com/api/orders/all",{
-      headers:{
-        "Authorization":"Bearer " + token
-      }
+      headers:{ "Authorization":"Bearer " + token }
     });
-
     const data = await res.json();
-
     if(!data.success) return;
-
     allOrders = data.orders;
     renderOrders();
-
   }catch(err){
     console.error("ADMIN LOAD ERROR:", err);
+    showToast("Failed to load orders","error");
   }
 }
 
+/* ===== RENDER ===== */
 function renderOrders(){
-
   const container = document.getElementById("orders");
   container.innerHTML = "";
 
-  let filtered = allOrders;
-
-  if(currentFilter !== "all"){
-    filtered = allOrders.filter(o => o.orderStatus === currentFilter);
-  }
+  let filtered = currentFilter === "all"
+    ? allOrders
+    : allOrders.filter(o => o.orderStatus === currentFilter);
 
   if(filtered.length === 0){
-    container.innerHTML = "<p>No orders in this section</p>";
+    container.innerHTML = `<div class="empty-state">No orders found</div>`;
     return;
   }
 
   filtered.forEach(order => {
-
-    const total = order.items.reduce((sum,i)=> sum + (i.price * i.qty),0);
+    const total = order.items.reduce((sum,i)=> sum + (i.price * i.qty), 0);
+    const nextStatuses = statusFlow[order.orderStatus] || [];
+    const isFinal = ["delivered","cancelled"].includes(order.orderStatus);
 
     const div = document.createElement("div");
     div.className = "order";
 
     div.innerHTML = `
       <div class="order-head">
-        <span>Order #${order._id.slice(-6)}</span>
-        <span class="status-${order.orderStatus}">
-          ${order.orderStatus.toUpperCase()}
+        <div>
+          <div class="order-id">Order #${order._id.slice(-6).toUpperCase()}</div>
+          <div class="order-date">${new Date(order.createdAt).toLocaleString()}</div>
+        </div>
+        <span class="status-badge badge-${order.orderStatus}">
+          ${order.orderStatus}
         </span>
       </div>
 
-      <div style="margin-top:10px;font-size:13px;color:#aaa;">
-        ${new Date(order.createdAt).toLocaleString()}
-      </div>
-
-      <div style="margin-top:10px;">
-        <strong>${order.shippingAddress?.name || "No Name"}</strong> |
-        ${order.shippingAddress?.phone || "No Phone"}<br>
-        ${order.shippingAddress?.addressLine || ""},
-        ${order.shippingAddress?.city || ""},
-        ${order.shippingAddress?.state || ""} -
-        ${order.shippingAddress?.pincode || ""}
+      <div class="customer-info">
+        <div><span class="info-label">Customer: </span><strong>${order.shippingAddress?.name || "—"}</strong></div>
+        <div><span class="info-label">Phone: </span>${order.shippingAddress?.phone || "—"}</div>
+        <div><span class="info-label">Address: </span>${[
+          order.shippingAddress?.addressLine,
+          order.shippingAddress?.city,
+          order.shippingAddress?.state,
+          order.shippingAddress?.pincode
+        ].filter(Boolean).join(", ")}</div>
       </div>
 
       <div class="order-items">
         ${order.items.map(i => `
-  <div class="admin-item-row">
-    
-    <img src="${i.image}" class="admin-item-img">
-
-    <div class="admin-item-info">
-      <div>${i.name}</div>
-      <div style="font-size:12px;color:#aaa;">
-        ₹${i.price} × ${i.qty}
-      </div>
-    </div>
-
-    <div class="admin-item-total">
-      ₹${i.price * i.qty}
-    </div>
-
-  </div>
-`).join("")}
+          <div class="admin-item-row">
+            <img src="${i.image || 'https://dummyimage.com/54'}" class="admin-item-img" onerror="this.src='https://dummyimage.com/54'">
+            <div class="admin-item-info">
+              <div class="admin-item-name">${i.name}</div>
+              <div class="admin-item-price">₹${i.price} × ${i.qty}</div>
+            </div>
+            <div class="admin-item-total">₹${i.price * i.qty}</div>
+          </div>
+        `).join("")}
       </div>
 
-      <div style="margin-top:8px;font-weight:600;color:#d4af37;">
-        Total: ₹${total}
-      </div>
-
-      <div style="margin-top:12px">
-<select 
-  onchange="updateStatus('${order._id}',this.value)"
-  ${["delivered","cancelled"].includes(order.orderStatus) ? "disabled" : ""}
->
-
-  <option value="${order.orderStatus}">
-    ${order.orderStatus}
-  </option>
-
-  ${
-    {
-      placed: ["confirmed","cancelled"],
-      confirmed: ["shipped","cancelled"],
-      shipped: ["delivered"],
-      delivered: [],
-      cancelled: []
-    }[order.orderStatus]
-    .map(s => `<option value="${s}">${s}</option>`)
-    .join("")
-  }
-
-</select>
-          <option value="placed" ${order.orderStatus==="placed"?"selected":""}>placed</option>
-          <option value="confirmed" ${order.orderStatus==="confirmed"?"selected":""}>confirmed</option>
-          <option value="shipped" ${order.orderStatus==="shipped"?"selected":""}>shipped</option>
-          <option value="delivered" ${order.orderStatus==="delivered"?"selected":""}>delivered</option>
-          <option value="cancelled" ${order.orderStatus==="cancelled"?"selected":""}>cancelled</option>
-        </select>
+      <div class="order-footer">
+        <div class="order-total-label">Total: ₹${total}</div>
+        <div class="status-select-wrap">
+          <label>Update status:</label>
+          <select
+            id="sel-${order._id}"
+            class="status-select"
+            onchange="updateStatus('${order._id}',this)"
+            ${isFinal ? "disabled" : ""}
+          >
+            <option value="${order.orderStatus}">${order.orderStatus}</option>
+            ${nextStatuses.map(s => `<option value="${s}">${s}</option>`).join("")}
+          </select>
+        </div>
       </div>
     `;
 
     container.appendChild(div);
-
   });
-
 }
 
-function filterOrders(status){
-
+/* ===== FILTER ===== */
+function filterOrders(status, evt){
   currentFilter = status;
-
-  document.querySelectorAll(".tab-btn").forEach(btn=>{
-    btn.classList.remove("active");
-  });
-
-  event.target.classList.add("active");
-
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  if(evt && evt.target) evt.target.classList.add("active");
   renderOrders();
+}
+
+/* ===== UPDATE STATUS ===== */
+async function updateStatus(id, selectEl){
+  const newStatus = selectEl.value;
+  const token = localStorage.getItem("token");
+
+  selectEl.disabled = true;
+
+  try{
+    const res = await fetch(`https://alabuzer-backend.onrender.com/api/orders/status/${id}`,{
+      method:"PUT",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    const data = await res.json();
+
+    if(res.ok && data.success !== false){
+      allOrders = allOrders.map(o =>
+        o._id === id ? {...o, orderStatus: newStatus} : o
+      );
+      showToast(`Order updated to "${newStatus}" ✓`, "success");
+      renderOrders();
+    }else{
+      showToast(data.message || "Status update failed", "error");
+      // revert select
+      const original = allOrders.find(o => o._id === id)?.orderStatus || "";
+      selectEl.value = original;
+      selectEl.disabled = false;
+    }
+  }catch(err){
+    console.error(err);
+    showToast("Network error. Please try again.", "error");
+    selectEl.disabled = false;
+  }
 }
 
 function goHomePage(){
   window.location.href = "index.html";
-}
-
-async function updateStatus(id,status){
-
-  const token = localStorage.getItem("token");
-
-  await fetch(`https://alabuzer-backend.onrender.com/api/orders/status/${id}`,{
-    method:"PUT",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer " + token
-    },
-    body:JSON.stringify({status})
-  });
-
-  // ✅ update local state instead of reload
-  allOrders = allOrders.map(o => {
-    if(o._id === id){
-      return {...o, orderStatus: status};
-    }
-    return o;
-  });
-
-  renderOrders();
 }
 
 loadOrders();

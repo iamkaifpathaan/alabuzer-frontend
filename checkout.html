@@ -193,7 +193,28 @@ body{
     <div id="checkoutItems"></div>
     <div id="checkoutTotal" class="total-box"></div>
 
-    <div id="checkoutActions">
+    <!-- Optional email verification -->
+    <div id="emailOptSection" style="display:none;margin-top:16px;padding:14px;background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.15);border-radius:8px;">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#ddd;">
+        <input type="checkbox" id="emailNotifChk" onchange="handleEmailNotifToggle()" style="width:16px;height:16px;accent-color:#d4af37;cursor:pointer;">
+        Get email notifications for order updates
+      </label>
+      <div id="emailVerifyArea" style="display:none;margin-top:14px;">
+        <input id="emailInput" placeholder="Your email address" style="width:100%;box-sizing:border-box;padding:10px 12px;background:#0b0b0b;border:1px solid #333;color:white;border-radius:6px;font-size:13px;margin-bottom:10px;">
+        <button id="sendEmailOtpBtn" class="add-btn" onclick="sendEmailOtp()" style="font-size:13px;padding:9px 16px;width:100%;">Send Email OTP</button>
+        <div id="emailOtpSection" style="display:none;margin-top:12px;">
+          <p style="margin:0 0 8px;font-size:13px;color:#aaa;">Enter the 6-digit code sent to your email</p>
+          <input id="emailOtpInput" maxlength="6" placeholder="──────" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:10px 12px;background:#0b0b0b;border:1px solid #333;color:white;border-radius:6px;font-size:16px;text-align:center;letter-spacing:8px;margin-bottom:10px;">
+          <button id="verifyEmailOtpBtn" class="add-btn" onclick="verifyEmailOtp()" style="font-size:13px;padding:9px 16px;width:100%;">Verify Email</button>
+          <p id="emailResendText" style="font-size:12px;color:#aaa;margin-top:8px;text-align:center;">
+            Resend in <span id="emailTimer">60</span>s
+          </p>
+        </div>
+        <div id="emailVerifiedMsg" style="display:none;color:#00c853;font-size:13px;margin-top:8px;">✓ Email verified — you'll receive order updates</div>
+      </div>
+    </div>
+
+    <div id="checkoutActions" style="margin-top:16px;">
 
   <button id="confirmBtn" class="add-btn" onclick="confirmDetails()">
     Confirm Details
@@ -218,15 +239,15 @@ body{
   <div class="otp-box">
 
     <h2>Verify Phone</h2>
-    <p>Enter your mobile number</p>
+    <p style="color:#aaa;font-size:13px;">Verify your phone number for order delivery confirmation</p>
 
-    <input id="phoneInput" placeholder="Enter phone number" />
+    <input id="phoneInput" placeholder="Enter 10-digit mobile number" />
 
-    <button onclick="sendOtp()">Send OTP</button>
+    <button id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
 
     <div id="otpSection" style="display:none; margin-top:15px;">
       
-      <p>Enter OTP</p>
+      <p>Enter OTP sent to your phone</p>
 
       <div class="otp-inputs">
         <input maxlength="1">
@@ -237,7 +258,7 @@ body{
         <input maxlength="1">
       </div>
 
-      <button onclick="verifyOtp()">Verify</button>
+      <button onclick="verifyOtp()">Verify OTP</button>
       <p id="resendText" style="font-size:13px;color:#aaa;">
         Resend OTP in <span id="timer">30</span>s
       </p>
@@ -253,20 +274,27 @@ body{
 
 <script>
 
+/* ===== STATE ===== */
+let emailVerified = false;
+let emailOtpTimer;
+
+/* =========================
+   PHONE OTP
+========================= */
+
 async function sendOtp(){
 
   const phone = document.getElementById("phoneInput").value.trim();
   const token = localStorage.getItem("token");
-  const btn = document.querySelector(".otp-box button");
-
-
+  const btn = document.getElementById("sendOtpBtn");
 
   if(!/^[6-9]\d{9}$/.test(phone)){
-    alert("Enter valid phone number");
-    btn.disabled = true;
-    btn.innerText = "Sending...";
+    alert("Enter a valid 10-digit mobile number");
     return;
   }
+
+  btn.disabled = true;
+  btn.innerText = "Sending...";
 
   try{
 
@@ -282,16 +310,16 @@ async function sendOtp(){
     const data = await res.json();
 
     if(data.success){
-      alert("OTP sent");
       document.getElementById("otpSection").style.display = "block";
       startOtpTimer();
     }else{
-      alert(data.message);
+      alert(data.message || "Failed to send OTP");
     }
 
   }catch(err){
-    alert("Failed to send OTP");
+    alert("Failed to send OTP. Please try again.");
   }
+
   btn.disabled = false;
   btn.innerText = "Send OTP";
 
@@ -308,7 +336,7 @@ async function verifyOtp(){
   const token = localStorage.getItem("token");
 
   if(otp.length !== 6){
-    alert("Enter valid OTP");
+    alert("Please enter the complete 6-digit OTP");
     return;
   }
 
@@ -326,27 +354,26 @@ async function verifyOtp(){
     const data = await res.json();
 
     if(data.success){
-      alert("Phone verified ✅");
       document.querySelectorAll(".otp-inputs input").forEach(i => i.value = "");
-
       closeOtpPopup();
-      payWithRazorpay(); // 🔥 AUTO RETRY
+      payWithRazorpay(); // AUTO RETRY
     }else{
-      alert(data.message);
+      alert(data.message || "OTP verification failed");
     }
 
   }catch(err){
-    alert("Verification failed");
+    alert("Verification failed. Please try again.");
   }
 
 }
 
 function openOtpPopup(){
   document.getElementById("otpModal").style.display = "flex";
-
-  // auto fill phone
+  // auto fill phone from address form
   const phone = document.getElementById("phone").value;
   document.getElementById("phoneInput").value = phone;
+  document.getElementById("otpSection").style.display = "none";
+  document.getElementById("resendText").innerHTML = 'Resend OTP in <span id="timer">30</span>s';
 }
 
 function closeOtpPopup(){
@@ -364,7 +391,7 @@ function startOtpTimer(){
 
   otpTimer = setInterval(()=>{
     time--;
-    timerEl.innerText = time;
+    if(timerEl) timerEl.innerText = time;
 
     if(time <= 0){
       clearInterval(otpTimer);
@@ -374,6 +401,124 @@ function startOtpTimer(){
 
   },1000);
 
+}
+
+/* =========================
+   EMAIL VERIFICATION (OPTIONAL)
+========================= */
+
+function handleEmailNotifToggle(){
+  const checked = document.getElementById("emailNotifChk").checked;
+  document.getElementById("emailVerifyArea").style.display = checked ? "block" : "none";
+  if(!checked){
+    emailVerified = false;
+    document.getElementById("emailOtpSection").style.display = "none";
+    document.getElementById("emailVerifiedMsg").style.display = "none";
+    document.getElementById("emailInput").value = "";
+    document.getElementById("emailOtpInput").value = "";
+  }
+}
+
+async function sendEmailOtp(){
+  const email = document.getElementById("emailInput").value.trim();
+  const token = localStorage.getItem("token");
+  const btn = document.getElementById("sendEmailOtpBtn");
+
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    alert("Enter a valid email address");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Sending...";
+
+  try{
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/send-email-otp",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      document.getElementById("emailOtpSection").style.display = "block";
+      startEmailOtpTimer();
+    }else{
+      alert(data.message || "Failed to send email OTP");
+    }
+  }catch(err){
+    alert("Failed to send email OTP. Please try again.");
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Send Email OTP";
+}
+
+function startEmailOtpTimer(){
+  clearInterval(emailOtpTimer);
+  let time = 60;
+  const timerEl = document.getElementById("emailTimer");
+  if(timerEl) timerEl.innerText = time;
+  document.getElementById("emailResendText").innerHTML = `Resend in <span id="emailTimer">${time}</span>s`;
+
+  emailOtpTimer = setInterval(()=>{
+    time--;
+    const el = document.getElementById("emailTimer");
+    if(el) el.innerText = time;
+    if(time <= 0){
+      clearInterval(emailOtpTimer);
+      document.getElementById("emailResendText").innerHTML =
+        '<span onclick="sendEmailOtp()" style="color:#d4af37;cursor:pointer;">Resend Email OTP</span>';
+    }
+  }, 1000);
+}
+
+async function verifyEmailOtp(){
+  const email = document.getElementById("emailInput").value.trim();
+  const otp = document.getElementById("emailOtpInput").value.trim();
+  const token = localStorage.getItem("token");
+  const btn = document.getElementById("verifyEmailOtpBtn");
+
+  if(!otp || otp.length < 4){
+    alert("Please enter the OTP sent to your email");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Verifying...";
+
+  try{
+    const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/verify-email-otp",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ email, otp })
+    });
+
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      emailVerified = true;
+      clearInterval(emailOtpTimer);
+      document.getElementById("emailOtpSection").style.display = "none";
+      document.getElementById("emailVerifiedMsg").style.display = "block";
+      document.getElementById("sendEmailOtpBtn").style.display = "none";
+      document.getElementById("emailInput").disabled = true;
+    }else{
+      alert(data.message || "Email OTP verification failed");
+    }
+  }catch(err){
+    alert("Verification failed. Please try again.");
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Verify Email";
 }
 
 /* =========================
@@ -482,6 +627,7 @@ function confirmDetails(){
 
   document.getElementById("confirmBtn").style.display = "none";
   document.getElementById("payBtn").style.display = "block";
+  document.getElementById("emailOptSection").style.display = "block";
 }
 
 /* =========================
@@ -494,7 +640,7 @@ async function payWithRazorpay(){
 const token = localStorage.getItem("token");
 
 if(!token || token === "undefined" || token.length < 20){
-  localStorage.removeItem("token");  // 🔥 cleanup
+  localStorage.removeItem("token");  // cleanup
   alert("Please login again");
   navigateWithTransition("login.html?redirect=checkout");
   return;
@@ -507,9 +653,14 @@ if(!token || token === "undefined" || token.length < 20){
     return;
   }
 
+  // collect optional email info
+  const notifEmail = emailVerified
+    ? (document.getElementById("emailInput")?.value.trim() || null)
+    : null;
+
   try{
 
-    // 🔹 CREATE ORDER
+    // CREATE ORDER
     const res = await fetch("https://alabuzer-backend.onrender.com/api/payment/create-order",{
       method:"POST",
       headers:{
@@ -540,7 +691,7 @@ if(!token || token === "undefined" || token.length < 20){
       return;
     }
 
-    // 🔹 RAZORPAY
+    // RAZORPAY
     const options = {
       key: data.key,
       amount: data.amount,
@@ -564,11 +715,13 @@ const verifyRes = await fetch("https://alabuzer-backend.onrender.com/api/payment
     razorpay_payment_id: response.razorpay_payment_id,
     razorpay_signature: response.razorpay_signature,
     items: cart,
-    shippingAddress: address
+    shippingAddress: address,
+    emailVerified: emailVerified,
+    notificationEmail: notifEmail
   })
 });
 
-// 🔥 HANDLE TOKEN EXPIRE
+// HANDLE TOKEN EXPIRE
 
 const verifyData = await verifyRes.json();
 

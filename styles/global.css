@@ -107,9 +107,11 @@
 
 .status-placed{ color:#e6c65a; }
 .status-confirmed{ color:#4caf50; }
+.status-packed{ color:#4caf50; }
 .status-shipped{ color:#2196f3; }
 .status-out{ color:#ff9800; }
 .status-delivered{ color:#00c853; }
+.status-cancelled{ color:#f44336; }
 
 /* ===============================
    🚚 ORDER TIMELINE PREMIUM
