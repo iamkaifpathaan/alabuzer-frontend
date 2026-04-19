@@ -26,36 +26,70 @@ body{
 
 .item {
   display: flex;
-  gap: 15px;
-  border-bottom: 1px solid #333;
-  padding: 15px 0;
+  gap: 16px;
+  background: #111;
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+  transition: border-color 0.25s ease;
+}
+
+.item:hover {
+  border-color: rgba(212,175,55,0.4);
 }
 
 .item img {
   width: 80px;
   height: 80px;
   object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .price {
   color: var(--lux-gold);
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 4px;
 }
 
 .remove {
-  color: red;
+  color: #ff4d4d;
   cursor: pointer;
   margin-left: auto;
+  font-size: 13px;
+  border: 1px solid rgba(139,0,0,0.5);
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: 0.2s ease;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.remove:hover {
+  background: #8b0000;
+  color: white;
 }
 
 .total {
-  font-size: 22px;
+  font-size: 20px;
   margin-top: 20px;
   color: var(--lux-gold);
+  font-weight: 600;
+  background: #111;
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 10px;
+  padding: 16px 20px;
 }
 
 
 h2 {
   letter-spacing: 1px;
+  font-family: 'Cinzel', serif;
+  color: var(--lux-gold);
+  font-size: 26px;
+  margin-bottom: 24px;
 }
 
 .back-btn {
@@ -69,22 +103,51 @@ h2 {
   display:flex;
   align-items:center;
   gap:10px;
-  margin-top:6px;
+  margin-top:8px;
 }
 
 .qty-controls button{
   background:#111;
   color:var(--lux-gold);
   border:1px solid var(--lux-gold);
-  width:26px;
-  height:26px;
+  width:30px;
+  height:30px;
   cursor:pointer;
+  border-radius:4px;
+  font-size:16px;
+  transition: all 0.2s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.qty-controls button:hover{
+  background:var(--lux-gold);
+  color:#000;
 }
 
 .free-label{
   color:#888;
   font-size:13px;
   margin-top:6px;
+}
+
+.remove-btn{
+  background: transparent;
+  border: 1px solid #8b0000;
+  color: #ff4d4d;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: 0.2s ease;
+  margin-top: 8px;
+  width: fit-content;
+}
+
+.remove-btn:hover{
+  background: #8b0000;
+  color: white;
 }
 
 </style>

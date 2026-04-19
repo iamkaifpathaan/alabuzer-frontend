@@ -1,10 +1,58 @@
+/* ================================
+   🌐 API CONFIGURATION
+================================ */
+
+const _API_BASE = (typeof window !== "undefined" && window.location.hostname === "localhost")
+  ? "http://localhost:5000"
+  : "https://alabuzer-backend.onrender.com";
+
+/* ================================
+   📡 API WRAPPER
+================================ */
+
+async function apiCall(endpoint, method = "GET", body = null, token = null) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = "Bearer " + token;
+  const options = { method, headers };
+  if (body) options.body = JSON.stringify(body);
+  const res = await fetch(_API_BASE + endpoint, options);
+  return res.json();
+}
+
+/* ================================
+   ✅ VALIDATORS
+================================ */
+
+const Validators = {
+  email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+  phone: (phone) => /^[6-9]\d{9}$/.test(phone),
+  password: (pwd) => pwd.length >= 8,
+  otp: (otp) => /^\d{4,6}$/.test(otp),
+  pincode: (pin) => /^[0-9]{6}$/.test(pin)
+};
+
+/* ================================
+   🃏 UI BUILDERS
+================================ */
+
+function createProductCard(product, onClickFn) {
+  const div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = `
+    <img src="${product.images?.[0] || ''}" alt="${product.name}" loading="lazy">
+    <div class="name">${product.name}</div>
+    <div class="price">₹${product.price}</div>
+  `;
+  if (onClickFn) div.onclick = () => onClickFn(product);
+  return div;
+}
+
 let allProducts = [];
 
 async function loadGlobalProducts(){
 
   try{
-    const res = await fetch("https://alabuzer-backend.onrender.com/api/products");
-    const data = await res.json();
+    const data = await apiCall("/api/products");
 
     if(data.success){
       allProducts = data.data.filter(p => p.isActive !== false);
