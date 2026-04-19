@@ -245,14 +245,20 @@ html{
 }
 
 .brand-logo{
-  height: 64px;   /* 🔥 FINAL SIZE */
+  height: 80px;   /* 🔥 PREMIUM SIZE */
   width:auto;
   display:block;
+  transition: transform 0.25s ease;
+}
+
+.brand-logo:hover{
+  transform: scale(1.04);
+  filter: drop-shadow(0 0 8px rgba(212,175,55,0.45));
 }
 
 @media (max-width:768px){
   .brand-logo{
-    height:42px;
+    height:56px;
   }
 }
 
@@ -521,28 +527,38 @@ button:hover {
 /*new logo*/
 
 .transition-logo{
-  width:110px;
+  width:160px;
   opacity:0;
   transform:scale(0.85);
+  filter: drop-shadow(0 0 0px rgba(212,175,55,0));
 }
 
 /* 🔥 animation ONLY when active */
 .page-transition.active .transition-logo{
-  animation:logoPremium 0.6s ease forwards;
+  animation:logoPremium 0.7s ease forwards;
 }
 
 @keyframes logoPremium{
   0%{
     opacity:0;
     transform:scale(0.8);
+    filter: drop-shadow(0 0 0px rgba(212,175,55,0));
   }
   50%{
     opacity:1;
     transform:scale(1.05);
+    filter: drop-shadow(0 0 16px rgba(212,175,55,0.6));
   }
   100%{
     opacity:0;
     transform:scale(1.1);
+    filter: drop-shadow(0 0 0px rgba(212,175,55,0));
+  }
+}
+
+@media (max-width:768px){
+  .transition-logo{
+    width:120px;
   }
 }
 
@@ -806,7 +822,7 @@ button{
   }
 
   .brand-logo{
-    height:48px;          /* 🔥 visible */
+    height:56px;          /* 🔥 visible */
   }  
 }
 
