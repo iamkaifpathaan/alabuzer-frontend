@@ -197,7 +197,7 @@ button:hover{
 
 .lux-input input{
   width:100%;
-  padding:16px 12px;
+  padding:16px 44px 16px 12px;
   background:rgba(255,255,255,0.03);
   border:1px solid rgba(212,175,55,0.25);
   border-radius:10px;
@@ -205,6 +205,7 @@ button:hover{
   outline:none;
   font-size:14px;
   transition:0.3s ease;
+  box-sizing:border-box;
 }
 
 .lux-input label{
@@ -232,6 +233,66 @@ button:hover{
   color:var(--lux-gold);
 }
 
+/* ================= SHOW/HIDE PASSWORD TOGGLE ================= */
+
+.toggle-pw{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  color:#777;
+  cursor:pointer;
+  font-size:16px;
+  padding:0;
+  margin:0;
+  width:auto;
+  line-height:1;
+  transition:color 0.2s;
+}
+
+.toggle-pw:hover{
+  color:var(--lux-gold);
+  background:none;
+  transform:translateY(-50%);
+  box-shadow:none;
+}
+
+/* ================= PASSWORD STRENGTH ================= */
+
+.strength-bar-wrap{
+  margin-top:6px;
+  display:flex;
+  gap:4px;
+}
+
+.strength-bar-wrap .bar{
+  flex:1;
+  height:4px;
+  border-radius:4px;
+  background:#222;
+  transition:background 0.3s ease;
+}
+
+.strength-label{
+  font-size:11px;
+  margin-top:4px;
+  color:#888;
+  min-height:16px;
+  transition:color 0.3s ease;
+}
+
+/* ================= PASSWORD MATCH HINT ================= */
+
+.match-hint{
+  font-size:11px;
+  margin-top:4px;
+  min-height:16px;
+}
+
+.match-hint.ok{ color:#4caf50; }
+.match-hint.err{ color:#e57373; }
 
 .auth-box{
   background:rgba(17,17,17,0.7);
@@ -243,6 +304,9 @@ button:hover{
     0 20px 40px rgba(0,0,0,0.6),
     0 0 0 1px rgba(212,175,55,0.08);
   transition:0.3s;
+  width:100%;
+  max-width:380px;
+  box-sizing:border-box;
 }
 
 .auth-box:hover{
@@ -293,33 +357,55 @@ button:hover{
   </div>
   <p class="subtitle">Login with your email</p>
 
+<div class="lux-input" id="nameField" style="display:none;">
+  <input id="name" autocomplete="name">
+  <label>Full Name</label>
+</div>
 <div class="lux-input" id="loginEmailField">
-  <input id="email" required>
+  <input id="email" type="email" required autocomplete="email">
   <label>Email</label>
 </div>
-<div class="lux-input" id="nameField" style="display:none;">
-  <input id="name">
-  <label>Name</label>
-</div>
 <div class="lux-input" id="loginPasswordField">
-  <input id="password" type="password" required>
+  <input id="password" type="password" required autocomplete="current-password">
   <label>Password</label>
+  <button type="button" class="toggle-pw" onclick="togglePw('password',this)" aria-label="Toggle password visibility">👁</button>
 </div>
+
+<!-- Password strength (signup only) -->
+<div id="strengthWrap" style="display:none; margin:-10px 0 8px;">
+  <div class="strength-bar-wrap">
+    <div class="bar" id="sBar1"></div>
+    <div class="bar" id="sBar2"></div>
+    <div class="bar" id="sBar3"></div>
+  </div>
+  <div class="strength-label" id="strengthLabel"></div>
+</div>
+
+<!-- Confirm password (signup only) -->
+<div class="lux-input" id="confirmPwField" style="display:none;">
+  <input id="signupConfirmPw" type="password" autocomplete="new-password">
+  <label>Confirm Password</label>
+  <button type="button" class="toggle-pw" onclick="togglePw('signupConfirmPw',this)" aria-label="Toggle confirm password visibility">👁</button>
+</div>
+<div id="matchHint" class="match-hint" style="display:none;"></div>
+
 <div id="resetBox" style="display:none; margin-top:15px;">
 
   <div class="lux-input" id="resetEmailField">
-    <input id="resetEmail">
+    <input id="resetEmail" type="email" autocomplete="email">
     <label>Email</label>
   </div>
 
   <div class="lux-input" id="resetPasswordField">
-    <input id="newPassword" type="password">
+    <input id="newPassword" type="password" autocomplete="new-password">
     <label>New Password</label>
+    <button type="button" class="toggle-pw" onclick="togglePw('newPassword',this)" aria-label="Toggle password visibility">👁</button>
   </div>
   <div class="lux-input">
-  <input id="confirmPassword" type="password">
-  <label>Confirm Password</label>
-</div>
+    <input id="confirmPassword" type="password" autocomplete="new-password">
+    <label>Confirm Password</label>
+    <button type="button" class="toggle-pw" onclick="togglePw('confirmPassword',this)" aria-label="Toggle confirm password visibility">👁</button>
+  </div>
 
   <button id="resetBtn" class="primary-btn" onclick="resetPassword()">
     Reset Password
@@ -350,6 +436,97 @@ button:hover{
 const btn = document.getElementById("mainBtn");
 let currentMode = "login"; // login | signup | reset
 
+/* ================= SHOW/HIDE PASSWORD ================= */
+
+function togglePw(inputId, btnEl){
+  const inp = document.getElementById(inputId);
+  if(!inp) return;
+  if(inp.type === "password"){
+    inp.type = "text";
+    btnEl.textContent = "🙈";
+  }else{
+    inp.type = "password";
+    btnEl.textContent = "👁";
+  }
+}
+
+/* ================= PASSWORD STRENGTH ================= */
+
+function getStrength(pw){
+  let score = 0;
+  if(pw.length >= 8) score++;
+  if(/[A-Z]/.test(pw)) score++;
+  if(/[a-z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  if(score <= 2) return "weak";
+  if(score <= 3) return "medium";
+  return "strong";
+}
+
+function updateStrength(){
+  const pw = document.getElementById("password").value;
+  const bars = [
+    document.getElementById("sBar1"),
+    document.getElementById("sBar2"),
+    document.getElementById("sBar3")
+  ];
+  const label = document.getElementById("strengthLabel");
+
+  if(!pw){
+    bars.forEach(b => b.style.background = "#222");
+    label.textContent = "";
+    return;
+  }
+
+  const level = getStrength(pw);
+
+  if(level === "weak"){
+    bars[0].style.background = "#e57373";
+    bars[1].style.background = "#222";
+    bars[2].style.background = "#222";
+    label.style.color = "#e57373";
+    label.textContent = "Weak – add uppercase, numbers & symbols";
+  }else if(level === "medium"){
+    bars[0].style.background = "#ffd54f";
+    bars[1].style.background = "#ffd54f";
+    bars[2].style.background = "#222";
+    label.style.color = "#ffd54f";
+    label.textContent = "Medium – getting stronger";
+  }else{
+    bars[0].style.background = "#4caf50";
+    bars[1].style.background = "#4caf50";
+    bars[2].style.background = "#4caf50";
+    label.style.color = "#4caf50";
+    label.textContent = "Strong ✓";
+  }
+
+  // also refresh match hint
+  checkMatch();
+}
+
+function checkMatch(){
+  const pw = document.getElementById("password").value;
+  const cpw = document.getElementById("signupConfirmPw").value;
+  const hint = document.getElementById("matchHint");
+
+  if(!cpw){
+    hint.textContent = "";
+    hint.className = "match-hint";
+    return;
+  }
+
+  if(pw === cpw){
+    hint.textContent = "Passwords match ✓";
+    hint.className = "match-hint ok";
+  }else{
+    hint.textContent = "Passwords do not match";
+    hint.className = "match-hint err";
+  }
+}
+
+/* ================= SET MODE ================= */
+
 function setMode(mode){
   btn.style.display = "block";
 
@@ -360,14 +537,18 @@ function setMode(mode){
   const nameField = document.getElementById("nameField");
   const resetBox = document.getElementById("resetBox");
   const subtitle = document.querySelector(".subtitle");
-  const resetEmailField = document.getElementById("resetEmailField");
-  const resetPasswordField = document.getElementById("resetPasswordField");
+  const strengthWrap = document.getElementById("strengthWrap");
+  const confirmPwField = document.getElementById("confirmPwField");
+  const matchHint = document.getElementById("matchHint");
 
 // reset everything first
 loginEmailField.style.display = "block";
 loginPasswordField.style.display = "block";
 nameField.style.display = "none";
 resetBox.style.display = "none";
+strengthWrap.style.display = "none";
+confirmPwField.style.display = "none";
+matchHint.style.display = "none";
 
   if(mode === "login"){
 
@@ -376,15 +557,26 @@ resetBox.style.display = "none";
     subtitle.innerText = "Login with your email";
     switchText.innerText = "Don't have an account? Sign up";
 
+    // detach strength listeners when not in signup
+    document.getElementById("password").oninput = null;
+    document.getElementById("signupConfirmPw").oninput = null;
+
   }
 
   else if(mode === "signup"){
 
     nameField.style.display = "block";
+    strengthWrap.style.display = "block";
+    confirmPwField.style.display = "block";
+    matchHint.style.display = "block";
     btn.innerText = "Sign Up";
     subtitle.innerText = "Create your account";
     switchText.innerText = "Already have an account? Login";
-    forgotText.style.display = "block";
+    forgotText.style.display = "none";
+
+    // attach live validators
+    document.getElementById("password").oninput = updateStrength;
+    document.getElementById("signupConfirmPw").oninput = checkMatch;
 
   }
 
@@ -393,7 +585,7 @@ else if(mode === "reset"){
   document.getElementById("email").value = "";
   document.getElementById("password").value = "";
 
-  // ❗ hide login fields
+  // hide login fields
   loginEmailField.style.display = "none";
   loginPasswordField.style.display = "none";
 
@@ -412,9 +604,9 @@ else if(mode === "reset"){
 
 async function loginUser(){
 
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  const name = document.getElementById("name")?.value;
+  const name = document.getElementById("name")?.value.trim();
 
   const btn = document.getElementById("mainBtn");
   btn.innerText =
@@ -426,6 +618,29 @@ async function loginUser(){
     btn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
     btn.disabled = false;
     return;
+  }
+
+  // Confirm password check for signup
+  if(currentMode === "signup"){
+    const confirmPw = document.getElementById("signupConfirmPw").value;
+    if(!confirmPw){
+      alert("Please confirm your password");
+      btn.innerText = "Sign Up";
+      btn.disabled = false;
+      return;
+    }
+    if(password !== confirmPw){
+      alert("Passwords do not match");
+      btn.innerText = "Sign Up";
+      btn.disabled = false;
+      return;
+    }
+    if(getStrength(password) === "weak"){
+      alert("Please choose a stronger password (8+ chars with uppercase, lowercase, and numbers)");
+      btn.innerText = "Sign Up";
+      btn.disabled = false;
+      return;
+    }
   }
 
   try{
@@ -541,7 +756,7 @@ document.addEventListener("keypress", function(e){
 if(e.key === "Enter"){
 
   if(currentMode === "reset"){
-    resetPassword();   // 🔥 correct function
+    resetPassword();
   }else{
     loginUser();
   }

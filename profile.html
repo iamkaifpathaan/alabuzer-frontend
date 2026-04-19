@@ -250,6 +250,168 @@ body{
   color:white;
 }
 
+/* ================= EMAIL VERIFY MODAL ================= */
+
+.verify-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.verify-modal.active{
+  display:flex;
+}
+
+.verify-box{
+  background:#111;
+  border:1px solid rgba(212,175,55,0.3);
+  border-radius:14px;
+  padding:28px 24px;
+  width:320px;
+  max-width:90vw;
+  box-sizing:border-box;
+  animation:vmIn 0.3s ease;
+}
+
+@keyframes vmIn{
+  from{opacity:0;transform:scale(0.95);}
+  to{opacity:1;transform:scale(1);}
+}
+
+.verify-box h3{
+  color:#d4af37;
+  margin:0 0 6px;
+  font-size:17px;
+}
+
+.verify-box p{
+  color:#aaa;
+  font-size:13px;
+  margin:0 0 16px;
+}
+
+.verify-box input{
+  width:100%;
+  padding:14px;
+  background:#0b0b0b;
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:8px;
+  color:white;
+  font-size:20px;
+  letter-spacing:8px;
+  text-align:center;
+  font-family:'Montserrat',sans-serif;
+  box-sizing:border-box;
+  margin-bottom:12px;
+  outline:none;
+}
+
+.verify-box input:focus{
+  border-color:#d4af37;
+  box-shadow:0 0 12px rgba(212,175,55,0.3);
+}
+
+.verify-btn{
+  width:100%;
+  padding:12px;
+  background:linear-gradient(135deg,#d4af37,#f0d878);
+  color:#000;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  font-family:'Montserrat',sans-serif;
+  cursor:pointer;
+  font-size:14px;
+  transition:0.2s;
+}
+
+.verify-btn:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(212,175,55,0.3); }
+.verify-btn:disabled{ opacity:0.65; cursor:not-allowed; transform:none; }
+
+.verify-cancel{
+  width:100%;
+  padding:10px;
+  background:transparent;
+  color:#888;
+  border:1px solid #333;
+  border-radius:8px;
+  font-family:'Montserrat',sans-serif;
+  cursor:pointer;
+  font-size:13px;
+  margin-top:8px;
+  transition:0.2s;
+}
+
+.verify-cancel:hover{ color:#ccc; border-color:#555; background:transparent; box-shadow:none; transform:none; }
+
+.vm-msg{
+  font-size:12px;
+  margin:8px 0;
+  padding:8px;
+  border-radius:6px;
+  display:none;
+}
+
+.vm-msg.err{ background:rgba(229,115,115,0.1); border:1px solid rgba(229,115,115,0.3); color:#e57373; }
+.vm-msg.ok{ background:rgba(76,175,80,0.1); border:1px solid rgba(76,175,80,0.3); color:#4caf50; }
+
+.vm-countdown{
+  font-size:12px;
+  color:#888;
+  text-align:center;
+  margin-top:8px;
+}
+
+.vm-countdown span{ color:#d4af37; }
+
+/* ================= VERIFY STATUS BADGE ================= */
+
+.email-status-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:12px;
+  padding:3px 8px;
+  border-radius:12px;
+  font-weight:600;
+}
+
+.email-status-badge.verified{
+  background:rgba(76,175,80,0.15);
+  border:1px solid rgba(76,175,80,0.35);
+  color:#4caf50;
+}
+
+.email-status-badge.unverified{
+  background:rgba(229,115,115,0.12);
+  border:1px solid rgba(229,115,115,0.3);
+  color:#e57373;
+}
+
+.verify-email-btn{
+  display:inline-block;
+  margin-top:8px;
+  padding:7px 14px;
+  background:linear-gradient(135deg,#d4af37,#f0d878);
+  color:#000;
+  border:none;
+  border-radius:6px;
+  font-weight:600;
+  font-family:'Montserrat',sans-serif;
+  font-size:12px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.verify-email-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(212,175,55,0.3);
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width:992px){
@@ -349,6 +511,45 @@ body{
 
 <!-- ================= EDIT MODAL ================= -->
 
+<!-- ================= EMAIL VERIFY MODAL ================= -->
+
+<div id="emailVerifyModal" class="verify-modal">
+  <div class="verify-box">
+
+    <!-- Step A: send OTP -->
+    <div id="vmStep1">
+      <h3>Verify Your Email</h3>
+      <p id="vmEmailText">We'll send a 6-digit OTP to your registered email.</p>
+      <div class="vm-msg" id="vmMsg1"></div>
+      <button class="verify-btn" id="vmSendBtn" onclick="vmSendOtp()">Send OTP</button>
+      <button class="verify-cancel" onclick="closeVerifyModal()">Cancel</button>
+    </div>
+
+    <!-- Step B: enter OTP -->
+    <div id="vmStep2" style="display:none;">
+      <h3>Enter OTP</h3>
+      <p>Enter the 6-digit code sent to your email.</p>
+      <input type="text" id="vmOtpInput" maxlength="6" placeholder="──────" inputmode="numeric">
+      <div class="vm-countdown" id="vmCountdown"></div>
+      <div class="vm-msg" id="vmMsg2"></div>
+      <button class="verify-btn" id="vmVerifyBtn" onclick="vmVerifyOtp()">Verify</button>
+      <button class="verify-cancel" onclick="vmResendOtp()" style="color:#d4af37;border-color:rgba(212,175,55,0.3);">Resend OTP</button>
+      <button class="verify-cancel" onclick="closeVerifyModal()">Cancel</button>
+    </div>
+
+    <!-- Step C: success -->
+    <div id="vmStep3" style="display:none;">
+      <div style="text-align:center;padding:10px 0;">
+        <div style="font-size:48px;margin-bottom:10px;">✅</div>
+        <h3 style="color:#4caf50;">Email Verified!</h3>
+        <p>Your email has been successfully verified.</p>
+        <button class="verify-btn" onclick="closeVerifyModal(true)">Done</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="editModal" class="modal">
   <div class="modal-box">
     <h3 style="color:var(--lux-gold);">Edit Profile</h3>
@@ -361,6 +562,8 @@ body{
 </div>
 <script src="js/common.js"></script>
 <script>
+
+const PROFILE_API = "https://alabuzer-backend.onrender.com";
 
 /* =========================
    LOAD PROFILE
@@ -413,7 +616,7 @@ function logoutUser(e){
 
 function renderWishlistTab(){
 
-  const wishlist = getWishlist(); // ✅ correct user-based helper
+  const wishlist = getWishlist();
   const container = document.getElementById("wishlistContainer");
 
   if(!container) return;
@@ -453,10 +656,10 @@ function renderWishlistTab(){
 function removeFromWishlist(e, slug){
   e.stopPropagation();
 
-  let list = getWishlist();   // ✅ correct key
+  let list = getWishlist();
   list = list.filter(i => i.slug !== slug);
 
-  setWishlist(list);          // ✅ correct save
+  setWishlist(list);
   renderWishlistTab();
 }
 
@@ -481,7 +684,7 @@ async function renderOrdersTab(){
     const token = localStorage.getItem("token");
 
 const res = await fetch(
-  "https://alabuzer-backend.onrender.com/api/orders/user/" + user._id,
+  PROFILE_API + "/api/orders/user/" + user._id,
   {
     headers: {
       "Authorization": "Bearer " + token
@@ -556,26 +759,211 @@ const res = await fetch(
 }
 
 /* =========================
+   EMAIL VERIFICATION
+========================= */
+
+let vmCountdownTimer = null;
+
+function openVerifyModal(){
+  const user = getUserSafe();
+  if(!user) return;
+
+  // pre-fill email display
+  const emailEl = document.getElementById("vmEmailText");
+  if(emailEl) emailEl.textContent = `We'll send a 6-digit OTP to ${user.email}`;
+
+  // reset to step 1
+  vmSetStep(1);
+  document.getElementById("emailVerifyModal").classList.add("active");
+}
+
+function closeVerifyModal(verified){
+  clearInterval(vmCountdownTimer);
+  document.getElementById("emailVerifyModal").classList.remove("active");
+
+  if(verified){
+    // update local user cache
+    const user = getUserSafe();
+    if(user){
+      user.emailVerified = true;
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+    // refresh overview tab
+    switchProfileTab("overview");
+  }
+}
+
+function vmSetStep(n){
+  [1,2,3].forEach(i => {
+    document.getElementById("vmStep"+i).style.display = i === n ? "block" : "none";
+  });
+  // clear messages
+  ["vmMsg1","vmMsg2"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.style.display="none"; el.textContent=""; }
+  });
+}
+
+function vmShowMsg(id, text, type){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  el.className = "vm-msg " + type;
+  el.style.display = "block";
+}
+
+function vmStartCountdown(seconds){
+  clearInterval(vmCountdownTimer);
+  const el = document.getElementById("vmCountdown");
+  function tick(){
+    if(seconds <= 0){
+      clearInterval(vmCountdownTimer);
+      el.innerHTML = "OTP expired. <span onclick='vmResendOtp()' style='cursor:pointer;color:#d4af37;'>Resend</span>";
+      return;
+    }
+    const m = Math.floor(seconds/60).toString().padStart(2,"0");
+    const s = (seconds%60).toString().padStart(2,"0");
+    el.innerHTML = `OTP expires in <span>${m}:${s}</span>`;
+    seconds--;
+  }
+  tick();
+  vmCountdownTimer = setInterval(tick, 1000);
+}
+
+async function vmSendOtp(){
+  const user = getUserSafe();
+  if(!user) return;
+
+  const btn = document.getElementById("vmSendBtn");
+  btn.textContent = "Sending...";
+  btn.disabled = true;
+
+  try{
+    const token = localStorage.getItem("token");
+    const res = await fetch(PROFILE_API + "/api/auth/send-email-otp", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ email: user.email })
+    });
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      vmSetStep(2);
+      vmStartCountdown(300);
+    }else{
+      vmShowMsg("vmMsg1", data.message || "Failed to send OTP", "err");
+    }
+  }catch(e){
+    vmShowMsg("vmMsg1","Server error. Please try again.","err");
+  }
+
+  btn.textContent = "Send OTP";
+  btn.disabled = false;
+}
+
+async function vmResendOtp(){
+  clearInterval(vmCountdownTimer);
+  document.getElementById("vmOtpInput").value = "";
+  const user = getUserSafe();
+  if(!user) return;
+
+  try{
+    const token = localStorage.getItem("token");
+    const res = await fetch(PROFILE_API + "/api/auth/send-email-otp", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ email: user.email })
+    });
+    const data = await res.json();
+    if(data.success || res.ok){
+      vmShowMsg("vmMsg2","OTP resent successfully ✓","ok");
+      vmStartCountdown(300);
+    }else{
+      vmShowMsg("vmMsg2", data.message || "Could not resend OTP","err");
+    }
+  }catch(e){
+    vmShowMsg("vmMsg2","Server error.","err");
+  }
+}
+
+async function vmVerifyOtp(){
+  const user = getUserSafe();
+  const otp = document.getElementById("vmOtpInput").value.trim();
+
+  if(!otp || otp.length < 4){
+    vmShowMsg("vmMsg2","Please enter the OTP","err");
+    return;
+  }
+
+  const btn = document.getElementById("vmVerifyBtn");
+  btn.textContent = "Verifying...";
+  btn.disabled = true;
+
+  try{
+    const token = localStorage.getItem("token");
+    const res = await fetch(PROFILE_API + "/api/auth/verify-email-otp", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ email: user.email, otp })
+    });
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      clearInterval(vmCountdownTimer);
+      vmSetStep(3);
+    }else{
+      vmShowMsg("vmMsg2", data.message || "Invalid or expired OTP","err");
+    }
+  }catch(e){
+    vmShowMsg("vmMsg2","Server error.","err");
+  }
+
+  btn.textContent = "Verify";
+  btn.disabled = false;
+}
+
+/* =========================
    PROFILE TAB SYSTEM
 ========================= */
 
 const profileTemplates = {
 
-  overview: () => `
+  overview: () => {
+    const user = getUserSafe() || {};
+    const isVerified = !!user.emailVerified;
+    const badge = isVerified
+      ? `<span class="email-status-badge verified">✅ Verified</span>`
+      : `<span class="email-status-badge unverified">❌ Not Verified</span>`;
+    const verifyBtn = isVerified
+      ? ""
+      : `<br><button class="verify-email-btn" onclick="openVerifyModal()">Verify Email</button>`;
+
+    return `
     <div class="section-title">Account Overview</div>
 
     <div class="info-grid">
     <div class="info-card">
       <div class="info-label">Full Name</div>
       <div class="info-value">
-        ${getUserSafe()?.name || ""}
+        ${user.name || ""}
       </div>
     </div>
 
       <div class="info-card">
         <div class="info-label">Email Address</div>
         <div class="info-value">
-          ${getUserSafe()?.email || ""}
+          ${user.email || ""}
+          <div style="margin-top:6px;">${badge}</div>
+          ${verifyBtn}
         </div>
       </div>
     </div>
@@ -587,7 +975,8 @@ const profileTemplates = {
       <button class="profile-btn logout"
         onclick="logoutUser(event)">Logout</button>
     </div>
-  `,
+  `;
+  },
 
   orders: () => `
     <div class="section-title">My Orders</div>

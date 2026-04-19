@@ -1,66 +1,776 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Reset Password</title>
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="assets/favicon/site.webmanifest">
+<link rel="icon" href="assets/favicon/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password - AL-ABUZER</title>
+<link rel="stylesheet" href="styles/global.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+html, body{
+  height:100%;
+  margin:0;
+}
+
+body{
+  font-family:'Montserrat',sans-serif;
+  color:white;
+  background:#0b0b0b;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+.main-wrapper{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:40px 15px;
+}
+
+/* ================= AUTH BOX ================= */
+
+.auth-box{
+  background:rgba(17,17,17,0.8);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(212,175,55,0.2);
+  border-radius:14px;
+  padding:32px 28px;
+  width:100%;
+  max-width:400px;
+  box-sizing:border-box;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(212,175,55,0.08);
+  animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+.login-logo{
+  width:54px;
+  display:block;
+  margin:0 auto 12px;
+}
+
+.title{
+  text-align:center;
+  color:#d4af37;
+  margin:0 0 6px;
+  letter-spacing:2px;
+  font-size:22px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#aaa;
+  font-size:13px;
+  margin-bottom:24px;
+}
+
+/* ================= STEPS ================= */
+
+.steps-row{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin-bottom:24px;
+}
+
+.step-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#333;
+  transition:background 0.3s ease;
+}
+
+.step-dot.active{
+  background:#d4af37;
+}
+
+/* ================= INPUTS ================= */
+
+.lux-input{
+  position:relative;
+  margin:16px 0;
+}
+
+.lux-input input{
+  width:100%;
+  padding:16px 44px 16px 12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:10px;
+  color:white;
+  outline:none;
+  font-size:14px;
+  font-family:'Montserrat',sans-serif;
+  transition:0.3s ease;
+  box-sizing:border-box;
+}
+
+.lux-input label{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#777;
+  font-size:13px;
+  pointer-events:none;
+  transition:0.3s ease;
+  background:#111;
+  padding:0 5px;
+}
+
+.lux-input input:focus{
+  border-color:#d4af37;
+  box-shadow:0 0 15px rgba(212,175,55,0.3);
+}
+
+.lux-input input:focus + label,
+.lux-input input:valid + label{
+  top:-8px;
+  font-size:11px;
+  color:#d4af37;
+}
+
+.toggle-pw{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:none;
+  color:#777;
+  cursor:pointer;
+  font-size:16px;
+  padding:0;
+  margin:0;
+  width:auto;
+  line-height:1;
+}
+
+.toggle-pw:hover{
+  color:#d4af37;
+}
+
+/* ================= OTP INPUT ================= */
+
+.otp-input{
+  width:100%;
+  padding:16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:10px;
+  color:white;
+  outline:none;
+  font-size:22px;
+  text-align:center;
+  letter-spacing:12px;
+  font-family:'Montserrat',sans-serif;
+  box-sizing:border-box;
+  transition:0.3s ease;
+}
+
+.otp-input:focus{
+  border-color:#d4af37;
+  box-shadow:0 0 15px rgba(212,175,55,0.3);
+}
+
+/* ================= BUTTON ================= */
+
+.primary-btn{
+  width:100%;
+  padding:14px;
+  margin-top:8px;
+  background:linear-gradient(135deg,#d4af37,#f0d878);
+  color:#000;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  font-family:'Montserrat',sans-serif;
+  font-size:14px;
+  cursor:pointer;
+  transition:0.25s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.primary-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(212,175,55,0.3);
+}
+
+.primary-btn:disabled{
+  opacity:0.7;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.primary-btn::before{
+  content:"";
+  position:absolute;
+  top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.35),transparent);
+  transition:0.6s;
+}
+
+.primary-btn:hover::before{ left:100%; }
+
+/* ================= LINKS ================= */
+
+.switch{
+  text-align:center;
+  margin-top:16px;
+  font-size:13px;
+  color:#aaa;
+  cursor:pointer;
+}
+
+.switch span{
+  color:#d4af37;
+}
+
+/* ================= COUNTDOWN ================= */
+
+.countdown{
+  text-align:center;
+  font-size:12px;
+  color:#888;
+  margin-top:10px;
+}
+
+.countdown span{ color:#d4af37; }
+
+/* ================= SUCCESS ================= */
+
+.success-box{
+  text-align:center;
+  padding:20px 0;
+}
+
+.success-icon{
+  font-size:52px;
+  margin-bottom:12px;
+}
+
+.success-title{
+  color:#4caf50;
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.success-sub{
+  color:#aaa;
+  font-size:13px;
+}
+
+/* ================= MESSAGE ================= */
+
+.msg{
+  text-align:center;
+  font-size:13px;
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  display:none;
+}
+
+.msg.err{
+  background:rgba(229,115,115,0.1);
+  border:1px solid rgba(229,115,115,0.3);
+  color:#e57373;
+}
+
+.msg.ok{
+  background:rgba(76,175,80,0.1);
+  border:1px solid rgba(76,175,80,0.3);
+  color:#4caf50;
+}
+
+/* ================= STRENGTH ================= */
+
+.strength-bar-wrap{
+  display:flex;
+  gap:4px;
+  margin-top:6px;
+}
+
+.strength-bar-wrap .bar{
+  flex:1;
+  height:4px;
+  border-radius:4px;
+  background:#222;
+  transition:background 0.3s;
+}
+
+.strength-label{
+  font-size:11px;
+  margin-top:4px;
+  color:#888;
+  min-height:16px;
+}
+
+/* ================= MATCH HINT ================= */
+
+.match-hint{
+  font-size:11px;
+  margin-top:4px;
+  min-height:16px;
+}
+.match-hint.ok{ color:#4caf50; }
+.match-hint.err{ color:#e57373; }
+
+/* ================= TRANSITION ================= */
+
+.page-transition{
+  position:fixed;inset:0;background:#000;
+  display:flex;justify-content:center;align-items:center;
+  z-index:9999;opacity:0;pointer-events:none;
+  transition:opacity 0.35s ease;
+}
+.page-transition.active{opacity:1;pointer-events:auto;}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:480px){
+  .auth-box{padding:24px 16px;}
+}
+
+/* ================= FOOTER ================= */
+
+.site-footer .footer-container{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:30px;
+}
+
+@media(max-width:768px){
+  .site-footer .footer-container{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
+}
+
+</style>
 </head>
 
-<body style="background:#0b0b0b;color:white;font-family:Montserrat">
+<body>
 
-<div style="max-width:400px;margin:auto;margin-top:100px">
+<div class="main-wrapper">
+  <div class="auth-box">
 
-<h3>Password Reset</h3>
+    <div onclick="navigateWithTransition('index.html')" style="cursor:pointer;">
+      <img src="assets/logo/logo.svg" class="login-logo" alt="AL-ABUZER">
+      <h2 class="title">AL-ABUZER</h2>
+    </div>
 
-<input id="email" placeholder="Email">
-<button onclick="sendOtp()">Send OTP</button>
+    <p class="subtitle" id="stepSubtitle">Reset your password</p>
 
-<br><br>
+    <!-- Step dots -->
+    <div class="steps-row">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
 
-<input id="otp" placeholder="OTP">
-<input id="password" placeholder="New Password" type="password">
+    <!-- ===== STEP 1: Email ===== -->
+    <div id="step1">
+      <div class="lux-input">
+        <input id="fpEmail" type="email" required autocomplete="email">
+        <label>Email Address</label>
+      </div>
+      <div class="msg" id="msg1"></div>
+      <button class="primary-btn" id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
+      <div class="switch" onclick="navigateWithTransition('login.html')">
+        Remember password? <span>Login</span>
+      </div>
+    </div>
 
-<button onclick="resetPassword()">Reset Password</button>
+    <!-- ===== STEP 2: OTP ===== -->
+    <div id="step2" style="display:none;">
+      <p style="color:#aaa;font-size:13px;text-align:center;margin-bottom:16px;">
+        Enter the 6-digit OTP sent to your email
+      </p>
+      <input type="text" id="fpOtp" class="otp-input" maxlength="6" placeholder="──────" inputmode="numeric">
+      <div class="countdown" id="countdown"></div>
+      <div class="msg" id="msg2"></div>
+      <button class="primary-btn" id="verifyOtpBtn" onclick="verifyOtp()">Verify OTP</button>
+      <div class="switch" onclick="resendOtp()">
+        Didn't receive? <span>Resend OTP</span>
+      </div>
+    </div>
 
+    <!-- ===== STEP 3: New Password ===== -->
+    <div id="step3" style="display:none;">
+      <div class="lux-input">
+        <input id="fpNewPw" type="password" required autocomplete="new-password" oninput="fpUpdateStrength()">
+        <label>New Password</label>
+        <button type="button" class="toggle-pw" onclick="fpTogglePw('fpNewPw',this)">👁</button>
+      </div>
+      <div class="strength-bar-wrap">
+        <div class="bar" id="fpBar1"></div>
+        <div class="bar" id="fpBar2"></div>
+        <div class="bar" id="fpBar3"></div>
+      </div>
+      <div class="strength-label" id="fpStrLabel"></div>
+
+      <div class="lux-input" style="margin-top:20px;">
+        <input id="fpConfirmPw" type="password" required autocomplete="new-password" oninput="fpCheckMatch()">
+        <label>Confirm Password</label>
+        <button type="button" class="toggle-pw" onclick="fpTogglePw('fpConfirmPw',this)">👁</button>
+      </div>
+      <div class="match-hint" id="fpMatchHint"></div>
+
+      <div class="msg" id="msg3"></div>
+      <button class="primary-btn" id="resetBtn" onclick="doReset()">Reset Password</button>
+    </div>
+
+    <!-- ===== STEP 4: Success ===== -->
+    <div id="step4" style="display:none;">
+      <div class="success-box">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Password Reset!</div>
+        <div class="success-sub">Your password has been updated successfully.</div>
+        <button class="primary-btn" style="margin-top:20px;" onclick="navigateWithTransition('login.html')">
+          Go to Login
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<div id="pageTransition" class="page-transition">
+  <img src="assets/logo/logo.svg" class="transition-logo" alt="">
+</div>
+
+<script src="js/common.js"></script>
 
 <script>
 
+const BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://alabuzer-backend.onrender.com";
+
+let countdownTimer = null;
+let verifiedEmail = "";
+
+/* =============== HELPERS =============== */
+
+function showMsg(id, text, type){
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = "msg " + type;
+  el.style.display = "block";
+}
+
+function hideMsg(id){
+  const el = document.getElementById(id);
+  el.style.display = "none";
+}
+
+function setStep(n){
+  [1,2,3,4].forEach(i => {
+    document.getElementById("step"+i).style.display = i === n ? "block" : "none";
+  });
+
+  [1,2,3].forEach(i => {
+    document.getElementById("dot"+i)?.classList.toggle("active", i <= n && n < 4);
+  });
+
+  const titles = {
+    1: "Reset your password",
+    2: "Enter the OTP",
+    3: "Set new password",
+    4: "All done!"
+  };
+  document.getElementById("stepSubtitle").textContent = titles[n] || "";
+}
+
+/* =============== STEP 1: SEND OTP =============== */
+
 async function sendOtp(){
+  const email = document.getElementById("fpEmail").value.trim();
 
-const email = document.getElementById("email").value;
+  if(!email){
+    showMsg("msg1","Please enter your email address","err");
+    return;
+  }
 
-await fetch("https://alabuzer-backend.onrender.com/api/auth/send-otp",{
+  const btn = document.getElementById("sendOtpBtn");
+  btn.textContent = "Sending...";
+  btn.disabled = true;
+  hideMsg("msg1");
 
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email})
+  try{
+    const res = await fetch(`${BASE_URL}/api/auth/send-otp`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email})
+    });
+    const data = await res.json();
 
-});
+    if(data.success || res.ok){
+      verifiedEmail = email;
+      setStep(2);
+      startCountdown(300);
+    }else{
+      showMsg("msg1", data.message || "Failed to send OTP. Check the email.", "err");
+    }
+  }catch(e){
+    showMsg("msg1","Server error. Please try again.","err");
+  }
 
-alert("OTP sent");
-
+  btn.textContent = "Send OTP";
+  btn.disabled = false;
 }
 
-async function resetPassword(){
+/* =============== COUNTDOWN =============== */
 
-const email = document.getElementById("email").value;
-const otp = document.getElementById("otp").value;
-const newPassword = document.getElementById("password").value;
+function startCountdown(seconds){
+  clearInterval(countdownTimer);
+  const el = document.getElementById("countdown");
 
-const res = await fetch("https://alabuzer-backend.onrender.com/api/auth/reset-password",{
-
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email,otp,newPassword})
-
-});
-
-const data = await res.json();
-
-alert(data.message);
-
+  function tick(){
+    if(seconds <= 0){
+      clearInterval(countdownTimer);
+      el.innerHTML = "OTP expired. <span onclick='resendOtp()' style='cursor:pointer;color:#d4af37;'>Resend</span>";
+      return;
+    }
+    const m = Math.floor(seconds/60).toString().padStart(2,"0");
+    const s = (seconds%60).toString().padStart(2,"0");
+    el.innerHTML = `OTP expires in <span>${m}:${s}</span>`;
+    seconds--;
+  }
+  tick();
+  countdownTimer = setInterval(tick, 1000);
 }
+
+async function resendOtp(){
+  clearInterval(countdownTimer);
+  document.getElementById("countdown").textContent = "";
+  document.getElementById("fpOtp").value = "";
+  hideMsg("msg2");
+
+  const email = verifiedEmail || document.getElementById("fpEmail").value.trim();
+  if(!email) return setStep(1);
+
+  try{
+    const res = await fetch(`${BASE_URL}/api/auth/send-otp`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email})
+    });
+    const data = await res.json();
+    if(data.success || res.ok){
+      showMsg("msg2","OTP resent successfully ✓","ok");
+      startCountdown(300);
+    }else{
+      showMsg("msg2", data.message || "Could not resend OTP","err");
+    }
+  }catch(e){
+    showMsg("msg2","Server error.","err");
+  }
+}
+
+/* =============== STEP 2: VERIFY OTP =============== */
+
+async function verifyOtp(){
+  const otp = document.getElementById("fpOtp").value.trim();
+  const email = verifiedEmail;
+
+  if(!otp || otp.length < 4){
+    showMsg("msg2","Please enter the OTP","err");
+    return;
+  }
+
+  const btn = document.getElementById("verifyOtpBtn");
+  btn.textContent = "Verifying...";
+  btn.disabled = true;
+  hideMsg("msg2");
+
+  try{
+    const res = await fetch(`${BASE_URL}/api/auth/verify-otp`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email, otp})
+    });
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      clearInterval(countdownTimer);
+      setStep(3);
+    }else{
+      showMsg("msg2", data.message || "Invalid or expired OTP","err");
+    }
+  }catch(e){
+    showMsg("msg2","Server error.","err");
+  }
+
+  btn.textContent = "Verify OTP";
+  btn.disabled = false;
+}
+
+/* =============== STEP 3: RESET PASSWORD =============== */
+
+function fpTogglePw(inputId, el){
+  const inp = document.getElementById(inputId);
+  if(!inp) return;
+  inp.type = inp.type === "password" ? "text" : "password";
+  el.textContent = inp.type === "password" ? "👁" : "🙈";
+}
+
+function fpGetStrength(pw){
+  let s = 0;
+  if(pw.length >= 8) s++;
+  if(/[A-Z]/.test(pw)) s++;
+  if(/[a-z]/.test(pw)) s++;
+  if(/[0-9]/.test(pw)) s++;
+  if(/[^A-Za-z0-9]/.test(pw)) s++;
+  if(s <= 2) return "weak";
+  if(s <= 3) return "medium";
+  return "strong";
+}
+
+function fpUpdateStrength(){
+  const pw = document.getElementById("fpNewPw").value;
+  const bars = ["fpBar1","fpBar2","fpBar3"].map(id => document.getElementById(id));
+  const label = document.getElementById("fpStrLabel");
+
+  if(!pw){
+    bars.forEach(b => b.style.background = "#222");
+    label.textContent = "";
+    return;
+  }
+
+  const level = fpGetStrength(pw);
+  const colorMap = {weak:"#e57373",medium:"#ffd54f",strong:"#4caf50"};
+  const textMap = {
+    weak:"Weak – add uppercase, numbers & symbols",
+    medium:"Medium – getting stronger",
+    strong:"Strong ✓"
+  };
+  const counts = {weak:1,medium:2,strong:3};
+
+  bars.forEach((b,i) => {
+    b.style.background = i < counts[level] ? colorMap[level] : "#222";
+  });
+  label.style.color = colorMap[level];
+  label.textContent = textMap[level];
+
+  fpCheckMatch();
+}
+
+function fpCheckMatch(){
+  const pw = document.getElementById("fpNewPw").value;
+  const cpw = document.getElementById("fpConfirmPw").value;
+  const hint = document.getElementById("fpMatchHint");
+
+  if(!cpw){ hint.textContent = ""; hint.className = "match-hint"; return; }
+  if(pw === cpw){ hint.textContent = "Passwords match ✓"; hint.className = "match-hint ok"; }
+  else{ hint.textContent = "Passwords do not match"; hint.className = "match-hint err"; }
+}
+
+async function doReset(){
+  const password = document.getElementById("fpNewPw").value;
+  const confirm = document.getElementById("fpConfirmPw").value;
+  const email = verifiedEmail;
+
+  if(!password || !confirm){
+    showMsg("msg3","Please fill both password fields","err");
+    return;
+  }
+  if(password !== confirm){
+    showMsg("msg3","Passwords do not match","err");
+    return;
+  }
+  if(fpGetStrength(password) === "weak"){
+    showMsg("msg3","Please choose a stronger password (8+ chars with uppercase, lowercase and numbers)","err");
+    return;
+  }
+
+  const btn = document.getElementById("resetBtn");
+  btn.textContent = "Resetting...";
+  btn.disabled = true;
+  hideMsg("msg3");
+
+  try{
+    const res = await fetch(`${BASE_URL}/api/auth/reset-password`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email, password})
+    });
+    const data = await res.json();
+
+    if(data.success){
+      setStep(4);
+    }else{
+      showMsg("msg3", data.message || "Failed to reset password","err");
+      btn.textContent = "Reset Password";
+      btn.disabled = false;
+    }
+  }catch(e){
+    showMsg("msg3","Server error.","err");
+    btn.textContent = "Reset Password";
+    btn.disabled = false;
+  }
+}
+
+/* =============== INIT =============== */
+
+setStep(1);
 
 </script>
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-brand">
+        <img src="assets/logo/logo.svg" class="footer-logo">
+        <div class="footer-title">AL-ABUZER PERFUMES</div>
+      </div>
+      <div style="color:#aaa;font-size:14px;">
+        Premium Arabic fragrances crafted with timeless elegance.
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Customer Support</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('contact.html')">Contact Us</div>
+        <div onclick="navigateWithTransition('about.html')">About Us</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-title">Policies</div>
+      <div class="footer-links">
+        <div onclick="navigateWithTransition('refund.html')">Refund Policy</div>
+        <div onclick="navigateWithTransition('terms.html')">Terms &amp; Conditions</div>
+        <div onclick="navigateWithTransition('privacy.html')">Privacy Policy</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 AL-ABUZER PERFUMES. All rights reserved.
+  </div>
+</footer>
 
 </body>
 </html>
