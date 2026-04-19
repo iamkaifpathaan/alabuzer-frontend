@@ -607,13 +607,14 @@ async function loginUser(){
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const name = document.getElementById("name")?.value.trim();
+  const confirmPw = document.getElementById("signupConfirmPw").value.trim();
 
   const btn = document.getElementById("mainBtn");
   btn.innerText =
   currentMode === "signup" ? "Signing up..." : "Logging in...";
   btn.disabled = true;
 
-  if(!email || !password || (currentMode === "signup" && !name)){
+  if(!email || !password || (currentMode === "signup" && (!name || !confirmPw))){
     alert("Please fill all fields");
     btn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
     btn.disabled = false;
@@ -622,13 +623,6 @@ async function loginUser(){
 
   // Confirm password check for signup
   if(currentMode === "signup"){
-    const confirmPw = document.getElementById("signupConfirmPw").value;
-    if(!confirmPw){
-      alert("Please confirm your password");
-      btn.innerText = "Sign Up";
-      btn.disabled = false;
-      return;
-    }
     if(password !== confirmPw){
       alert("Passwords do not match");
       btn.innerText = "Sign Up";
