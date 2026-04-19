@@ -516,6 +516,11 @@ if(!user || user.role !== "admin"){
   window.location.href = "index.html";
 }
 
+const LOW_STOCK_THRESHOLD = 5;
+
+// Store products keyed by _id to avoid passing data through onclick attributes
+const productsMap = new Map();
+
 /* ===== TOAST ===== */
 function showToast(msg, type="info"){
   const el = document.createElement("div");
@@ -534,6 +539,7 @@ async function loadProducts(){
     const res = await fetch("https://alabuzer-backend.onrender.com/api/products");
     const data = await res.json();
     container.innerHTML = "";
+    productsMap.clear();
 
     if(!data.data || data.data.length === 0){
       container.innerHTML = `<p style="color:#555;grid-column:1/-1">No products found.</p>`;
@@ -541,11 +547,13 @@ async function loadProducts(){
     }
 
     data.data.forEach(p => {
+      productsMap.set(p._id, p);
+
       const div = document.createElement("div");
       div.className = "card";
 
-      const stockClass = p.stock === 0 ? "no-stock" : p.stock <= 5 ? "low-stock" : "in-stock";
-      const stockLabel = p.stock === 0 ? "Out of Stock" : p.stock <= 5 ? `Low: ${p.stock}` : `${p.stock} in stock`;
+      const stockClass = p.stock === 0 ? "no-stock" : p.stock <= LOW_STOCK_THRESHOLD ? "low-stock" : "in-stock";
+      const stockLabel = p.stock === 0 ? "Out of Stock" : p.stock <= LOW_STOCK_THRESHOLD ? `Low: ${p.stock}` : `${p.stock} in stock`;
 
       const priceHtml = p.discountPrice
         ? `<span style="color:#d4af37;font-weight:700;">₹${p.discountPrice}</span><span class="original-price">₹${p.price}</span>`
@@ -553,7 +561,7 @@ async function loadProducts(){
 
       div.innerHTML = `
         <div class="card-img-wrap">
-          <img src="${p.images?.[0] || 'https://dummyimage.com/300'}" alt="${p.name}" loading="lazy" onerror="this.src='https://dummyimage.com/300'">
+          <img src="${p.images?.[0] || 'https://dummyimage.com/300'}" alt="" loading="lazy" onerror="this.src='https://dummyimage.com/300'">
         </div>
         <div class="card-body">
           <div class="card-name">${p.name}</div>
@@ -563,11 +571,15 @@ async function loadProducts(){
             <span class="stock-badge ${stockClass}">${stockLabel}</span>
           </div>
           <div class="card-actions">
-            <button class="btn-edit" onclick="openEditModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">Edit</button>
-            <button class="btn-delete" onclick="openConfirmModal('${p._id}')">Delete</button>
+            <button class="btn-edit" data-id="${p._id}">Edit</button>
+            <button class="btn-delete" data-id="${p._id}">Delete</button>
           </div>
         </div>
       `;
+
+      div.querySelector(".btn-edit").addEventListener("click", () => openEditModal(p._id));
+      div.querySelector(".btn-delete").addEventListener("click", () => openConfirmModal(p._id));
+
       container.appendChild(div);
     });
   }catch(err){
@@ -634,7 +646,9 @@ async function addProduct(){
 }
 
 /* ===== EDIT MODAL ===== */
-function openEditModal(product){
+function openEditModal(productId){
+  const product = productsMap.get(productId);
+  if(!product) return;
   document.getElementById("editId").value = product._id;
   document.getElementById("editName").value = product.name || "";
   document.getElementById("editPrice").value = product.price || "";

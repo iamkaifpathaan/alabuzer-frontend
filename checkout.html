@@ -92,6 +92,77 @@ body{
   transition: all 0.3s ease;
 }
 
+.email-opt-section{
+  margin-top:16px;
+  padding:14px;
+  background:rgba(212,175,55,0.05);
+  border:1px solid rgba(212,175,55,0.15);
+  border-radius:8px;
+}
+
+.email-opt-label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  font-size:14px;
+  color:#ddd;
+}
+
+.email-opt-label input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  accent-color:#d4af37;
+  cursor:pointer;
+}
+
+.email-verify-area{
+  margin-top:14px;
+}
+
+.email-input{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px 12px;
+  background:#0b0b0b;
+  border:1px solid #333;
+  color:white;
+  border-radius:6px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.email-otp-section{
+  margin-top:12px;
+}
+
+.email-otp-input{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px 12px;
+  background:#0b0b0b;
+  border:1px solid #333;
+  color:white;
+  border-radius:6px;
+  font-size:16px;
+  text-align:center;
+  letter-spacing:8px;
+  margin-bottom:10px;
+}
+
+.email-resend-text{
+  font-size:12px;
+  color:#aaa;
+  margin-top:8px;
+  text-align:center;
+}
+
+.email-verified-msg{
+  color:#00c853;
+  font-size:13px;
+  margin-top:8px;
+}
+
 /* ===== mobile ===== */
 
 @media (max-width: 768px){
@@ -194,23 +265,23 @@ body{
     <div id="checkoutTotal" class="total-box"></div>
 
     <!-- Optional email verification -->
-    <div id="emailOptSection" style="display:none;margin-top:16px;padding:14px;background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.15);border-radius:8px;">
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#ddd;">
-        <input type="checkbox" id="emailNotifChk" onchange="handleEmailNotifToggle()" style="width:16px;height:16px;accent-color:#d4af37;cursor:pointer;">
+    <div id="emailOptSection" class="email-opt-section" style="display:none;">
+      <label class="email-opt-label">
+        <input type="checkbox" id="emailNotifChk" onchange="handleEmailNotifToggle()">
         Get email notifications for order updates
       </label>
-      <div id="emailVerifyArea" style="display:none;margin-top:14px;">
-        <input id="emailInput" placeholder="Your email address" style="width:100%;box-sizing:border-box;padding:10px 12px;background:#0b0b0b;border:1px solid #333;color:white;border-radius:6px;font-size:13px;margin-bottom:10px;">
+      <div id="emailVerifyArea" class="email-verify-area" style="display:none;">
+        <input id="emailInput" class="email-input" placeholder="Your email address">
         <button id="sendEmailOtpBtn" class="add-btn" onclick="sendEmailOtp()" style="font-size:13px;padding:9px 16px;width:100%;">Send Email OTP</button>
-        <div id="emailOtpSection" style="display:none;margin-top:12px;">
+        <div id="emailOtpSection" class="email-otp-section" style="display:none;">
           <p style="margin:0 0 8px;font-size:13px;color:#aaa;">Enter the 6-digit code sent to your email</p>
-          <input id="emailOtpInput" maxlength="6" placeholder="──────" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:10px 12px;background:#0b0b0b;border:1px solid #333;color:white;border-radius:6px;font-size:16px;text-align:center;letter-spacing:8px;margin-bottom:10px;">
+          <input id="emailOtpInput" class="email-otp-input" maxlength="6" placeholder="──────" inputmode="numeric">
           <button id="verifyEmailOtpBtn" class="add-btn" onclick="verifyEmailOtp()" style="font-size:13px;padding:9px 16px;width:100%;">Verify Email</button>
-          <p id="emailResendText" style="font-size:12px;color:#aaa;margin-top:8px;text-align:center;">
+          <p id="emailResendText" class="email-resend-text">
             Resend in <span id="emailTimer">60</span>s
           </p>
         </div>
-        <div id="emailVerifiedMsg" style="display:none;color:#00c853;font-size:13px;margin-top:8px;">✓ Email verified — you'll receive order updates</div>
+        <div id="emailVerifiedMsg" class="email-verified-msg" style="display:none;">✓ Email verified — you'll receive order updates</div>
       </div>
     </div>
 
@@ -483,8 +554,8 @@ async function verifyEmailOtp(){
   const token = localStorage.getItem("token");
   const btn = document.getElementById("verifyEmailOtpBtn");
 
-  if(!otp || otp.length < 4){
-    alert("Please enter the OTP sent to your email");
+  if(!otp || otp.length !== 6){
+    alert("Please enter the complete 6-digit OTP sent to your email");
     return;
   }
 
