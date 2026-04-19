@@ -706,45 +706,37 @@ function updateWishlistButton(){
   }
 }
 
-function generateReviews(productName){
-
-  const count = Math.floor(Math.random() * 3) + 3; // 3–5 reviews
-
-  let selected = [];
-
-  for(let i=0; i<count; i++){
-    const random = reviewPool[Math.floor(Math.random() * reviewPool.length)];
-
-    selected.push({
-      name: getRandomName(),
-      rating: Math.random() > 0.7 ? 4 : 5, // 4–5 stars
-      text: random
-    });
-  }
-
-  return selected;
-}
-
-const reviewPool = [
-  "Fragrance kaafi premium hai, 6–7 hours easily tikti hai.",
-  "Honestly expected nahi tha itna acha hoga, worth every rupee.",
-  "Opening thodi strong hai but dry down bohot smooth hai.",
-  "Luxury feel aati hai use karne ke baad, especially evening me 🔥",
-  "Projection decent hai, close range me bohot classy lagta hai.",
-  "Packaging bhi solid aur bottle quality top notch hai.",
-  "Daily use ke liye perfect nahi, but occasions ke liye best hai.",
-  "Mujhe personally iska oud note bohot pasand aaya ❤️",
-  "Thoda expensive hai but quality justify karti hai.",
-  "Compliments mile isko use karke, so definitely recommend."
+const reviewDatabase = [
+  { name: "Amira Hassan", rating: 5, text: "Absolutely love this! The fragrance is rich, warm, and lasts all day. People keep asking what I'm wearing. Worth every rupee!", verified: true, date: "1 week ago" },
+  { name: "Mohammed Ali", rating: 4, text: "Great quality, the oud note is exceptional. Slightly strong on first spray but the dry-down is beautiful. Would buy again.", verified: true, date: "2 weeks ago" },
+  { name: "Fatima Khan", rating: 3, text: "Good scent overall, but I expected more longevity. Fades after about 4 hours. The bottle design is stunning though.", verified: true, date: "3 weeks ago" },
+  { name: "Sarah Johnson", rating: 5, text: "Fast delivery and the smell is absolutely amazing! Got so many compliments at work. Premium quality packaging too.", verified: true, date: "1 month ago" },
+  { name: "Ahmed Malik", rating: 4, text: "Worth the price, very pleasant. Perfect for evening occasions. The projection is excellent without being overpowering.", verified: false, date: "1 month ago" },
+  { name: "Priya Sharma", rating: 5, text: "This is my third purchase from AL-ABUZER. The consistency in quality is impressive. The oud collection is my personal favourite.", verified: true, date: "1 month ago" },
+  { name: "Zaid Khan", rating: 4, text: "Bought this as a gift for my wife. She absolutely loves it! The bottle looks very premium too. Great value for money.", verified: true, date: "5 weeks ago" },
+  { name: "Noor Al-Rashid", rating: 5, text: "Genuinely one of the best Arabic perfumes I've tried. The opening is bold and the heart notes are just divine. 10/10 recommend.", verified: true, date: "6 weeks ago" },
+  { name: "Rohan Kapoor", rating: 3, text: "Nice scent but a bit too sweet for my taste. Good longevity though – lasts almost the entire day. Might gift it to someone.", verified: false, date: "2 months ago" },
+  { name: "Layla Ahmed", rating: 5, text: "This fragrance takes me back to my childhood in the Middle East. Authentic, luxurious, and absolutely beautiful.", verified: true, date: "2 months ago" },
+  { name: "Vikram Singh", rating: 4, text: "Solid perfume at this price point. The bottle feels premium in hand. Scent is mature and sophisticated – love it.", verified: true, date: "2 months ago" },
+  { name: "Hana Binte Yusuf", rating: 5, text: "Perfect for Eid and special occasions. The fragrance is long-lasting and very unique. Everyone in my family loved it!", verified: true, date: "3 months ago" },
+  { name: "Arjun Mehta", rating: 4, text: "Nice fragrance, good sillage. Not the strongest I've tried but very pleasant and wearable every day. Good packaging too.", verified: false, date: "3 months ago" },
+  { name: "Khadijah Osman", rating: 5, text: "I've tried many oud fragrances but this one is truly special. Rich, complex, and absolutely worth the investment.", verified: true, date: "3 months ago" },
+  { name: "Riya Patel", rating: 4, text: "Love the smell! It's exactly as described. The glass bottle is gorgeous. Shipping was fast. Will definitely order again.", verified: true, date: "4 months ago" },
+  { name: "Imran Siddiqui", rating: 5, text: "Excellent product. The attar roll-on is very convenient for daily use. The fragrance is long-lasting and very pleasant.", verified: true, date: "4 months ago" },
+  { name: "Sophia Williams", rating: 3, text: "Good quality perfume but the scent is a bit too musky for my preference. Still gets compliments. Would try other variants.", verified: false, date: "5 months ago" },
+  { name: "Omar Abdullah", rating: 5, text: "Superb quality! This fragrance has real depth and character. You can tell it's made with genuine oud and quality ingredients.", verified: true, date: "5 months ago" }
 ];
 
-function getRandomName(){
-  const names = [
-    "Aman R", "Rohit Pandey", "Zaid khan", "Faizan", "Layba Khan",
-    "Iqra", "Sahil malik", "Kabir Salim", "Adnan Sheikh", "Yash", "Kirti Sharma"
-  ];
+function generateReviews(productName){
+  const shuffled = [...reviewDatabase].sort(() => Math.random() - 0.5);
+  const count = Math.floor(Math.random() * 4) + 5; // 5–8 reviews
+  return shuffled.slice(0, count);
+}
 
-  return names[Math.floor(Math.random() * names.length)];
+function renderStars(rating){
+  const full = "★".repeat(rating);
+  const empty = "☆".repeat(5 - rating);
+  return `<span style="color:#d4af37">${full}</span><span style="color:#555">${empty}</span>`;
 }
 
 function renderReviews(product){
@@ -763,7 +755,7 @@ container.innerHTML = `
 
     <div class="rating-summary">
       <div class="rating-number">${avgRating}</div>
-      <div class="rating-stars">${"⭐".repeat(Math.round(avgRating))}</div>
+      <div class="rating-stars" style="font-size:20px">${renderStars(Math.round(avgRating))}</div>
       <div class="rating-count">${reviews.length} reviews</div>
     </div>
 
@@ -777,10 +769,13 @@ container.innerHTML = `
       <div class="review-header">
         <div class="review-user">
           ${r.name}
-          ${Math.random() > 0.5 ? `<span class="verified">✔ Verified</span>` : ""}
+          ${r.verified ? `<span class="verified">✔ Verified Purchase</span>` : ""}
         </div>
 
-        <div class="review-stars">${"⭐".repeat(r.rating)}</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="review-stars">${renderStars(r.rating)}</div>
+          <span style="color:#666;font-size:12px">${r.date}</span>
+        </div>
       </div>
 
       <div class="review-text">${r.text}</div>

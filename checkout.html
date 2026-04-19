@@ -55,10 +55,25 @@ body{
 
 .form-grid input{
   width:100%;
-  padding:12px;
+  padding:12px 14px;
   background:#0b0b0b;
   border:1px solid #333;
   color:white;
+  border-radius:6px;
+  font-family:'Montserrat',sans-serif;
+  font-size:14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-grid input:focus{
+  border-color: rgba(212,175,55,0.6);
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.1);
+}
+
+.form-grid input::placeholder{
+  color: #555;
 }
 
 .form-grid .full{

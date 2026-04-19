@@ -391,11 +391,11 @@ body{
     <!-- ===== STEP 1: Email ===== -->
     <div id="step1">
       <div class="lux-input">
-        <input id="fpEmail" type="email" required autocomplete="email">
+        <input id="fpEmail" type="email" autocomplete="email">
         <label>Email Address</label>
       </div>
       <div class="msg" id="msg1"></div>
-      <button class="primary-btn" id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
+      <button type="button" class="primary-btn" id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
       <div class="switch" onclick="navigateWithTransition('login.html')">
         Remember password? <span>Login</span>
       </div>
@@ -409,7 +409,7 @@ body{
       <input type="text" id="fpOtp" class="otp-input" maxlength="6" placeholder="──────" inputmode="numeric">
       <div class="countdown" id="countdown"></div>
       <div class="msg" id="msg2"></div>
-      <button class="primary-btn" id="verifyOtpBtn" onclick="verifyOtp()">Verify OTP</button>
+      <button type="button" class="primary-btn" id="verifyOtpBtn" onclick="verifyOtp()">Verify OTP</button>
       <div class="switch" onclick="resendOtp()">
         Didn't receive? <span>Resend OTP</span>
       </div>
@@ -418,7 +418,7 @@ body{
     <!-- ===== STEP 3: New Password ===== -->
     <div id="step3" style="display:none;">
       <div class="lux-input">
-        <input id="fpNewPw" type="password" required autocomplete="new-password" oninput="fpUpdateStrength()">
+        <input id="fpNewPw" type="password" autocomplete="new-password" oninput="fpUpdateStrength()">
         <label>New Password</label>
         <button type="button" class="toggle-pw" onclick="fpTogglePw('fpNewPw',this)">👁</button>
       </div>
@@ -430,14 +430,14 @@ body{
       <div class="strength-label" id="fpStrLabel"></div>
 
       <div class="lux-input" style="margin-top:20px;">
-        <input id="fpConfirmPw" type="password" required autocomplete="new-password" oninput="fpCheckMatch()">
+        <input id="fpConfirmPw" type="password" autocomplete="new-password" oninput="fpCheckMatch()">
         <label>Confirm Password</label>
         <button type="button" class="toggle-pw" onclick="fpTogglePw('fpConfirmPw',this)">👁</button>
       </div>
       <div class="match-hint" id="fpMatchHint"></div>
 
       <div class="msg" id="msg3"></div>
-      <button class="primary-btn" id="resetBtn" onclick="doReset()">Reset Password</button>
+      <button type="button" class="primary-btn" id="resetBtn" onclick="doReset()">Reset Password</button>
     </div>
 
     <!-- ===== STEP 4: Success ===== -->
@@ -509,6 +509,11 @@ async function sendOtp(){
 
   if(!email){
     showMsg("msg1","Please enter your email address","err");
+    return;
+  }
+
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showMsg("msg1","Please enter a valid email address","err");
     return;
   }
 
