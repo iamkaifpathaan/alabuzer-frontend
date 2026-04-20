@@ -701,6 +701,7 @@ async function loginUser(){
         _id: user._id || "",
         name: user.name || name || "",
         email: user.email || user.mail || email || "",
+        emailVerified: user.emailVerified === true,
         role: user.role || "user"
       }));
 
