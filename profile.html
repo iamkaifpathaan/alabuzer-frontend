@@ -704,6 +704,12 @@ body{
   box-shadow:0 6px 16px rgba(212,175,55,0.3);
 }
 
+.save-btn:disabled{
+  opacity:0.65;
+  cursor:not-allowed;
+  transform:none;
+}
+
 .modal-cancel{
   width:100%;
   padding:10px;
@@ -1057,10 +1063,40 @@ body{
 
 <div id="editEmailModal" class="modal">
   <div class="modal-box">
-    <h3 style="color:var(--lux-gold);">Edit Email</h3>
-    <input type="email" id="editEmailInput" placeholder="Enter your new email" aria-label="New email address">
-    <button class="save-btn" onclick="saveNewEmail()">Save Email</button>
-    <button class="modal-cancel" onclick="closeEditEmailModal()">Cancel</button>
+
+    <!-- Step 1: enter new email -->
+    <div id="emStep1">
+      <h3 style="color:var(--lux-gold);">Change Email</h3>
+      <p style="color:#aaa;font-size:13px;margin:0 0 14px;">Enter your new email address. A verification code will be sent to it.</p>
+      <input type="email" id="editEmailInput" placeholder="New email address" aria-label="New email address">
+      <div class="vm-msg" id="emMsg1"></div>
+      <button class="save-btn" id="emSendBtn" onclick="emSendOtp()">Send OTP</button>
+      <button class="modal-cancel" onclick="closeEditEmailModal()">Cancel</button>
+    </div>
+
+    <!-- Step 2: enter OTP -->
+    <div id="emStep2" style="display:none;">
+      <h3 style="color:var(--lux-gold);">Enter OTP</h3>
+      <p id="emOtpText" style="color:#aaa;font-size:13px;margin:0 0 12px;">Enter the 6-digit code sent to your new email.</p>
+      <input type="text" id="emOtpInput" maxlength="6" placeholder="──────" inputmode="numeric"
+        style="width:100%;padding:14px;background:#0b0b0b;border:1px solid rgba(212,175,55,0.25);border-radius:8px;color:white;font-size:20px;letter-spacing:8px;text-align:center;font-family:'Montserrat',sans-serif;box-sizing:border-box;margin-bottom:12px;outline:none;">
+      <div class="vm-countdown" id="emCountdown"></div>
+      <div class="vm-msg" id="emMsg2"></div>
+      <button class="save-btn" id="emVerifyBtn" onclick="emVerifyOtp()">Verify</button>
+      <button class="modal-cancel" onclick="emResendOtp()" style="color:#d4af37;border-color:rgba(212,175,55,0.3);">Resend OTP</button>
+      <button class="modal-cancel" onclick="closeEditEmailModal()">Cancel</button>
+    </div>
+
+    <!-- Step 3: success -->
+    <div id="emStep3" style="display:none;">
+      <div style="text-align:center;padding:10px 0;">
+        <div style="font-size:48px;margin-bottom:10px;">✅</div>
+        <h3 style="color:#4caf50;">Email Updated!</h3>
+        <p style="color:#aaa;font-size:13px;">Your email has been successfully changed.</p>
+        <button class="save-btn" onclick="closeEditEmailModal(true)">Done</button>
+      </div>
+    </div>
+
   </div>
 </div>
 <div id="profileToast" class="profile-toast"></div>
@@ -1101,46 +1137,195 @@ function closeEditModal(){
 }
 
 /* =========================
-   EDIT EMAIL
+   EDIT EMAIL (OTP FLOW)
 ========================= */
+
+let _pendingNewEmail = "";
+let emCountdownTimer = null;
 
 function openEditEmailModal(){
   const user = getUserSafe();
   if(!user) return;
-  document.getElementById("editEmailInput").value = user.email || "";
+  document.getElementById("editEmailInput").value = "";
+  _pendingNewEmail = "";
+  emSetStep(1);
   document.getElementById("editEmailModal").classList.add("active");
 }
 
-function closeEditEmailModal(){
+function closeEditEmailModal(success){
+  clearInterval(emCountdownTimer);
   document.getElementById("editEmailModal").classList.remove("active");
+
+  if(success && _pendingNewEmail){
+    const user = getUserSafe();
+    if(user){
+      user.email = _pendingNewEmail;
+      user.emailVerified = true;
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+    _pendingNewEmail = "";
+    loadProfile();
+    updateUserUI();
+    switchProfileTab("overview");
+    showProfileToast("Email updated ✓");
+  }
 }
 
-function saveNewEmail(){
-  const user = getUserSafe();
-  if(!user) return;
+function emSetStep(n){
+  [1,2,3].forEach(i => {
+    const el = document.getElementById("emStep"+i);
+    if(el) el.style.display = i === n ? "block" : "none";
+  });
+  ["emMsg1","emMsg2"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.style.display="none"; el.textContent=""; }
+  });
+}
 
+function emShowMsg(id, text, type){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  el.className = "vm-msg " + type;
+  el.style.display = "block";
+}
+
+function emStartCountdown(seconds){
+  clearInterval(emCountdownTimer);
+  const el = document.getElementById("emCountdown");
+  if(!el) return;
+  function tick(){
+    if(seconds <= 0){
+      clearInterval(emCountdownTimer);
+      el.innerHTML = "OTP expired. <span onclick='emResendOtp()' style='cursor:pointer;color:#d4af37;'>Resend</span>";
+      return;
+    }
+    const m = Math.floor(seconds/60).toString().padStart(2,"0");
+    const s = (seconds%60).toString().padStart(2,"0");
+    el.innerHTML = `OTP expires in <span>${m}:${s}</span>`;
+    seconds--;
+  }
+  tick();
+  emCountdownTimer = setInterval(tick, 1000);
+}
+
+async function emSendOtp(){
   const newEmail = document.getElementById("editEmailInput").value.trim();
 
-  if(!newEmail){ showProfileToast("Please enter an email"); return; }
+  if(!newEmail){
+    emShowMsg("emMsg1","Please enter an email address","err");
+    return;
+  }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if(!emailPattern.test(newEmail)){
-    showProfileToast("Invalid email format");
+    emShowMsg("emMsg1","Invalid email format","err");
     return;
   }
 
-  if(newEmail === user.email){
-    closeEditEmailModal();
+  const user = getUserSafe();
+  if(user && newEmail === user.email){
+    emShowMsg("emMsg1","This is already your current email","err");
     return;
   }
 
-  user.email = newEmail;
-  user.emailVerified = false;
-  localStorage.setItem("user", JSON.stringify(user));
+  const btn = document.getElementById("emSendBtn");
+  btn.textContent = "Sending...";
+  btn.disabled = true;
 
-  closeEditEmailModal();
-  showProfileToast("Email updated ✓");
-  switchProfileTab("overview");
+  try{
+    const token = localStorage.getItem("token");
+    const res = await fetch(PROFILE_API + "/api/auth/send-change-email-otp", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ newEmail })
+    });
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      _pendingNewEmail = newEmail;
+      const p = document.getElementById("emOtpText");
+      if(p) p.textContent = `Enter the 6-digit code sent to ${newEmail}`;
+      emSetStep(2);
+      emStartCountdown(300);
+    }else{
+      emShowMsg("emMsg1", data.message || "Failed to send OTP","err");
+    }
+  }catch(e){
+    emShowMsg("emMsg1","Server error. Please try again.","err");
+  }
+
+  btn.textContent = "Send OTP";
+  btn.disabled = false;
+}
+
+async function emResendOtp(){
+  clearInterval(emCountdownTimer);
+  const otpEl = document.getElementById("emOtpInput");
+  if(otpEl) otpEl.value = "";
+  if(!_pendingNewEmail) return;
+
+  try{
+    const token = localStorage.getItem("token");
+    const res = await fetch(PROFILE_API + "/api/auth/send-change-email-otp", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ newEmail: _pendingNewEmail })
+    });
+    const data = await res.json();
+    if(data.success || res.ok){
+      emShowMsg("emMsg2","OTP resent successfully ✓","ok");
+      emStartCountdown(300);
+    }else{
+      emShowMsg("emMsg2", data.message || "Could not resend OTP","err");
+    }
+  }catch(e){
+    emShowMsg("emMsg2","Server error.","err");
+  }
+}
+
+async function emVerifyOtp(){
+  const otp = document.getElementById("emOtpInput").value.trim();
+
+  if(!otp || otp.length < 4){
+    emShowMsg("emMsg2","Please enter the OTP","err");
+    return;
+  }
+
+  const btn = document.getElementById("emVerifyBtn");
+  btn.textContent = "Verifying...";
+  btn.disabled = true;
+
+  try{
+    const token = localStorage.getItem("token");
+    const res = await fetch(PROFILE_API + "/api/auth/verify-change-email-otp", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({ newEmail: _pendingNewEmail, otp })
+    });
+    const data = await res.json();
+
+    if(data.success || res.ok){
+      clearInterval(emCountdownTimer);
+      emSetStep(3);
+    }else{
+      emShowMsg("emMsg2", data.message || "Invalid or expired OTP","err");
+    }
+  }catch(e){
+    emShowMsg("emMsg2","Server error.","err");
+  }
+
+  btn.textContent = "Verify";
+  btn.disabled = false;
 }
 
 function saveProfile(){
