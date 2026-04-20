@@ -203,7 +203,11 @@ body {
   </div>
 
   <!-- MOBILE HAMBURGER -->
-  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="hamburger" onclick="toggleMenu()" role="button" aria-label="Open menu" aria-expanded="false" tabindex="0">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </div>
 
 </div>
 
@@ -325,33 +329,34 @@ body {
 
 </section>
 <!-- SIDE MENU -->
-<div id="sideMenu" class="side-menu">
-  <div class="menu-close" onclick="toggleMenu()">✕</div>
+<div id="sideMenu" class="side-menu" aria-hidden="true" role="navigation" aria-label="Mobile navigation">
+  <div class="side-menu-header">
+    <img src="assets/logo/logo.svg" class="side-menu-logo" alt="AL-ABUZER">
+    <div class="menu-close" onclick="toggleMenu()" role="button" aria-label="Close menu" tabindex="0">✕</div>
+  </div>
+  <div class="side-menu-body">
+    <a href="#" onclick="goHome(); return false;">Home</a>
 
-  <a href="#" onclick="goHome()">Home</a>
+    <div class="menu-item" onclick="toggleProducts()">
+      Products <span class="menu-arrow">▾</span>
+    </div>
 
-  <div class="menu-item" onclick="toggleProducts()">
-  PRODUCTS <span id="arrow">▾</span>
-</div>
+    <div id="productSubmenu" class="submenu">
+      <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+      <div onclick="filterCategory('Body Mist')">Body Mist</div>
+      <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+      <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
+      <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+      <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
+      <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
+      <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+    </div>
 
-<div id="productSubmenu" class="submenu">
-  <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
-  <div onclick="filterCategory('Body Mist')">Body Mist</div>
-  <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
-  <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
-  <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
-  <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
-  <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
-  <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
-</div>
-  <a href="#" onclick="goToOrders()">Track My Order</a>
-  <a href="#" onclick="navigateWithTransition('contact.html')">
-  Contact Us
-</a>
-<a href="assets/catalogue/al-abuzer-catalogue.pdf" target="_blank">
-<i class="fa-solid fa-file-pdf"></i> Download Catalogue
-</a>
-  <a href="#" onclick="navigateWithTransition('about.html')">About Us</a>
+    <a href="#" onclick="goToOrders(); return false;">Track My Order</a>
+    <a href="#" onclick="navigateWithTransition('contact.html'); return false;">Contact Us</a>
+    <a href="assets/catalogue/al-abuzer-catalogue.pdf" target="_blank">Download Catalogue</a>
+    <a href="#" onclick="navigateWithTransition('about.html'); return false;">About Us</a>
+  </div>
 </div>
 <div style="max-width:1200px;margin:auto;padding:0 30px 20px">
 
@@ -739,14 +744,8 @@ function scrollToProducts(){
 
 function filterCategory(category){
 
-  // Close side menu if open
-  const sideMenu = document.getElementById("sideMenu");
-  const overlay = document.getElementById("overlay");
-
-  if(sideMenu.classList.contains("active")){
-    sideMenu.classList.remove("active");
-    overlay.classList.remove("active");
-  }
+  // Close side menu
+  closeMenu();
 
   const params = new URLSearchParams(window.location.search);
 

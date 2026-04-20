@@ -509,7 +509,11 @@ button:hover {
   </div>
 
   <!-- MOBILE HAMBURGER -->
-  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="hamburger" onclick="toggleMenu()" role="button" aria-label="Open menu" aria-expanded="false" tabindex="0">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </div>
 
 </div>
 
@@ -552,32 +556,33 @@ button:hover {
 </header>
 
 <!-- SIDE MENU -->
-<div id="sideMenu" class="side-menu">
-  <div class="menu-close" onclick="toggleMenu()">✕</div>
-
-  <a href="#" onclick="goHome()">Home</a>
-
-  <div class="menu-item" onclick="toggleProducts()">
-    PRODUCTS <span id="arrow">▾</span>
+<div id="sideMenu" class="side-menu" aria-hidden="true" role="navigation" aria-label="Mobile navigation">
+  <div class="side-menu-header">
+    <img src="assets/logo/logo.svg" class="side-menu-logo" alt="AL-ABUZER">
+    <div class="menu-close" onclick="toggleMenu()" role="button" aria-label="Close menu" tabindex="0">✕</div>
   </div>
+  <div class="side-menu-body">
+    <a href="#" onclick="goHome(); return false;">Home</a>
 
-  <div id="productSubmenu" class="submenu">
-    <div onclick="goHome()">All Products</div>
-    <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
-    <div onclick="filterCategory('Body Mist')">Body Mist</div>
-    <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
-    <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
-    <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
-    <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
-    <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
-    <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+    <div class="menu-item" onclick="toggleProducts()">
+      Products <span class="menu-arrow">▾</span>
+    </div>
+
+    <div id="productSubmenu" class="submenu">
+      <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+      <div onclick="filterCategory('Body Mist')">Body Mist</div>
+      <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+      <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
+      <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+      <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
+      <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
+      <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+    </div>
+
+    <a href="#" onclick="goToOrders(); return false;">Track My Order</a>
+    <a href="#" onclick="navigateWithTransition('contact.html'); return false;">Contact Us</a>
+    <a href="#" onclick="navigateWithTransition('about.html'); return false;">About Us</a>
   </div>
-
-  <a href="#" onclick="goToOrders()">Track My Order</a>
-  <a href="#" onclick="navigateWithTransition('contact.html')">
-  Contact Us
-</a>
-  <a href="#" onclick="navigateWithTransition('about.html')">About Us</a>
 </div>
 
 <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
