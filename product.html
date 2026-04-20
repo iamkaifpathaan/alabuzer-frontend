@@ -599,19 +599,14 @@ function renderRelatedProducts(allProducts, current){
     .filter(p => p.category === current.category && p.slug !== current.slug)
     .slice(0,5);
 
-  box.innerHTML = related.map(p => {
-    const rPriceHtml = (p.discountPrice && p.discountPrice < p.price)
-      ? `<span class="price-current">₹${p.discountPrice}</span> <span class="price-original">₹${p.price}</span><span class="price-badge">${Math.round((1 - p.discountPrice / p.price) * 100)}% OFF</span>`
-      : `<span class="price-current">₹${p.price}</span>`;
-    return `
+  box.innerHTML = related.map(p => `
     <div class="related-card"
       onclick="navigateWithTransition('product.html?slug=${p.slug}')">
       <img src="${p.images?.[0]}">
       <div>${p.name}</div>
-      <div>${rPriceHtml}</div>
+      <div>${buildPriceHtml(p)}</div>
     </div>
-  `;
-  }).join("");
+  `).join("");
 }
 /* =========================
    RENDER CONTROLS (MASTER)

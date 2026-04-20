@@ -441,6 +441,8 @@ button:hover{
 const btn = document.getElementById("mainBtn");
 let currentMode = "login"; // login | signup | reset
 
+const RESET_REDIRECT_DELAY_MS = 1500;
+
 /* ================= INLINE MESSAGE HELPERS ================= */
 
 function showError(id, msg){
@@ -692,6 +694,7 @@ async function loginUser(){
 
     if(data.success){
 
+      // Normalize response: backend may return user as data.user or data.data
       const user = data.user || data.data || {};
       localStorage.setItem("token", data.token || "");
       localStorage.setItem("user", JSON.stringify({
@@ -774,7 +777,7 @@ async function resetPassword(){
       resetBtn.innerText = "Password Updated ✔";
       setTimeout(() => {
         setMode("login");
-      }, 1500);
+      }, RESET_REDIRECT_DELAY_MS);
     }else{
       showError("resetError", data.message || "Reset failed. Please check your email and try again.");
       resetBtn.innerText = "Reset Password";
