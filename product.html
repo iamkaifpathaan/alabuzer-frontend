@@ -150,6 +150,36 @@ img {
   margin: 10px 0;
 }
 
+.price-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.discount-price {
+  color: var(--lux-gold);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.original-price-detail {
+  text-decoration: line-through;
+  color: #666;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.discount-badge-detail {
+  background: rgba(76,175,80,0.18);
+  color: #4caf50;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+
 button {
   font-weight: 600;
   cursor: pointer;
@@ -468,7 +498,7 @@ button:hover {
 
   <div>
     <h2 id="pname"></h2>
-    <div class="price" id="pprice"></div>
+    <div id="pprice"></div>
     <p id="pdesc"></p>
     <div id="cartControls"></div>
     <button id="wishlistBtn" class="wishlist-btn" onclick="toggleWishlistCurrent()">
@@ -506,7 +536,21 @@ async function loadProduct(){
   if(!product) return;
 
   document.getElementById("pname").innerText = product.name;
-  document.getElementById("pprice").innerText = "₹" + product.price;
+
+  // Price display with discount support
+  const priceEl = document.getElementById("pprice");
+  if (product.discountPrice && product.discountPrice < product.price) {
+    const pct = Math.round((1 - product.discountPrice / product.price) * 100);
+    priceEl.innerHTML = `
+      <div class="price-wrap">
+        <span class="discount-price">₹${product.discountPrice}</span>
+        <span class="original-price-detail">₹${product.price}</span>
+        <span class="discount-badge-detail">${pct}% OFF</span>
+      </div>`;
+  } else {
+    priceEl.innerHTML = `<div class="price">₹${product.price}</div>`;
+  }
+
   document.getElementById("pdesc").innerText = product.description;
 
   const mainImg = document.getElementById("mainImage");
@@ -560,7 +604,7 @@ function renderRelatedProducts(allProducts, current){
       onclick="navigateWithTransition('product.html?slug=${p.slug}')">
       <img src="${p.images?.[0]}">
       <div>${p.name}</div>
-      <div style="color:#d4af37">₹${p.price}</div>
+      <div>${buildPriceHtml(p)}</div>
     </div>
   `).join("");
 }

@@ -392,26 +392,31 @@ button:hover{
 <div id="resetBox" style="display:none; margin-top:15px;">
 
   <div class="lux-input" id="resetEmailField">
-    <input id="resetEmail" type="email" autocomplete="email">
+    <input id="resetEmail" type="email" required autocomplete="email">
     <label>Email</label>
   </div>
 
   <div class="lux-input" id="resetPasswordField">
-    <input id="newPassword" type="password" autocomplete="new-password">
+    <input id="newPassword" type="password" required autocomplete="new-password">
     <label>New Password</label>
     <button type="button" class="toggle-pw" onclick="togglePw('newPassword',this)" aria-label="Toggle password visibility">👁</button>
   </div>
   <div class="lux-input">
-    <input id="confirmPassword" type="password" autocomplete="new-password">
+    <input id="confirmPassword" type="password" required autocomplete="new-password">
     <label>Confirm Password</label>
     <button type="button" class="toggle-pw" onclick="togglePw('confirmPassword',this)" aria-label="Toggle confirm password visibility">👁</button>
   </div>
+
+  <div id="resetError" class="auth-error-msg"></div>
+  <div id="resetSuccess" class="auth-success-msg"></div>
 
   <button id="resetBtn" class="primary-btn" onclick="resetPassword()">
     Reset Password
   </button>
 
 </div>
+
+<div id="loginError" class="auth-error-msg"></div>
 
 <button id="mainBtn" class="primary-btn" onclick="loginUser()">
   Login
@@ -435,6 +440,29 @@ button:hover{
   const switchText = document.getElementById("switchText");
 const btn = document.getElementById("mainBtn");
 let currentMode = "login"; // login | signup | reset
+
+const RESET_REDIRECT_DELAY_MS = 1500;
+
+/* ================= INLINE MESSAGE HELPERS ================= */
+
+function showError(id, msg){
+  const el = document.getElementById(id);
+  if(!el){ console.error("showError: element not found:", id, msg); return; }
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function showSuccess(id, msg){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function hideMsg(id){
+  const el = document.getElementById(id);
+  if(el) el.style.display = "none";
+}
 
 /* ================= SHOW/HIDE PASSWORD ================= */
 
@@ -541,6 +569,11 @@ function setMode(mode){
   const confirmPwField = document.getElementById("confirmPwField");
   const matchHint = document.getElementById("matchHint");
 
+  // clear any error messages
+  hideMsg("loginError");
+  hideMsg("resetError");
+  hideMsg("resetSuccess");
+
 // reset everything first
 loginEmailField.style.display = "block";
 loginPasswordField.style.display = "block";
@@ -609,30 +642,32 @@ async function loginUser(){
   const name = document.getElementById("name")?.value.trim();
   const confirmPw = document.getElementById("signupConfirmPw").value.trim();
 
-  const btn = document.getElementById("mainBtn");
-  btn.innerText =
+  const mainBtn = document.getElementById("mainBtn");
+  mainBtn.innerText =
   currentMode === "signup" ? "Signing up..." : "Logging in...";
-  btn.disabled = true;
+  mainBtn.disabled = true;
+
+  hideMsg("loginError");
 
   if(!email || !password || (currentMode === "signup" && (!name || !confirmPw))){
-    alert("Please fill all fields");
-    btn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
-    btn.disabled = false;
+    showError("loginError", "Please fill all fields");
+    mainBtn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
+    mainBtn.disabled = false;
     return;
   }
 
   // Confirm password check for signup
   if(currentMode === "signup"){
     if(password !== confirmPw){
-      alert("Passwords do not match");
-      btn.innerText = "Sign Up";
-      btn.disabled = false;
+      showError("loginError", "Passwords do not match");
+      mainBtn.innerText = "Sign Up";
+      mainBtn.disabled = false;
       return;
     }
     if(getStrength(password) === "weak"){
-      alert("Please choose a stronger password (8+ chars with uppercase, lowercase, and numbers)");
-      btn.innerText = "Sign Up";
-      btn.disabled = false;
+      showError("loginError", "Please choose a stronger password (8+ chars with uppercase, lowercase, and numbers)");
+      mainBtn.innerText = "Sign Up";
+      mainBtn.disabled = false;
       return;
     }
   }
@@ -659,26 +694,28 @@ async function loginUser(){
 
     if(data.success){
 
-      localStorage.setItem("token", data.token);
+      // Normalize response: backend may return user as data.user or data.data
+      const user = data.user || data.data || {};
+      localStorage.setItem("token", data.token || "");
       localStorage.setItem("user", JSON.stringify({
-        _id: data.user._id,
-        name: data.user.name,
-        email: data.user.email || data.user.mail || "not available",
-        role: data.user.role
+        _id: user._id || "",
+        name: user.name || name || "",
+        email: user.email || user.mail || email || "",
+        role: user.role || "user"
       }));
 
       navigateWithTransition("index.html");
 
     }else{
-      alert(data.message || "Something went wrong");
+      showError("loginError", data.message || "Something went wrong. Please try again.");
     }
 
   }catch(err){
-    alert("Server error");
+    showError("loginError", "Connection error. Please check your internet and try again.");
   }
 
-  btn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
-  btn.disabled = false;
+  mainBtn.innerText = currentMode === "signup" ? "Sign Up" : "Login";
+  mainBtn.disabled = false;
 
 }
 
@@ -700,22 +737,30 @@ async function resetPassword(){
   const password = document.getElementById("newPassword").value.trim();
   const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
-  const btn = document.getElementById("resetBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  hideMsg("resetError");
+  hideMsg("resetSuccess");
 
   // ✅ VALIDATION
   if(!email || !password || !confirmPassword){
-    alert("Please fill all reset fields");
+    showError("resetError", "All fields are required. Please fill in your email and new password.");
     return;
   }
 
   if(password !== confirmPassword){
-    alert("Passwords do not match");
+    showError("resetError", "Passwords do not match. Please re-enter your new password.");
+    return;
+  }
+
+  if(getStrength(password) === "weak"){
+    showError("resetError", "Please choose a stronger password (8+ chars with uppercase, lowercase, and numbers).");
     return;
   }
 
   // 🔥 LOADING STATE START
-  btn.innerText = "Please wait...";
-  btn.disabled = true;
+  resetBtn.innerText = "Please wait...";
+  resetBtn.disabled = true;
 
   try{
 
@@ -728,20 +773,21 @@ async function resetPassword(){
     const data = await res.json();
 
     if(data.success){
-      btn.innerText = "Password Updated ✔";
+      showSuccess("resetSuccess", "Password updated successfully! Redirecting to login...");
+      resetBtn.innerText = "Password Updated ✔";
       setTimeout(() => {
         setMode("login");
-      }, 1200);
+      }, RESET_REDIRECT_DELAY_MS);
     }else{
-      alert(data.message);
-      btn.innerText = "Reset Password";
-      btn.disabled = false;
+      showError("resetError", data.message || "Reset failed. Please check your email and try again.");
+      resetBtn.innerText = "Reset Password";
+      resetBtn.disabled = false;
     }
 
   }catch(err){
-    alert("Server error");
-    btn.innerText = "Reset Password";
-    btn.disabled = false;
+    showError("resetError", "Connection error. Please check your internet and try again.");
+    resetBtn.innerText = "Reset Password";
+    resetBtn.disabled = false;
   }
 
 }

@@ -35,13 +35,25 @@ const Validators = {
    🃏 UI BUILDERS
 ================================ */
 
+/* ================================
+   💰 PRICE DISPLAY HELPER
+================================ */
+
+function buildPriceHtml(product) {
+  if (product.discountPrice && product.discountPrice < product.price) {
+    const pct = Math.round((1 - product.discountPrice / product.price) * 100);
+    return `<span class="price-current">₹${product.discountPrice}</span><span class="price-original">₹${product.price}</span><span class="price-badge">${pct}% OFF</span>`;
+  }
+  return `₹${product.price}`;
+}
+
 function createProductCard(product, onClickFn) {
   const div = document.createElement("div");
   div.className = "card";
   div.innerHTML = `
     <img src="${product.images?.[0] || ''}" alt="${product.name}" loading="lazy">
     <div class="name">${product.name}</div>
-    <div class="price">₹${product.price}</div>
+    <div class="price">${buildPriceHtml(product)}</div>
   `;
   if (onClickFn) div.onclick = () => onClickFn(product);
   return div;
@@ -422,7 +434,7 @@ function handleSearchOverlay(){
 
       <div>
         <div>${p.name}</div>
-        <div style="color:#d4af37;font-size:13px">₹${p.price}</div>
+        <div style="font-size:13px">${buildPriceHtml(p)}</div>
       </div>
 
     </div>
@@ -505,7 +517,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <img src="${p.images?.[0]}">
           <div>
             <div>${p.name}</div>
-            <div style="color:#d4af37">₹${p.price}</div>
+            <div>${buildPriceHtml(p)}</div>
           </div>
 
         </div>
