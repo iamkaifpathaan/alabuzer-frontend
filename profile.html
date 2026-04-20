@@ -244,35 +244,394 @@ body{
 
 .wishlist-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:18px;
 }
 
 .wishlist-card{
-  background:#111;
-  border:1px solid rgba(212,175,55,0.25);
-  border-radius:10px;
-  padding:12px;
-  transition:0.25s;
+  background:linear-gradient(145deg,#0d0d0d,#141414);
+  border:1px solid rgba(212,175,55,0.2);
+  border-radius:14px;
+  padding:0;
+  transition:all 0.3s ease;
+  overflow:hidden;
+  position:relative;
+  cursor:pointer;
 }
 
-.wishlist-card img{
+.wishlist-card:hover{
+  border-color:rgba(212,175,55,0.5);
+  transform:translateY(-4px);
+  box-shadow:0 14px 36px rgba(212,175,55,0.12);
+}
+
+.wishlist-card-img-wrap{
+  position:relative;
+  overflow:hidden;
+}
+
+.wishlist-card-img-wrap img{
   width:100%;
-  height:140px;
+  height:160px;
   object-fit:cover;
-  border-radius:6px;
-  transition:0.3s ease;
+  border-radius:0;
+  display:block;
+  transition:transform 0.35s ease;
 }
 
+.wishlist-card:hover .wishlist-card-img-wrap img{
+  transform:scale(1.06);
+}
+
+.w-remove{
+  position:absolute;
+  top:8px;
+  right:8px;
+  background:rgba(0,0,0,0.75);
+  color:#ff6b6b;
+  border:1px solid rgba(255,107,107,0.5);
+  width:26px;
+  height:26px;
+  font-size:15px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:0.2s;
+  z-index:2;
+  line-height:1;
+  padding:0;
+}
+
+.w-remove:hover{
+  background:rgba(244,67,54,0.85);
+  border-color:#f44336;
+  color:white;
+}
+
+.wishlist-card-body{
+  padding:12px 14px 14px;
+}
+
+.wish-name{
+  font-size:13px;
+  font-weight:600;
+  color:#e8e8e8;
+  margin-bottom:5px;
+  line-height:1.4;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.wish-price{
+  color:var(--lux-gold);
+  font-size:14px;
+  font-weight:700;
+}
+
+.wish-cta{
+  display:block;
+  margin-top:10px;
+  width:100%;
+  padding:8px 0;
+  background:transparent;
+  border:1px solid rgba(212,175,55,0.35);
+  color:#d4af37;
+  border-radius:7px;
+  font-size:12px;
+  font-weight:600;
+  font-family:'Montserrat',sans-serif;
+  cursor:pointer;
+  transition:0.2s;
+  text-align:center;
+}
+
+.wish-cta:hover{
+  background:#d4af37;
+  color:#000;
+}
+
+.wishlist-empty{
+  text-align:center;
+  padding:60px 20px;
+}
+
+.wishlist-empty-icon{
+  font-size:64px;
+  margin-bottom:18px;
+  opacity:0.6;
+}
+
+.wishlist-empty-title{
+  font-size:20px;
+  font-weight:600;
+  color:#e0e0e0;
+  margin-bottom:8px;
+}
+
+.wishlist-empty-sub{
+  font-size:14px;
+  color:#888;
+  margin-bottom:22px;
+}
+
+.wishlist-empty-cta{
+  display:inline-block;
+  padding:12px 28px;
+  background:linear-gradient(135deg,#d4af37,#f0d878);
+  color:#000;
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  font-family:'Montserrat',sans-serif;
+  font-size:14px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.wishlist-empty-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(212,175,55,0.35);
+}
 
 /* ================= ORDERS ================= */
 
 .order-card{
-  background:#0b0b0b;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
+  background:linear-gradient(145deg,#0d0d0d,#141414);
+  border:1px solid rgba(212,175,55,0.18);
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:16px;
+  transition:border-color 0.25s ease;
+}
+
+.order-card:hover{
+  border-color:rgba(212,175,55,0.35);
+}
+
+.order-card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:14px;
+  gap:10px;
+}
+
+.order-id-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.order-id-label{
+  font-size:11px;
+  color:#666;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.order-id-value{
+  font-size:15px;
+  font-weight:700;
+  color:#e8e8e8;
+  letter-spacing:0.5px;
+}
+
+.order-date-val{
+  font-size:12px;
+  color:#777;
+  margin-top:2px;
+}
+
+.order-status-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  flex-shrink:0;
+}
+
+.badge-placed{ background:rgba(230,198,90,0.15); color:#e6c65a; border:1px solid rgba(230,198,90,0.3); }
+.badge-confirmed{ background:rgba(76,175,80,0.15); color:#4caf50; border:1px solid rgba(76,175,80,0.3); }
+.badge-packed{ background:rgba(76,175,80,0.15); color:#4caf50; border:1px solid rgba(76,175,80,0.3); }
+.badge-shipped{ background:rgba(33,150,243,0.15); color:#2196f3; border:1px solid rgba(33,150,243,0.3); }
+.badge-out{ background:rgba(255,152,0,0.15); color:#ff9800; border:1px solid rgba(255,152,0,0.3); }
+.badge-delivered{ background:rgba(0,200,83,0.12); color:#00c853; border:1px solid rgba(0,200,83,0.3); }
+.badge-cancelled{ background:rgba(244,67,54,0.12); color:#f44336; border:1px solid rgba(244,67,54,0.3); }
+
+.order-items-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:14px 0;
+  border-top:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  margin-bottom:14px;
+}
+
+.order-item-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.order-item-row img{
+  width:52px;
+  height:52px;
+  object-fit:cover;
+  border-radius:8px;
   border:1px solid rgba(212,175,55,0.15);
+  flex-shrink:0;
+}
+
+.order-item-info{
+  flex:1;
+}
+
+.order-item-name{
+  font-size:13px;
+  font-weight:600;
+  color:#e0e0e0;
+  margin-bottom:2px;
+}
+
+.order-item-qty{
+  font-size:12px;
+  color:#888;
+}
+
+.order-item-price{
+  font-size:13px;
+  color:var(--lux-gold);
+  font-weight:700;
+}
+
+.order-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.order-total-label{
+  font-size:12px;
+  color:#888;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.order-total-val{
+  font-size:17px;
+  font-weight:700;
+  color:var(--lux-gold);
+}
+
+/* ================= SAVED ADDRESSES (PROFILE TAB) ================= */
+
+.addr-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.addr-list-card{
+  background:#0b0b0b;
+  border:1px solid rgba(212,175,55,0.18);
+  border-radius:12px;
+  padding:18px;
+  transition:border-color 0.2s;
+}
+
+.addr-list-card:hover{
+  border-color:rgba(212,175,55,0.4);
+}
+
+.addr-list-name{
+  font-weight:700;
+  font-size:14px;
+  margin-bottom:4px;
+}
+
+.addr-list-phone{
+  color:#d4af37;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.addr-list-line{
+  font-size:13px;
+  color:#aaa;
+  line-height:1.5;
+}
+
+.addr-list-actions{
+  margin-top:12px;
+  display:flex;
+  gap:8px;
+}
+
+.addr-del-btn{
+  background:transparent;
+  border:1px solid rgba(244,67,54,0.3);
+  color:#f44336;
+  padding:6px 14px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+  font-family:'Montserrat',sans-serif;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.addr-del-btn:hover{
+  background:rgba(244,67,54,0.1);
+  border-color:#f44336;
+}
+
+.addr-empty{
+  text-align:center;
+  padding:40px 20px;
+  color:#666;
+}
+
+.addr-empty-icon{
+  font-size:48px;
+  margin-bottom:14px;
+  opacity:0.5;
+}
+
+.addr-empty-text{
+  font-size:14px;
+  margin-bottom:16px;
+}
+
+.addr-go-checkout{
+  display:inline-block;
+  padding:10px 22px;
+  background:linear-gradient(135deg,#d4af37,#f0d878);
+  color:#000;
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  font-family:'Montserrat',sans-serif;
+  font-size:13px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.addr-go-checkout:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(212,175,55,0.3);
 }
 
 /* ================= MODAL ================= */
@@ -825,8 +1184,14 @@ function renderWishlistTab(){
   if(!container) return;
 
   if(!wishlist.length){
-    container.innerHTML =
-      "<div class='empty-state'>Your wishlist is empty ❤️</div>";
+    container.innerHTML = `
+      <div class="wishlist-empty">
+        <div class="wishlist-empty-icon">🤍</div>
+        <div class="wishlist-empty-title">Your wishlist is empty</div>
+        <div class="wishlist-empty-sub">Browse our premium fragrances and save your favourites here.</div>
+        <button class="wishlist-empty-cta" onclick="navigateWithTransition('index.html')">Explore Fragrances</button>
+      </div>
+    `;
     return;
   }
 
@@ -839,17 +1204,19 @@ function renderWishlistTab(){
     card.className = "wishlist-card";
 
     card.innerHTML = `
-      <button class="w-remove"
-        onclick="removeFromWishlist(event,'${item.slug}')">−</button>
-      <img src="${item.image}">
-      <div style="font-size:13px;margin-top:8px">${item.name}</div>
-      <div style="color:var(--lux-gold);font-size:13px">₹${item.price}</div>
+      <div class="wishlist-card-img-wrap">
+        <button class="w-remove" onclick="removeFromWishlist(event,'${item.slug}')" title="Remove">✕</button>
+        <img src="${item.image}" alt="${item.name}" loading="lazy">
+      </div>
+      <div class="wishlist-card-body">
+        <div class="wish-name">${item.name}</div>
+        <div class="wish-price">₹${item.price}</div>
+        <button class="wish-cta" onclick="event.stopPropagation();navigateWithTransition('product.html?slug=${item.slug}')">View Product</button>
+      </div>
     `;
 
     card.onclick = () => {
-      navigateWithTransition(
-        "product.html?slug=" + item.slug
-      );
+      navigateWithTransition("product.html?slug=" + item.slug);
     };
 
     grid.appendChild(card);
@@ -864,6 +1231,66 @@ function removeFromWishlist(e, slug){
 
   setWishlist(list);
   renderWishlistTab();
+}
+
+/* =========================
+   ADDRESSES TAB
+========================= */
+
+const SAVED_ADDR_KEY = "savedAddresses";
+
+function getSavedAddresses(){
+  try{
+    const raw = localStorage.getItem(SAVED_ADDR_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch{ return []; }
+}
+
+function setSavedAddressesProfile(list){
+  localStorage.setItem(SAVED_ADDR_KEY, JSON.stringify(list));
+}
+
+function renderAddressesTab(){
+  const container = document.getElementById("addressesContainer");
+  if(!container) return;
+
+  const list = getSavedAddresses();
+
+  if(!list.length){
+    container.innerHTML = `
+      <div class="addr-empty">
+        <div class="addr-empty-icon">📍</div>
+        <div class="addr-empty-text">No saved addresses yet.<br>Add an address during checkout to see it here.</div>
+        <button class="addr-go-checkout" onclick="navigateWithTransition('checkout.html')">Go to Checkout</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `<div class="addr-list"></div>`;
+  const listEl = container.querySelector(".addr-list");
+
+  list.forEach(addr => {
+    const card = document.createElement("div");
+    card.className = "addr-list-card";
+    card.innerHTML = `
+      <div class="addr-list-name">${addr.name}</div>
+      <div class="addr-list-phone">📞 ${addr.phone}</div>
+      <div class="addr-list-line">${addr.addressLine}, ${addr.city}, ${addr.state} − ${addr.pincode}</div>
+      <div class="addr-list-actions">
+        <button class="addr-del-btn" onclick="deleteProfileAddress('${addr.id}')">Delete</button>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+}
+
+function deleteProfileAddress(id){
+  let list = getSavedAddresses();
+  list = list.filter(a => a.id !== id);
+  setSavedAddressesProfile(list);
+  renderAddressesTab();
+  showProfileToast("Address removed");
 }
 
 /* =========================
@@ -918,37 +1345,50 @@ const res = await fetch(
         (sum,i)=> sum + (i.price * i.qty), 0
       );
 
+      const statusMap = {
+        placed: "badge-placed",
+        confirmed: "badge-confirmed",
+        packed: "badge-packed",
+        shipped: "badge-shipped",
+        out: "badge-out",
+        delivered: "badge-delivered",
+        cancelled: "badge-cancelled"
+      };
+      const statusClass = statusMap[order.orderStatus] || "badge-placed";
+
       const div = document.createElement("div");
       div.className = "order-card";
 
       div.innerHTML = `
-  <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-    <div style="font-weight:600">
-      Order #${order._id.slice(-6)}
+  <div class="order-card-header">
+    <div class="order-id-wrap">
+      <div class="order-id-label">Order ID</div>
+      <div class="order-id-value">#${order._id.slice(-6).toUpperCase()}</div>
+      <div class="order-date-val">${new Date(order.createdAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</div>
     </div>
-    <div class="status-${order.orderStatus}">
-      ${order.orderStatus.toUpperCase()}
-    </div>
+    <span class="order-status-badge ${statusClass}">
+      ${order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
+    </span>
   </div>
 
-  <div style="font-size:12px;color:#aaa;margin-bottom:10px;">
-    ${new Date(order.createdAt).toLocaleString()}
-  </div>
-
-  ${order.items.map(i => `
-    <div style="display:flex;gap:10px;margin-bottom:8px">
-      <img src="${i.image}" width="50">
-      <div>
-        <div>${i.name}</div>
-        <div style="color:#aaa;font-size:12px">
-          Qty: ${i.qty}
+  <div class="order-items-list">
+    ${order.items.map(i => `
+      <div class="order-item-row">
+        <img src="${i.image}" alt="${i.name}" onerror="this.src='https://dummyimage.com/52'">
+        <div class="order-item-info">
+          <div class="order-item-name">${i.name}</div>
+          <div class="order-item-qty">Qty: ${i.qty}</div>
         </div>
+        <div class="order-item-price">₹${i.price * i.qty}</div>
       </div>
-    </div>
-  `).join("")}
+    `).join("")}
+  </div>
 
-  <div style="margin-top:10px;color:var(--lux-gold)">
-    Total: ₹${total}
+  <div class="order-footer">
+    <div>
+      <div class="order-total-label">Order Total</div>
+      <div class="order-total-val">₹${total}</div>
+    </div>
   </div>
 `;
 
@@ -1191,7 +1631,7 @@ const profileTemplates = {
 
   addresses: () => `
     <div class="section-title">Saved Addresses</div>
-    <div class="empty-state">No address saved 📍</div>
+    <div id="addressesContainer"></div>
   `,
 
   wishlist: () => `
@@ -1218,6 +1658,7 @@ function switchProfileTab(tab){
 
   if(tab === "orders") renderOrdersTab();
   if(tab === "wishlist") renderWishlistTab();
+  if(tab === "addresses") renderAddressesTab();
 }
 
 function initProfileTabs(){
