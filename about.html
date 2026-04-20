@@ -77,19 +77,89 @@ body{
 
 <header class="header">
   <div class="nav-left">
-    <button class="back-home-btn" onclick="goBack()">←</button>
+
+    <!-- DESKTOP MENU -->
+    <div class="nav-menu">
+      <div onclick="goHome()">Home</div>
+
+      <div class="nav-item">
+        Products ▾
+        <div class="nav-dropdown">
+          <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+          <div onclick="filterCategory('Body Mist')">Body Mist</div>
+          <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+          <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
+          <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+          <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+        </div>
+      </div>
+
+      <div onclick="goToOrders()">Track Order</div>
+      <div onclick="navigateWithTransition('contact.html')">Contact</div>
+      <div onclick="navigateWithTransition('about.html')">About</div>
+    </div>
+
+    <!-- MOBILE HAMBURGER -->
+    <div class="hamburger" onclick="toggleMenu()" role="button" aria-label="Open menu" aria-expanded="false" tabindex="0">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
   </div>
 
-<div class="nav-center" onclick="goHome()">
-  <img src="assets/logo/logo.svg" class="brand-logo">
-</div>
+  <div class="nav-center" onclick="goHome()">
+    <img src="assets/logo/logo.svg" class="brand-logo">
+  </div>
 
   <div class="nav-right">
+    <div id="userArea" class="user-area" onclick="goToProfile()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="8" r="4" stroke="#d4af37" stroke-width="2"/>
+        <path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6" stroke="#d4af37" stroke-width="2"/>
+      </svg>
+    </div>
     <div class="cart-icon" onclick="goToCart()">
-      🛒 <span id="cartCount">0</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M3 3h2l2.5 12h11l2-8H6" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="9" cy="20" r="1.5" fill="#d4af37"/>
+        <circle cx="17" cy="20" r="1.5" fill="#d4af37"/>
+      </svg>
+      <span id="cartCount">0</span>
     </div>
   </div>
 </header>
+
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu" aria-hidden="true" role="navigation" aria-label="Mobile navigation">
+  <div class="side-menu-header">
+    <img src="assets/logo/logo.svg" class="side-menu-logo" alt="AL-ABUZER">
+    <div class="menu-close" onclick="toggleMenu()" role="button" aria-label="Close menu" tabindex="0">✕</div>
+  </div>
+  <div class="side-menu-body">
+    <a href="#" onclick="goHome(); return false;">Home</a>
+
+    <div class="menu-item" onclick="toggleProducts()">
+      Products <span class="menu-arrow">▾</span>
+    </div>
+
+    <div id="productSubmenu" class="submenu">
+      <div onclick="filterCategory('Attar Roll On')">Attar Roll On</div>
+      <div onclick="filterCategory('Body Mist')">Body Mist</div>
+      <div onclick="filterCategory('Oudh Collection')">Oudh Collection</div>
+      <div onclick="filterCategory('Bakhoor')">Bakhoor</div>
+      <div onclick="filterCategory('Perfume 75ml')">Perfume 75ml</div>
+      <div onclick="filterCategory('Air Freshener')">Air Freshener</div>
+      <div onclick="filterCategory('Travelling Collection')">Travelling Collection</div>
+      <div onclick="filterCategory('Combo Packs')">Combo Packs</div>
+    </div>
+
+    <a href="#" onclick="goToOrders(); return false;">Track My Order</a>
+    <a href="#" onclick="navigateWithTransition('contact.html'); return false;">Contact Us</a>
+    <a href="#" onclick="navigateWithTransition('about.html'); return false;">About Us</a>
+  </div>
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
 <div class="about-wrapper">
 

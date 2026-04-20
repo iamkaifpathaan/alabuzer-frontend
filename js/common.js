@@ -151,19 +151,63 @@ function updateCartCount(){
 ================================ */
 
 function toggleMenu() {
-  document.getElementById("sideMenu")?.classList.toggle("active");
-  document.getElementById("overlay")?.classList.toggle("active");
+  const menu = document.getElementById("sideMenu");
+  const overlay = document.getElementById("overlay");
+  const hamburger = document.querySelector(".hamburger");
+
+  if (!menu) return;
+
+  const isOpen = menu.classList.toggle("active");
+  overlay?.classList.toggle("active", isOpen);
+
+  // Body scroll lock
+  document.body.style.overflow = isOpen ? "hidden" : "";
+
+  // ARIA
+  if (hamburger) {
+    hamburger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    hamburger.classList.toggle("open", isOpen);
+  }
+  menu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+
+  // focus first item when opened
+  if (isOpen) {
+    setTimeout(() => {
+      const firstLink = menu.querySelector("a, [tabindex]");
+      firstLink?.focus();
+    }, 380);
+  }
+}
+
+function closeMenu() {
+  const menu = document.getElementById("sideMenu");
+  const overlay = document.getElementById("overlay");
+  const hamburger = document.querySelector(".hamburger");
+
+  if (!menu || !menu.classList.contains("active")) return;
+
+  menu.classList.remove("active");
+  overlay?.classList.remove("active");
+  document.body.style.overflow = "";
+
+  if (hamburger) {
+    hamburger.setAttribute("aria-expanded", "false");
+    hamburger.classList.remove("open");
+  }
+  menu.setAttribute("aria-hidden", "true");
 }
 
 function toggleProducts() {
   const menu = document.getElementById("productSubmenu");
-  const arrow = document.getElementById("arrow");
+  const menuItem = document.querySelector(".menu-item[onclick*='toggleProducts']");
 
   if (!menu) return;
 
   const open = menu.style.display === "block";
   menu.style.display = open ? "none" : "block";
-  if (arrow) arrow.innerText = open ? "▾" : "▴";
+
+  // toggle open class on menu-item for arrow rotation
+  menuItem?.classList.toggle("open", !open);
 }
 
 /* ===============================
@@ -171,6 +215,9 @@ function toggleProducts() {
 ================================ */
 
 function navigateWithTransition(url) {
+  // Close side menu if open
+  closeMenu();
+
   const t = document.getElementById("pageTransition");
 
   if (!t) {
@@ -189,13 +236,27 @@ function navigateWithTransition(url) {
 
   setTimeout(() => {
     window.location.href = url;
-  }, 500); // little smoother
+  }, 500);
 }
 
 function goHome(){ navigateWithTransition("index.html"); }
 function goToCart(){ navigateWithTransition("cart.html"); }
 function goToLogin(){ navigateWithTransition("login.html"); }
 function goToProfile(){ navigateWithTransition("profile.html"); }
+
+/* navigate to index with a category filter from any page */
+function filterCategory(category) {
+  const isIndex = window.location.pathname.endsWith("index.html") ||
+                  window.location.pathname === "/" ||
+                  window.location.pathname.endsWith("/");
+
+  if (isIndex && typeof window._filterCategoryLocal === "function") {
+    closeMenu();
+    window._filterCategoryLocal(category);
+  } else {
+    navigateWithTransition("index.html?category=" + encodeURIComponent(category));
+  }
+}
 
 function goBack(){
   window.history.back();
@@ -578,12 +639,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
 window.addEventListener("scroll", () => {
   const header = document.querySelector(".header");
+  if (!header) return;
 
-  if(window.scrollY > 50){
-    header.style.background = "rgba(10,10,10,0.75)";
+  if(window.scrollY > 60){
+    header.classList.add("scrolled");
+    header.style.background = "";
   }else{
-    header.style.background = "rgba(10,10,10,0.55)";
+    header.classList.remove("scrolled");
+    header.style.background = "";
   }
 });
 
 window.openSearch = openSearch;
+
+/* ===============================
+   ⌨️ ESC KEY — close menu / search
+================================ */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeMenu();
+    closeSearch();
+  }
+});
+
+/* ===============================
+   ⌨️ KEYBOARD — hamburger Enter
+================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  const hamburger = document.querySelector(".hamburger");
+  if (hamburger) {
+    hamburger.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleMenu();
+      }
+    });
+  }
+
+  // menu-close keyboard support
+  const menuClose = document.querySelector(".menu-close");
+  if (menuClose) {
+    menuClose.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        closeMenu();
+      }
+    });
+  }
+});
+
+/* ===============================
+   🔦 ACTIVE NAV HIGHLIGHT
+================================ */
+function initNavActive() {
+  const path = window.location.pathname;
+  const page = path.split("/").pop() || "index.html";
+
+  const navItems = document.querySelectorAll(".nav-menu > div");
+  navItems.forEach(item => {
+    item.classList.remove("nav-active");
+  });
+
+  // Map pages to nav item text
+  const pageMap = {
+    "index.html": "Home",
+    "": "Home",
+    "contact.html": "Contact",
+    "about.html": "About",
+    "profile.html": "Track Order",
+  };
+
+  const activeLabel = pageMap[page];
+  if (activeLabel) {
+    navItems.forEach(item => {
+      if (item.textContent.trim().startsWith(activeLabel)) {
+        item.classList.add("nav-active");
+      }
+    });
+  }
+
+  // Track Order active on profile?tab=orders
+  if (page === "profile.html" && window.location.search.includes("tab=orders")) {
+    navItems.forEach(item => {
+      if (item.textContent.includes("Track")) item.classList.add("nav-active");
+    });
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initNavActive);
