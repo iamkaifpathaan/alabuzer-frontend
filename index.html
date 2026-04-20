@@ -515,7 +515,7 @@ async function loadBestSellers(){
         <div onclick="openProduct('${p.slug}')">
           <img loading="lazy" src="${p.images?.[0]}">
           <div class="best-name">${p.name}</div>
-          <div class="best-price">₹${p.price}</div>
+          <div class="best-price">${buildPriceHtml(p)}</div>
         </div>
       `;
 
@@ -577,7 +577,7 @@ function renderProducts(products) {
         <div onclick="openProduct('${p.slug}')">
           <img src="${p.images?.[0]}" />
           <div class="name">${p.name}</div>
-          <div class="price">₹${p.price}</div>
+          <div class="price">${buildPriceHtml(p)}</div>
         </div>
       `;
 
@@ -616,7 +616,7 @@ function renderProducts(products) {
             <div onclick="openProduct('${p.slug}')">
               <img src="${p.images?.[0]}" />
               <div class="name">${p.name}</div>
-              <div class="price">₹${p.price}</div>
+              <div class="price">${buildPriceHtml(p)}</div>
             </div>
           </div>
         `).join("")}
