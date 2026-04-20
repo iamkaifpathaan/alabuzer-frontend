@@ -178,6 +178,163 @@ body{
   margin-top:8px;
 }
 
+/* ===== saved addresses ===== */
+
+.saved-addr-section{
+  margin-bottom:20px;
+}
+
+.saved-addr-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.saved-addr-label{
+  font-size:13px;
+  font-weight:600;
+  color:#d4af37;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
+
+.saved-addr-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.addr-card{
+  background:#0b0b0b;
+  border:1px solid rgba(212,175,55,0.2);
+  border-radius:10px;
+  padding:14px 16px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  position:relative;
+}
+
+.addr-card:hover{
+  border-color:rgba(212,175,55,0.5);
+  background:rgba(212,175,55,0.04);
+}
+
+.addr-card.selected{
+  border-color:#d4af37;
+  background:rgba(212,175,55,0.07);
+  box-shadow:0 0 0 1px rgba(212,175,55,0.25);
+}
+
+.addr-card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+
+.addr-card-name{
+  font-weight:600;
+  font-size:14px;
+  margin-bottom:3px;
+}
+
+.addr-card-phone{
+  font-size:12px;
+  color:#d4af37;
+  font-weight:600;
+  margin-bottom:4px;
+}
+
+.addr-card-line{
+  font-size:12px;
+  color:#aaa;
+  line-height:1.5;
+}
+
+.addr-card-actions{
+  display:flex;
+  gap:6px;
+  flex-shrink:0;
+}
+
+.addr-action-btn{
+  background:transparent;
+  border:1px solid #444;
+  color:#888;
+  font-size:11px;
+  padding:4px 9px;
+  border-radius:5px;
+  cursor:pointer;
+  transition:0.2s;
+  font-family:'Montserrat',sans-serif;
+  font-weight:600;
+}
+
+.addr-action-btn:hover{
+  border-color:#d4af37;
+  color:#d4af37;
+}
+
+.addr-action-btn.del:hover{
+  border-color:#f44336;
+  color:#f44336;
+}
+
+.addr-selected-check{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#d4af37;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  color:#000;
+  font-weight:700;
+  flex-shrink:0;
+  margin-top:2px;
+}
+
+.new-addr-toggle{
+  font-size:13px;
+  color:#d4af37;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+}
+
+.save-addr-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:14px;
+  padding:11px 14px;
+  background:rgba(212,175,55,0.04);
+  border:1px solid rgba(212,175,55,0.15);
+  border-radius:8px;
+}
+
+.save-addr-row label{
+  font-size:13px;
+  color:#ccc;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.save-addr-row input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  accent-color:#d4af37;
+  cursor:pointer;
+  flex-shrink:0;
+}
+
 /* ===== mobile ===== */
 
 @media (max-width: 768px){
@@ -262,13 +419,34 @@ body{
   <div class="checkout-card">
     <div class="section-title">Shipping Address</div>
 
-    <div class="form-grid">
-      <input id="name" placeholder="Full Name">
-      <input id="phone" placeholder="Phone">
-      <input id="addressLine" placeholder="Address">
-      <input id="city" placeholder="City">
-      <input id="state" placeholder="State">
-      <input id="pincode" placeholder="Pincode">
+    <!-- SAVED ADDRESSES -->
+    <div id="savedAddrSection" class="saved-addr-section" style="display:none;">
+      <div class="saved-addr-header">
+        <span class="saved-addr-label">📍 Saved Addresses</span>
+        <span class="new-addr-toggle" onclick="toggleNewAddrForm()">
+          <span id="newAddrToggleIcon">＋</span> New Address
+        </span>
+      </div>
+      <div id="savedAddrList" class="saved-addr-list"></div>
+      <div id="addrDivider" style="border-top:1px solid #222;margin:16px 0 16px;"></div>
+    </div>
+
+    <!-- ADDRESS FORM -->
+    <div id="addrFormWrap">
+      <div class="form-grid">
+        <input id="name" placeholder="Full Name">
+        <input id="phone" placeholder="Phone">
+        <input id="addressLine" class="full" placeholder="Address Line">
+        <input id="city" placeholder="City">
+        <input id="state" placeholder="State">
+        <input id="pincode" placeholder="Pincode">
+      </div>
+      <div class="save-addr-row">
+        <label>
+          <input type="checkbox" id="saveAddrChk">
+          Save this address for future orders
+        </label>
+      </div>
     </div>
   </div>
 
@@ -364,6 +542,142 @@ body{
 let emailVerified = false;
 let emailOtpTimer;
 const EMAIL_OTP_LENGTH = 6;
+let showingNewAddrForm = true; // track new addr form visibility
+
+/* =========================
+   SAVED ADDRESSES ENGINE
+========================= */
+
+const SAVED_ADDR_KEY = "savedAddresses";
+
+function getSavedAddresses(){
+  try{
+    const raw = localStorage.getItem(SAVED_ADDR_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch{ return []; }
+}
+
+function setSavedAddresses(list){
+  localStorage.setItem(SAVED_ADDR_KEY, JSON.stringify(list));
+}
+
+function saveCurrentAddress(){
+  const addr = getAddressForm();
+  if(!validateAddress(addr)){
+    return false;
+  }
+  const list = getSavedAddresses();
+  // prevent exact duplicate
+  const exists = list.find(a =>
+    a.phone === addr.phone &&
+    a.addressLine === addr.addressLine &&
+    a.pincode === addr.pincode
+  );
+  if(!exists){
+    addr.id = Date.now().toString();
+    list.push(addr);
+    setSavedAddresses(list);
+  }
+  return true;
+}
+
+function deleteSavedAddress(id){
+  let list = getSavedAddresses();
+  list = list.filter(a => a.id !== id);
+  setSavedAddresses(list);
+  renderSavedAddresses();
+}
+
+function selectSavedAddress(id){
+  const list = getSavedAddresses();
+  const addr = list.find(a => a.id === id);
+  if(!addr) return;
+
+  // fill form
+  document.getElementById("name").value = addr.name;
+  document.getElementById("phone").value = addr.phone;
+  document.getElementById("addressLine").value = addr.addressLine;
+  document.getElementById("city").value = addr.city;
+  document.getElementById("state").value = addr.state;
+  document.getElementById("pincode").value = addr.pincode;
+
+  // update selection UI
+  document.querySelectorAll(".addr-card").forEach(c => c.classList.remove("selected"));
+  const card = document.querySelector(`.addr-card[data-id="${id}"]`);
+  if(card) card.classList.add("selected");
+
+  // hide form, show selected state
+  showingNewAddrForm = false;
+  document.getElementById("addrFormWrap").style.display = "none";
+  document.getElementById("addrDivider").style.display = "none";
+  document.getElementById("newAddrToggleIcon").textContent = "＋";
+}
+
+function toggleNewAddrForm(){
+  showingNewAddrForm = !showingNewAddrForm;
+  document.getElementById("addrFormWrap").style.display = showingNewAddrForm ? "block" : "none";
+  document.getElementById("addrDivider").style.display = showingNewAddrForm ? "block" : "none";
+  document.getElementById("newAddrToggleIcon").textContent = showingNewAddrForm ? "−" : "＋";
+
+  if(showingNewAddrForm){
+    // clear selection
+    document.querySelectorAll(".addr-card").forEach(c => c.classList.remove("selected"));
+    // clear form
+    ["name","phone","addressLine","city","state","pincode"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+  }
+}
+
+function renderSavedAddresses(){
+  const list = getSavedAddresses();
+  const section = document.getElementById("savedAddrSection");
+  const listEl = document.getElementById("savedAddrList");
+
+  if(!list.length){
+    section.style.display = "none";
+    showingNewAddrForm = true;
+    document.getElementById("addrFormWrap").style.display = "block";
+    document.getElementById("addrDivider").style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+  listEl.innerHTML = "";
+
+  list.forEach(addr => {
+    const card = document.createElement("div");
+    card.className = "addr-card";
+    card.dataset.id = addr.id;
+
+    card.innerHTML = `
+      <div class="addr-card-top">
+        <div style="flex:1;">
+          <div class="addr-card-name">${addr.name}</div>
+          <div class="addr-card-phone">📞 ${addr.phone}</div>
+          <div class="addr-card-line">${addr.addressLine}, ${addr.city}, ${addr.state} - ${addr.pincode}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="addr-card-actions">
+            <button class="addr-action-btn" onclick="event.stopPropagation();selectSavedAddress('${addr.id}')">Use</button>
+            <button class="addr-action-btn del" onclick="event.stopPropagation();deleteSavedAddress('${addr.id}')">✕</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener("click", () => selectSavedAddress(addr.id));
+    listEl.appendChild(card);
+  });
+
+  // show form hidden by default when addresses exist
+  if(list.length > 0 && showingNewAddrForm === true){
+    showingNewAddrForm = false;
+    document.getElementById("addrFormWrap").style.display = "none";
+    document.getElementById("addrDivider").style.display = "none";
+    document.getElementById("newAddrToggleIcon").textContent = "＋";
+  }
+}
 
 /* =========================
    PHONE OTP
@@ -712,6 +1026,12 @@ function confirmDetails(){
     return;
   }
 
+  // save address if requested
+  if(document.getElementById("saveAddrChk")?.checked){
+    saveCurrentAddress();
+    renderSavedAddresses();
+  }
+
   document.getElementById("confirmBtn").style.display = "none";
   document.getElementById("payBtn").style.display = "block";
   document.getElementById("emailOptSection").style.display = "block";
@@ -857,6 +1177,7 @@ const verifyData = await verifyRes.json();
 document.addEventListener("DOMContentLoaded", ()=>{
   updateCartCount();
   loadCheckout();
+  renderSavedAddresses();
 });
 
 document.querySelectorAll(".otp-inputs input").forEach((input, index, arr) => {
