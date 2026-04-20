@@ -469,6 +469,7 @@ const BASE_URL = window.location.hostname === "localhost"
 
 let countdownTimer = null;
 let verifiedEmail = "";
+let otpVerified = false;
 
 /* =============== HELPERS =============== */
 
@@ -567,6 +568,7 @@ function startCountdown(seconds){
 }
 
 async function resendOtp(){
+  otpVerified = false;
   clearInterval(countdownTimer);
   document.getElementById("countdown").textContent = "";
   document.getElementById("fpOtp").value = "";
@@ -617,8 +619,9 @@ async function verifyOtp(){
     });
     const data = await res.json();
 
-    if(data.success || res.ok){
+    if(data.success){
       clearInterval(countdownTimer);
+      otpVerified = true;
       setStep(3);
     }else{
       showMsg("msg2", data.message || "Invalid or expired OTP","err");
@@ -696,6 +699,17 @@ async function doReset(){
   const confirm = document.getElementById("fpConfirmPw").value;
   const email = verifiedEmail;
 
+  if(!otpVerified){
+    showMsg("msg3","Please verify your OTP before resetting your password.","err");
+    return;
+  }
+
+  if(!email){
+    showMsg("msg3","Session expired. Please start again.","err");
+    setStep(1);
+    return;
+  }
+
   if(!password || !confirm){
     showMsg("msg3","Please fill both password fields","err");
     return;
@@ -723,6 +737,8 @@ async function doReset(){
     const data = await res.json();
 
     if(data.success){
+      verifiedEmail = "";
+      otpVerified = false;
       setStep(4);
     }else{
       showMsg("msg3", data.message || "Failed to reset password","err");
