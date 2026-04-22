@@ -1423,6 +1423,11 @@ function removeFromWishlist(e, slug){
   renderWishlistTab();
 }
 
+function getAddressKey(){
+  const user = getUserSafe();
+  return user ? `savedAddresses_${user._id}` : "savedAddresses_guest";
+}
+
 /* =========================
    ADDRESSES TAB
 ========================= */
@@ -1431,13 +1436,17 @@ const SAVED_ADDR_KEY = "savedAddresses";
 
 function getSavedAddresses(){
   try{
-    const raw = localStorage.getItem(SAVED_ADDR_KEY);
+    const key = getAddressKey();
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : [];
-  }catch{ return []; }
+  }catch{
+    return [];
+  }
 }
 
 function setSavedAddressesProfile(list){
-  localStorage.setItem(SAVED_ADDR_KEY, JSON.stringify(list));
+  const key = getAddressKey();
+  localStorage.setItem(key, JSON.stringify(list));
 }
 
 function renderAddressesTab(){
